@@ -3,959 +3,486 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BankWork Pro — Bill Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>BankWork GAS Diagnostic Tool</title>
 <style>
-/* ══════════════════════════════════════════
-   ALL TEXT = BRIGHT WHITE. EASY ON EYES.
-   ══════════════════════════════════════════ */
-:root{
-  --bg:#0d1117;
-  --surface:#161b22;
-  --surface2:#21262d;
-  --surface3:#30363d;
-  --accent:#58a6ff;
-  --green:#3fb950;
-  --purple:#bc8cff;
-  --yellow:#e3b341;
-  --red:#f85149;
-  --border:#30363d;
-  --border2:#484f58;
-  --r:10px;
-  --font:'Sora',sans-serif;
-  /* WHITE TEXT LEVELS */
-  --W1:#ffffff;   /* pure white — main headings, values, labels */
-  --W2:#f0f6fc;   /* near white — body text */
-  --W3:#cdd9e5;   /* soft white — hints, secondary info */
-}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--W1);font-family:var(--font);min-height:100vh;font-size:14px;}
-::-webkit-scrollbar{width:6px;height:6px;}
-::-webkit-scrollbar-track{background:var(--surface);}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-
-/* SIDEBAR */
-.app{display:flex;min-height:100vh;}
-.sb{width:220px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);
-    position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;display:flex;flex-direction:column;}
-.logo-wrap{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
-.logo1{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:1px;}
-.logo2{font-size:11px;color:var(--W3);margin-top:3px;}
-.srow{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:var(--W3);}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--border2);}
-.dot.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
-.dot.busy{background:var(--yellow);animation:blink 1s infinite;}
-.dot.err{background:var(--red);}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-.ns{padding:14px 14px 4px;font-size:10px;color:var(--W3);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 6px;border-radius:8px;
-    cursor:pointer;font-size:13px;color:var(--W2);font-weight:500;transition:all .15s;border:1px solid transparent;}
-.ni:hover{background:var(--surface2);color:var(--W1);border-color:var(--border2);}
-.ni.active{background:rgba(88,166,255,.12);color:var(--accent);border-color:rgba(88,166,255,.3);}
-.nicon{font-size:15px;width:20px;text-align:center;}
-.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;}
-.push-btn-sb{margin:10px 8px 4px;padding:10px;background:var(--green);color:#000;border:none;border-radius:8px;
-  font-size:12px;font-weight:700;cursor:pointer;width:calc(100% - 16px);display:flex;align-items:center;
-  justify-content:center;gap:6px;transition:all .2s;}
-.push-btn-sb:hover{background:#2ea043;transform:translateY(-1px);}
-.pull-btn-sb{margin:0 8px 14px;padding:8px;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:8px;
-  font-size:11px;font-weight:600;cursor:pointer;width:calc(100% - 16px);display:flex;align-items:center;
-  justify-content:center;gap:6px;transition:all .2s;}
-.pull-btn-sb:hover{background:rgba(88,166,255,.1);}
-
-/* MAIN */
-.main{margin-left:220px;flex:1;padding:24px;}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-.ptitle{font-size:22px;font-weight:700;color:var(--W1);}
-.ptitle span{color:var(--accent);}
-.tr{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.dchip{font-size:12px;color:var(--W3);background:var(--surface2);border:1px solid var(--border2);padding:5px 12px;border-radius:20px;font-weight:600;}
-
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;}
-.ctitle{font-size:12px;color:var(--W3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
-  margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.ctitle::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;}
-
-/* STATS */
-.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px;}
-.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;position:relative;overflow:hidden;}
-.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.sc.c::after{background:var(--accent);}
-.sc.p::after{background:var(--purple);}
-.sc.g::after{background:var(--green);}
-.sc.w::after{background:var(--yellow);}
-.sc.d::after{background:var(--red);}
-.slbl{font-size:11px;color:var(--W3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:5px;}
-.sval{font-size:22px;font-weight:700;}
-.sval.c{color:var(--accent);}
-.sval.p{color:var(--purple);}
-.sval.g{color:var(--green);}
-.sval.w{color:var(--yellow);}
-.sval.d{color:var(--red);}
-.ssub{font-size:11px;color:var(--W3);margin-top:3px;font-weight:600;}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:7px;
-     font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:var(--font);}
-.btn-p{background:var(--accent);color:#000;}
-.btn-p:hover{background:#79b8ff;transform:translateY(-1px);}
-.btn-s{background:var(--surface2);color:var(--W1);border:1px solid var(--border2);}
-.btn-s:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent);}
-.btn-d{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.3);}
-.btn-d:hover{background:rgba(248,81,73,.2);}
-.btn-g{background:var(--green);color:#000;}
-.btn-g:hover{background:#2ea043;}
-.sm{padding:6px 12px;font-size:12px;}
-.xs{padding:3px 9px;font-size:11px;}
-.btn-big{padding:14px 28px;font-size:15px;border-radius:9px;}
-
-/* FORMS */
-.fg{display:flex;flex-direction:column;gap:5px;}
-.fl{font-size:11px;color:var(--W1);font-weight:700;letter-spacing:.5px;} /* WHITE LABEL */
-.fc{background:var(--surface2);border:1px solid var(--border2);color:var(--W1);padding:9px 12px;
-    border-radius:7px;font-size:13px;font-family:var(--font);transition:border-color .2s;width:100%;font-weight:500;}
-.fc:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,166,255,.15);}
-.fc::placeholder{color:var(--W3);}
-select.fc option{background:var(--surface2);color:var(--W1);}
-.fhint{font-size:11px;color:var(--green);margin-top:3px;font-weight:600;}
-.ferr{font-size:11px;color:var(--red);margin-top:3px;font-weight:600;}
-.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;align-items:end;}
-.s2{grid-column:span 2;}
-
-/* TABLE */
-.tw{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{background:var(--surface2);color:var(--W1);font-size:11px;text-transform:uppercase;
-  letter-spacing:1px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border2);
-  white-space:nowrap;font-weight:700;}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
-tbody tr:hover{background:var(--surface2);}
-tbody td{padding:9px 12px;color:var(--W1);vertical-align:middle;white-space:nowrap;font-weight:500;}
-.amt{font-weight:700;font-size:13px;}
-.dp{color:var(--red);font-weight:700;}
-.dz{color:var(--green);font-weight:700;}
-
-/* BADGES */
-.b{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
-.b-pend{background:rgba(227,179,65,.15);color:var(--yellow);border:1px solid rgba(227,179,65,.3);}
-.b-part{background:rgba(188,140,255,.15);color:var(--purple);border:1px solid rgba(188,140,255,.3);}
-.b-recd{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3);}
-.b-canc{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.3);}
-.b-hourly{background:rgba(88,166,255,.12);color:var(--accent);border:1px solid rgba(88,166,255,.25);}
-.b-daily{background:rgba(188,140,255,.12);color:var(--purple);border:1px solid rgba(188,140,255,.25);}
-.b-fixed{background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.25);}
-
-/* PAGES */
-.page{display:none;}
-.page.active{display:block;}
-
-/* TABS */
-.tabs{display:flex;gap:3px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px;width:fit-content;}
-.tab{padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--W2);font-weight:600;transition:all .15s;}
-.tab.active{background:var(--accent);color:#000;}
-
-/* FILTERS */
-.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
-.ff{background:var(--surface2);border:1px solid var(--border2);color:var(--W1);padding:7px 10px;
-    border-radius:7px;font-size:12px;font-family:var(--font);font-weight:600;}
-.ff:focus{outline:none;border-color:var(--accent);}
-
-/* MODAL */
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;justify-content:center;align-items:center;}
-.mo.open{display:flex;}
-.mbox{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);width:90%;max-width:660px;max-height:90vh;overflow-y:auto;}
-.mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.mt{font-weight:700;font-size:16px;color:var(--W1);}
-.mb{padding:20px;}
-.mf{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
-.xbtn{background:none;border:none;color:var(--W3);cursor:pointer;font-size:24px;line-height:1;}
-.xbtn:hover{color:var(--W1);}
-
-/* TOAST */
-.tc{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:7px;}
-.toast{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:11px 16px;
-  font-size:13px;color:var(--W1);font-weight:600;display:flex;align-items:center;gap:9px;min-width:240px;
-  animation:tin .25s ease;box-shadow:0 8px 32px rgba(0,0,0,.6);}
-.toast.s{border-left:3px solid var(--green);}
-.toast.e{border-left:3px solid var(--red);}
-.toast.i{border-left:3px solid var(--accent);}
-.toast.w{border-left:3px solid var(--yellow);}
-@keyframes tin{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-
-/* EMPTY */
-.emp{text-align:center;padding:50px 20px;color:var(--W3);}
-.emp .ei{font-size:38px;margin-bottom:10px;}
-.emp p{font-size:14px;font-weight:600;}
-
-/* INFO BOXES */
-.gbox{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);border-radius:8px;
-  padding:12px 15px;font-size:13px;color:#7ee787;font-weight:600;margin-bottom:14px;}
-.wbox{background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.3);border-radius:8px;
-  padding:12px 15px;font-size:13px;color:var(--yellow);font-weight:600;margin-bottom:14px;}
-.rbox{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:8px;
-  padding:12px 15px;font-size:13px;color:var(--red);font-weight:600;margin-bottom:14px;}
-.abox{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);border-radius:8px;
-  padding:14px 16px;font-size:13px;color:var(--W2);font-weight:600;margin-bottom:14px;line-height:1.9;}
-
-/* SAVING OVERLAY */
-.saving{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;
-  justify-content:center;align-items:center;flex-direction:column;gap:16px;}
-.saving.show{display:flex;}
-.spin{width:44px;height:44px;border:4px solid var(--border2);border-top-color:var(--accent);
-  border-radius:50%;animation:rot .8s linear infinite;}
-.spin-lbl{color:var(--W1);font-size:15px;font-weight:700;text-align:center;max-width:320px;line-height:1.6;}
+body{background:#0d1117;color:#ffffff;font-family:'Segoe UI',sans-serif;padding:20px;font-size:14px;}
+h1{color:#58a6ff;font-size:20px;margin-bottom:6px;}
+.sub{color:#cdd9e5;font-size:12px;margin-bottom:20px;}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:14px;}
+.card h2{font-size:13px;color:#cdd9e5;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700;}
+input{background:#21262d;border:1px solid #484f58;color:#fff;padding:9px 12px;border-radius:7px;font-size:13px;width:100%;margin-bottom:10px;font-weight:600;}
+input:focus{outline:none;border-color:#58a6ff;}
+.btns{display:flex;gap:8px;flex-wrap:wrap;}
+button{padding:9px 16px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;}
+.b-blue{background:#58a6ff;color:#000;}
+.b-blue:hover{background:#79b8ff;}
+.b-green{background:#3fb950;color:#000;}
+.b-green:hover{background:#2ea043;}
+.b-red{background:#f85149;color:#fff;}
+.b-red:hover{background:#da3633;}
+.b-gray{background:#21262d;color:#fff;border:1px solid #484f58;}
+.b-gray:hover{background:#30363d;}
+.b-yellow{background:#e3b341;color:#000;}
+.b-yellow:hover{background:#d29922;}
+.log{background:#0d1117;border:1px solid #21262d;border-radius:7px;padding:12px;margin-top:12px;font-family:'Courier New',monospace;font-size:12px;max-height:280px;overflow-y:auto;min-height:60px;}
+.log-line{padding:2px 0;border-bottom:1px solid #161b22;line-height:1.7;}
+.ok{color:#3fb950;}.err{color:#f85149;}.info{color:#58a6ff;}.warn{color:#e3b341;}.dim{color:#8b949e;}
+.result-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #21262d;}
+.result-row:last-child{border-bottom:none;}
+.rlbl{flex:1;font-size:13px;font-weight:600;}
+.rval{font-family:'Courier New',monospace;font-size:12px;color:#cdd9e5;}
+.rtag{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;}
+.rtag.ok{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid rgba(63,185,80,.3);}
+.rtag.err{background:rgba(248,81,73,.15);color:#f85149;border:1px solid rgba(248,81,73,.3);}
+.rtag.warn{background:rgba(227,179,65,.15);color:#e3b341;border:1px solid rgba(227,179,65,.3);}
+.rtag.info{background:rgba(88,166,255,.15);color:#58a6ff;border:1px solid rgba(88,166,255,.25);}
+.sep{height:1px;background:#30363d;margin:14px 0;}
+.big-result{border-radius:8px;padding:14px 16px;margin-top:12px;font-size:13px;font-weight:700;line-height:2;}
+.big-result.ok{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);color:#7ee787;}
+.big-result.err{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);color:#ffa198;}
+.big-result.warn{background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.3);color:#e3b341;}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid #484f58;border-top-color:#58a6ff;border-radius:50%;animation:rot .7s linear infinite;vertical-align:middle;margin-right:5px;}
 @keyframes rot{to{transform:rotate(360deg);}}
-
-/* IMPORT */
-.import-bar{display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;margin:10px 0;}
-.import-bar.show{display:block;}
-.prog-wrap{background:var(--surface);border-radius:4px;height:8px;overflow:hidden;margin-top:8px;}
-.prog-fill{height:100%;border-radius:4px;background:var(--green);transition:width .2s;}
-
-/* 2-COL */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-@media(max-width:1000px){.g2{grid-template-columns:1fr;}}
-@media(max-width:768px){.sb{width:56px;}.logo2,.logo1,.srow,.ns,.ni span:not(.nicon),.push-btn-sb span,.pull-btn-sb span{display:none;}.ni{justify-content:center;padding:11px;}.main{margin-left:56px;padding:12px;}.push-btn-sb,.pull-btn-sb{width:calc(100% - 12px);margin:3px 6px;padding:10px 4px;}.eg{grid-template-columns:1fr 1fr;}.sgrid{grid-template-columns:1fr 1fr;}}
+.cnt{font-family:'Courier New',monospace;font-size:20px;font-weight:700;color:#58a6ff;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<div class="app">
 
-<!-- ════ SIDEBAR ════ -->
-<nav class="sb">
-  <div class="logo-wrap">
-    <div class="logo1">BANKWORK PRO</div>
-    <div class="logo2">Bill Management System</div>
-    <div class="srow"><div class="dot" id="sdot"></div><span id="slbl">Local Mode</span></div>
+<h1>🔬 BankWork Pro — GAS Diagnostic Tool</h1>
+<div class="sub">Paste your Google Apps Script URL and run each test. This tells exactly what is working and what is not.</div>
+
+<!-- URL INPUT -->
+<div class="card">
+  <h2>Step 1 — Enter Your Google Apps Script URL</h2>
+  <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec" oninput="saveUrl()">
+  <div class="btns">
+    <button class="b-blue" onclick="testPing()">🔌 Test Connection (Ping)</button>
+    <button class="b-gray" onclick="clearLog('pingLog')">Clear</button>
   </div>
+  <div class="log" id="pingLog"><div class="log-line dim">→ Enter URL and click Test Connection first</div></div>
+</div>
 
-  <!-- BIG GREEN PUSH BUTTON — always visible -->
-  <button class="push-btn-sb" onclick="pushAll()" id="pushSideBtn">
-    <span>📤</span><span>SAVE TO GOOGLE SHEETS</span>
-  </button>
-  <button class="pull-btn-sb" onclick="pullAll()">
-    <span>📥</span><span>Load from Google Sheets</span>
-  </button>
-
-  <div class="ns">Main</div>
-  <div class="ni active" onclick="nav('dashboard')"><span class="nicon">📊</span><span>Dashboard</span></div>
-  <div class="ni" onclick="nav('entry')"><span class="nicon">✏️</span><span>Data Entry</span></div>
-  <div class="ni" onclick="nav('bills')"><span class="nicon">🧾</span><span>Bill Tracker</span><span class="nbadge" id="pbadge">0</span></div>
-  <div class="ns">Masters</div>
-  <div class="ni" onclick="nav('branches')"><span class="nicon">🏢</span><span>Branch Master</span></div>
-  <div class="ni" onclick="nav('members')"><span class="nicon">👥</span><span>Team Members</span></div>
-  <div class="ns">Reports</div>
-  <div class="ni" onclick="nav('reports')"><span class="nicon">📈</span><span>Reports</span></div>
-  <div class="ni" onclick="nav('reconcile')"><span class="nicon">🔄</span><span>Reconcile</span></div>
-  <div class="ns">Config</div>
-  <div class="ni" onclick="nav('settings')"><span class="nicon">⚙️</span><span>Settings</span></div>
-</nav>
-
-<!-- ════ MAIN ════ -->
-<main class="main">
-
-<!-- DASHBOARD -->
-<div id="page-dashboard" class="page active">
-  <div class="topbar">
-    <div class="ptitle">Dashboard <span>Overview</span></div>
-    <div class="tr"><div class="dchip" id="dchip"></div><button class="btn btn-p sm" onclick="nav('entry')">+ New Entry</button></div>
+<!-- TEST PULL -->
+<div class="card">
+  <h2>Step 2 — Test PULL (Read from Google Sheets)</h2>
+  <div class="btns">
+    <button class="b-blue" onclick="testPull()">📥 Pull All Data</button>
+    <button class="b-gray" onclick="clearLog('pullLog')">Clear</button>
   </div>
-  <div id="gasBanner"></div>
-  <div class="sgrid" id="dStats"></div>
-  <div class="g2">
-    <div class="card"><div class="ctitle">Recent Entries</div><div class="tw" id="dRecent"></div></div>
-    <div class="card"><div class="ctitle">Top Pending Bills</div><div id="dPending"></div></div>
+  <div id="pullResults"></div>
+  <div class="log" id="pullLog"><div class="log-line dim">→ Click Pull All Data to see what is in Google Sheets</div></div>
+</div>
+
+<!-- TEST PUSH — EACH SHEET SEPARATELY -->
+<div class="card">
+  <h2>Step 3 — Test PUSH (Write to Google Sheets)</h2>
+  <div class="btns">
+    <button class="b-green" onclick="testPushBranch()">🏢 Push 1 Test Branch</button>
+    <button class="b-green" onclick="testPushMember()">👤 Push 1 Test Member</button>
+    <button class="b-green" onclick="testPushEntry()">✏️ Push 1 Test Entry</button>
+    <button class="b-green" onclick="testPushBill()">🧾 Push 1 Test Bill</button>
+    <button class="b-gray" onclick="clearLog('pushLog')">Clear</button>
   </div>
+  <div class="log" id="pushLog"><div class="log-line dim">→ Click each push button to test individual sheets</div></div>
 </div>
 
-<!-- DATA ENTRY -->
-<div id="page-entry" class="page">
-  <div class="topbar"><div class="ptitle">Data <span>Entry</span></div><div class="tr"><button class="btn btn-s sm" onclick="clearEFull()">Clear Form</button></div></div>
-  <div class="card" style="margin-bottom:16px;">
-    <div class="ctitle">New Work Entry</div>
-    <div class="eg">
-      <div class="fg"><label class="fl">Date *</label><input type="date" id="e_date" class="fc"></div>
-      <div class="fg"><label class="fl">Branch Code *</label><input type="text" id="e_bcode" class="fc" list="bcl" placeholder="Type code..." oninput="autoCode()"><datalist id="bcl"></datalist></div>
-      <div class="fg s2"><label class="fl">Branch Name *</label><input type="text" id="e_bname" class="fc" list="bnl" placeholder="Auto-filled or type..." oninput="autoName()"><datalist id="bnl"></datalist></div>
-      <div class="fg"><label class="fl">Team Member</label><select id="e_mem" class="fc" onchange="onMem()"><option value="">-- Select --</option></select></div>
-      <div class="fg"><label class="fl">Work Type *</label>
-        <select id="e_wt" class="fc" onchange="onWt()">
-          <option value="">-- Select --</option>
-          <option value="hourly">Hourly</option>
-          <option value="daily">Full Day</option>
-          <option value="fixed">Fixed Amount</option>
-        </select>
-      </div>
-      <div class="fg" id="qg"><label class="fl" id="ql">Hours / Days</label><input type="number" id="e_qty" class="fc" placeholder="e.g. 4" step="0.5" min="0" oninput="calcA()"></div>
-      <div class="fg" id="rg"><label class="fl">Rate (₹)</label><input type="number" id="e_rate" class="fc" placeholder="Auto-filled" oninput="calcA()"></div>
-      <div class="fg"><label class="fl">Amount (₹) *</label><input type="number" id="e_amt" class="fc" placeholder="Auto-calculated"><div class="fhint" id="ahint"></div></div>
-      <div class="fg s2"><label class="fl">Remarks</label><input type="text" id="e_rem" class="fc" placeholder="Optional notes..."></div>
-    </div>
-    <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <button class="btn btn-p btn-big" onclick="addEntry()">+ Add Entry</button>
-      <span style="font-size:12px;color:var(--W3);font-weight:600;">Same day, multiple branches → enter separately ✓</span>
-    </div>
+<!-- PUSH BULK TEST -->
+<div class="card">
+  <h2>Step 4 — Test BULK Push (Simulates 1000 Branches)</h2>
+  <div class="btns">
+    <button class="b-yellow" onclick="testBulkPush()">📦 Push 5 Test Branches (Bulk)</button>
+    <button class="b-red" onclick="testBulkPush1000()">⚡ Push 50 Branches (Stress Test)</button>
+    <button class="b-gray" onclick="clearLog('bulkLog')">Clear</button>
   </div>
-  <div class="card">
-    <div class="ctitle">All Entries <span id="eCnt" style="font-size:11px;margin-left:6px;background:var(--surface3);padding:2px 9px;border-radius:10px;font-weight:700;color:var(--W1);"></span></div>
-    <div class="filters">
-      <input type="date" class="ff" id="ef_d" onchange="renderEntries()">
-      <select class="ff" id="ef_m" onchange="renderEntries()"><option value="">All Members</option></select>
-      <select class="ff" id="ef_w" onchange="renderEntries()"><option value="">All Types</option><option value="hourly">Hourly</option><option value="daily">Full Day</option><option value="fixed">Fixed</option></select>
-      <input type="text" class="ff" id="ef_b" placeholder="Search branch..." oninput="renderEntries()">
-      <button class="btn btn-s sm" onclick="clrEF()">Clear</button>
-      <button class="btn btn-g sm" style="margin-left:auto" onclick="expCSV('entries')">⬇ CSV</button>
-    </div>
-    <div class="tw"><table><thead><tr><th>Sl</th><th>Date</th><th>Branch Code</th><th>Branch Name</th><th>Member</th><th>Type</th><th>Qty</th><th>Rate</th><th>Amount</th><th>Remarks</th><th>Del</th></tr></thead><tbody id="eBody"></tbody></table></div>
+  <div class="log" id="bulkLog"><div class="log-line dim">→ Tests if bulk push to Branch Master works</div></div>
+</div>
+
+<!-- DIAGNOSIS REPORT -->
+<div class="card">
+  <h2>Step 5 — Full Diagnosis Report</h2>
+  <div class="btns">
+    <button class="b-green" onclick="runFullDiag()" style="padding:12px 22px;font-size:14px;">🔬 RUN FULL DIAGNOSIS</button>
+    <button class="b-gray" onclick="clearLog('diagLog')">Clear</button>
   </div>
+  <div class="log" id="diagLog"><div class="log-line dim">→ Runs all tests and gives a complete report</div></div>
 </div>
 
-<!-- BILL TRACKER -->
-<div id="page-bills" class="page">
-  <div class="topbar"><div class="ptitle">Bill <span>Tracker</span></div><div class="tr"><button class="btn btn-p sm" onclick="openBillMo(null)">+ Raise Bill</button></div></div>
-  <div class="sgrid" id="bStats"></div>
-  <div class="card">
-    <div class="ctitle">All Bills</div>
-    <div class="filters">
-      <select class="ff" id="bf_s" onchange="renderBills()"><option value="">All Status</option><option value="Pending">Pending</option><option value="Partial">Partial</option><option value="Received">Received</option><option value="Cancelled">Cancelled</option></select>
-      <input type="text" class="ff" placeholder="Search branch..." id="bf_b" oninput="renderBills()">
-      <input type="date" class="ff" id="bf_f" onchange="renderBills()"><span style="color:var(--W3);font-size:12px;font-weight:600;">to</span><input type="date" class="ff" id="bf_t" onchange="renderBills()">
-      <button class="btn btn-s sm" onclick="clrBF()">Clear</button>
-      <button class="btn btn-g sm" style="margin-left:auto" onclick="expCSV('bills')">⬇ CSV</button>
-    </div>
-    <div class="tw"><table><thead><tr><th>Sl</th><th>Issue Date</th><th>Bill No.</th><th>Bill Date</th><th>Branch</th><th>Bill Amt</th><th>Recd Date</th><th>Recd Amt</th><th>Difference</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bBody"></tbody></table></div>
-  </div>
-</div>
-
-<!-- BRANCH MASTER -->
-<div id="page-branches" class="page">
-  <div class="topbar">
-    <div class="ptitle">Branch <span>Master</span></div>
-    <div class="tr">
-      <label class="btn btn-s sm" style="cursor:pointer;">📁 Import CSV <input type="file" id="csvFile" accept=".csv,.txt" style="display:none" onchange="importCSV(event)"></label>
-      <button class="btn btn-p sm" onclick="openBrMo(null)">+ Add Branch</button>
-    </div>
-  </div>
-  <div class="abox">📋 <strong>CSV Format:</strong> Branch Code, Branch Name, District, Pincode &nbsp;·&nbsp; First row = header (auto-skipped) &nbsp;·&nbsp; 1000+ records imports in 1 second</div>
-  <div id="impBar" class="import-bar"><div style="font-size:13px;color:var(--green);font-weight:700;" id="impMsg">Importing...</div><div class="prog-wrap"><div class="prog-fill" id="impProg" style="width:0%"></div></div></div>
-  <div class="card">
-    <div class="ctitle">All Branches <span id="brCnt" style="font-size:11px;margin-left:6px;background:var(--surface3);padding:2px 9px;border-radius:10px;font-weight:700;color:var(--W1);"></span></div>
-    <div class="filters"><input type="text" class="ff" placeholder="Search code / name / district..." id="brSrch" oninput="renderBranches()"><button class="btn btn-g sm" style="margin-left:auto" onclick="expCSV('branches')">⬇ CSV</button></div>
-    <div class="tw"><table><thead><tr><th>Sl</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Pincode</th><th>Actions</th></tr></thead><tbody id="brBody"></tbody></table></div>
-  </div>
-</div>
-
-<!-- TEAM MEMBERS -->
-<div id="page-members" class="page">
-  <div class="topbar"><div class="ptitle">Team <span>Members</span></div><div class="tr"><button class="btn btn-p sm" onclick="openMemMo(null)">+ Add Member</button></div></div>
-  <div class="card">
-    <div class="ctitle">Member Directory</div>
-    <div class="tw"><table><thead><tr><th>Member ID</th><th>Member Name</th><th>Rate/Hour (₹)</th><th>Rate/Full Day (₹)</th><th>Total Entries</th><th>Total Earnings</th><th>Actions</th></tr></thead><tbody id="memBody"></tbody></table></div>
-  </div>
-</div>
-
-<!-- REPORTS -->
-<div id="page-reports" class="page">
-  <div class="topbar"><div class="ptitle">Reports & <span>Analytics</span></div><div class="tr"><button class="btn btn-g sm" onclick="expReport(1)">⬇ Report 1 CSV</button><button class="btn btn-g sm" onclick="expReport(2)">⬇ Report 2 CSV</button></div></div>
-  <div class="tabs"><div class="tab active" onclick="rTab('branch')">Branch Summary</div><div class="tab" onclick="rTab('detail')">Detailed Ledger</div><div class="tab" onclick="rTab('member')">Member-wise</div></div>
-  <div class="filters">
-    <input type="date" class="ff" id="rf_f" onchange="renderReports()"><span style="color:var(--W3);font-size:12px;font-weight:600;">to</span><input type="date" class="ff" id="rf_t" onchange="renderReports()">
-    <select class="ff" id="rf_br" onchange="renderReports()"><option value="">All Branches</option></select>
-    <select class="ff" id="rf_m" onchange="renderReports()"><option value="">All Members</option></select>
-    <button class="btn btn-s sm" onclick="clrRF()">Clear</button>
-  </div>
-  <div id="rp-branch"><div class="card"><div class="ctitle">Report 1 — Branch Summary</div><div class="tw"><table><thead><tr><th>Sl</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Pincode</th><th>Days Worked</th><th>Total Work Amt</th><th>Total Billed</th><th>Total Received</th><th>Difference</th></tr></thead><tbody id="r1"></tbody></table></div></div></div>
-  <div id="rp-detail" style="display:none;"><div class="card"><div class="ctitle">Report 2 — Detailed Ledger</div><div class="tw"><table><thead><tr><th>Sl</th><th>Date</th><th>Branch Code</th><th>Branch Name</th><th>Member</th><th>Type</th><th>Qty</th><th>Rate</th><th>Work Amt</th><th>Bill Issue</th><th>Bill No.</th><th>Bill Date</th><th>Bill Amt</th><th>Recd Date</th><th>Recd Amt</th><th>Diff</th><th>Status</th></tr></thead><tbody id="r2"></tbody></table></div></div></div>
-  <div id="rp-member" style="display:none;"><div class="card"><div class="ctitle">Member-wise Summary</div><div class="tw"><table><thead><tr><th>Member</th><th>Total Hours</th><th>Total Days</th><th>Fixed Works</th><th>Total Amount</th><th>Branches</th></tr></thead><tbody id="rm"></tbody></table></div></div></div>
-</div>
-
-<!-- RECONCILE -->
-<div id="page-reconcile" class="page">
-  <div class="topbar"><div class="ptitle">Bill <span>Reconciliation</span></div></div>
-  <div class="sgrid" id="rcStats"></div>
-  <div class="card"><div class="ctitle">Pending & Partial — Action Required</div>
-  <div class="tw"><table><thead><tr><th>Bill No.</th><th>Branch</th><th>Bill Amt</th><th>Received</th><th>Pending Amt</th><th>Status</th><th>Days Since Issue</th><th>Quick Update</th></tr></thead><tbody id="rcBody"></tbody></table></div></div>
-</div>
-
-<!-- SETTINGS -->
-<div id="page-settings" class="page">
-  <div class="topbar"><div class="ptitle">App <span>Settings</span></div></div>
-  <div class="g2">
-    <div class="card">
-      <div class="ctitle">Google Sheets Connection</div>
-      <div id="gasStatusBox" class="wbox">Not connected yet</div>
-
-      <div class="fg" style="margin-bottom:12px;">
-        <label class="fl">Google Apps Script URL</label>
-        <input type="text" id="gasUrl" class="fc" placeholder="https://script.google.com/macros/s/.../exec">
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-        <button class="btn btn-p sm" onclick="saveGas()">💾 Save & Connect</button>
-        <button class="btn btn-d sm" onclick="clearGas()">✕ Disconnect</button>
-      </div>
-
-      <!-- BIG PUSH/PULL BUTTONS IN SETTINGS -->
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-g" style="padding:14px;font-size:15px;justify-content:center;" onclick="pushAll()">
-          📤 SAVE ALL DATA → Google Sheets
-        </button>
-        <button class="btn btn-s" style="padding:12px;font-size:14px;justify-content:center;border-color:var(--accent);color:var(--accent);" onclick="pullAll()">
-          📥 LOAD DATA ← Google Sheets
-        </button>
-      </div>
-
-      <div id="gasTestMsg" style="margin-top:12px;font-size:13px;font-weight:700;color:var(--W3);"></div>
-    </div>
-    <div class="card">
-      <div class="ctitle">Backup & Restore</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-g sm" onclick="expJSON()">⬇ Export Full Backup (.json)</button>
-        <label class="btn btn-s sm" style="cursor:pointer;">📁 Import Backup (.json) <input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
-        <button class="btn btn-d sm" onclick="clearAll()">🗑 Delete ALL Data</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ctitle">App Info</div>
-      <div style="font-size:14px;color:var(--W1);font-weight:700;line-height:2.6;">
-        <div>Version: <span style="color:var(--accent)">3.3</span></div>
-        <div>Entries: <span id="cfgE" style="color:var(--accent)">0</span></div>
-        <div>Bills: <span id="cfgB" style="color:var(--accent)">0</span></div>
-        <div>Branches: <span id="cfgBr" style="color:var(--accent)">0</span></div>
-        <div>Members: <span id="cfgM" style="color:var(--accent)">0</span></div>
-        <div>GAS Sync: <span id="cfgGas" style="color:var(--red)">NOT CONNECTED</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</main>
-</div>
-
-<!-- ════ MODALS ════ -->
-<div class="mo" id="moB">
-  <div class="mbox"><div class="mh"><span class="mt" id="bmT">Add Branch</span><button class="xbtn" onclick="closeMo('moB')">×</button></div>
-  <div class="mb"><div class="eg">
-    <div class="fg"><label class="fl">Branch Code *</label><input type="text" id="bm_c" class="fc" placeholder="e.g. BR001"></div>
-    <div class="fg"><label class="fl">Branch Name *</label><input type="text" id="bm_n" class="fc"></div>
-    <div class="fg"><label class="fl">District</label><input type="text" id="bm_d" class="fc"></div>
-    <div class="fg"><label class="fl">Pincode</label><input type="text" id="bm_p" class="fc"></div>
-  </div></div>
-  <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moB')">Cancel</button><button class="btn btn-p sm" onclick="saveBranch()">Save Branch</button></div></div>
-</div>
-
-<div class="mo" id="moM">
-  <div class="mbox"><div class="mh"><span class="mt" id="mmT">Add Member</span><button class="xbtn" onclick="closeMo('moM')">×</button></div>
-  <div class="mb"><div class="eg">
-    <div class="fg"><label class="fl">Member ID *</label><input type="text" id="mm_i" class="fc" placeholder="e.g. M001"></div>
-    <div class="fg"><label class="fl">Member Name *</label><input type="text" id="mm_n" class="fc"></div>
-    <div class="fg"><label class="fl">Rate Per Hour (₹)</label><input type="number" id="mm_h" class="fc" placeholder="0"></div>
-    <div class="fg"><label class="fl">Rate Per Full Day (₹)</label><input type="number" id="mm_d" class="fc" placeholder="0"></div>
-  </div></div>
-  <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moM')">Cancel</button><button class="btn btn-p sm" onclick="saveMember()">Save Member</button></div></div>
-</div>
-
-<div class="mo" id="moBl">
-  <div class="mbox" style="max-width:720px;"><div class="mh"><span class="mt" id="blT">Raise Bill</span><button class="xbtn" onclick="closeMo('moBl')">×</button></div>
-  <div class="mb"><div class="eg">
-    <div class="fg"><label class="fl">Issue Date *</label><input type="date" id="bl_id" class="fc"></div>
-    <div class="fg"><label class="fl">Bill No. *</label><input type="text" id="bl_no" class="fc"></div>
-    <div class="fg"><label class="fl">Bill Date</label><input type="date" id="bl_bd" class="fc"></div>
-    <div class="fg"><label class="fl">Branch Code</label><input type="text" id="bl_bc" class="fc" list="bl_bcl" oninput="fillBillBr()"><datalist id="bl_bcl"></datalist></div>
-    <div class="fg s2"><label class="fl">Branch Name</label><input type="text" id="bl_bn" class="fc"></div>
-    <div class="fg"><label class="fl">Bill Amount (₹) *</label><input type="number" id="bl_a" class="fc" oninput="calcBD()"></div>
-    <div class="fg"><label class="fl">Received Date</label><input type="date" id="bl_rd" class="fc"></div>
-    <div class="fg"><label class="fl">Received Amount (₹)</label><input type="number" id="bl_ra" class="fc" oninput="calcBD()"></div>
-    <div class="fg"><label class="fl">Difference (₹)</label><input type="number" id="bl_df" class="fc" readonly style="color:var(--yellow);font-weight:700;"></div>
-    <div class="fg"><label class="fl">Status *</label>
-      <select id="bl_st" class="fc"><option value="Pending">Pending</option><option value="Partial">Partial</option><option value="Received">Received</option><option value="Cancelled">Cancelled</option></select>
-    </div>
-  </div></div>
-  <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moBl')">Cancel</button><button class="btn btn-p sm" onclick="saveBill()">Save Bill</button></div></div>
-</div>
-
-<div class="saving" id="savingDiv">
-  <div class="spin"></div>
-  <div class="spin-lbl" id="savingLbl">Saving...</div>
-</div>
-<div class="tc" id="tc"></div>
-
-<!-- ════ SCRIPT ════ -->
 <script>
-// ═══════════════════════════════════════════════════════════
-//  BANKWORK PRO v3.3
-//  ✅ ALL TEXT PURE WHITE
-//  ✅ localStorage saves INSTANTLY — always
-//  ✅ Google Sheets PUSH uses no-cors trick — works from file://
-//  ✅ Google Sheets PULL uses JSONP trick — works from file://
-//  ✅ Big green PUSH button always visible in sidebar
-// ═══════════════════════════════════════════════════════════
-
-const LS = 'bwpro33';
-let DB = { entries:[], bills:[], branches:[], members:[], config:{nextBillNo:1} };
+const LS_KEY = 'diag_gas_url';
 let GAS = '';
-let eId = { branch:null, member:null, bill:null };
-let rptTab = 'branch';
-let curPage = 'dashboard';
 
-// ── LOCAL STORAGE ──────────────────────────────────────────
-function save() {
-  try { localStorage.setItem(LS, JSON.stringify(DB)); }
-  catch(e) { toast('Storage full! Export backup.','w'); }
-}
-function load() {
+window.onload = function() {
+  const saved = localStorage.getItem(LS_KEY) || localStorage.getItem('bwpro_gas') || localStorage.getItem('bwpro32') && JSON.parse(localStorage.getItem('bwpro32') || '{}').gas || '';
+  // Try to get from bwpro storage
   try {
-    const s = localStorage.getItem(LS);
-    if (s) {
-      const d = JSON.parse(s);
-      DB.entries  = Array.isArray(d.entries)  ? d.entries  : [];
-      DB.bills    = Array.isArray(d.bills)    ? d.bills    : [];
-      DB.branches = Array.isArray(d.branches) ? d.branches : [];
-      DB.members  = Array.isArray(d.members)  ? d.members  : [];
-      DB.config   = d.config || { nextBillNo:1 };
-    }
-    GAS = localStorage.getItem('bwpro_gas') || '';
+    const bw = localStorage.getItem('bwpro33') ? null : localStorage.getItem('bwpro_gas');
+    if (bw) document.getElementById('gasUrl').value = bw;
+    else if (saved) document.getElementById('gasUrl').value = saved;
   } catch(e) {}
+  GAS = document.getElementById('gasUrl').value;
+};
+
+function saveUrl() {
+  GAS = document.getElementById('gasUrl').value.trim();
+  localStorage.setItem(LS_KEY, GAS);
 }
 
-// ── GOOGLE SHEETS PUSH ────────────────────────────────────
-// Uses fetch with mode:'no-cors' — response is opaque but GAS DOES execute!
-// This is reliable from file:// — data WILL be written to Google Sheets
-async function pushAll() {
-  if (!GAS) {
-    toast('⚠️ Connect Google Sheets first!\nGo to ⚙️ Settings → paste URL → Save & Connect','w');
-    nav('settings'); return;
-  }
-  showSaving('Saving all data to Google Sheets...\nPlease wait 10–30 seconds');
-  setSS('busy','Saving...');
-
-  try {
-    const payload = JSON.stringify({
-      entries:  DB.entries,
-      bills:    DB.bills,
-      branches: DB.branches,
-      members:  DB.members,
-      config:   DB.config
-    });
-
-    // Split into chunks if too large (URL limit ~7000 chars)
-    if (payload.length < 6000) {
-      // Small data — single request
-      const url = GAS + '?action=pushAll&payload=' + encodeURIComponent(payload);
-      await fetch(url, { method:'GET', mode:'no-cors' });
-    } else {
-      // Large data — send in parts
-      const chunks = [
-        { action:'pushEntries',  key:'entries',  data: DB.entries  },
-        { action:'pushBills',    key:'bills',    data: DB.bills    },
-        { action:'pushBranches', key:'branches', data: DB.branches },
-        { action:'pushMembers',  key:'members',  data: DB.members  },
-      ];
-      for (const chunk of chunks) {
-        const url = GAS + '?action=pushAll&payload=' + encodeURIComponent(JSON.stringify({ [chunk.key]: chunk.data, config: DB.config }));
-        await fetch(url, { method:'GET', mode:'no-cors' });
-        await new Promise(r => setTimeout(r, 800)); // small gap between requests
-      }
-    }
-
-    hideSaving();
-    setSS('ok','Saved ✓');
-    toast('✅ Data sent to Google Sheets!\n\nOpen your Google Sheet to verify rows were added.\n(Takes 5-15 seconds to appear)','s');
-
-    // Update dashboard banner
-    document.getElementById('gasBanner').innerHTML = `
-      <div class="gbox" style="margin-bottom:14px;">
-        ✅ Last synced to Google Sheets at ${new Date().toLocaleTimeString('en-IN')}
-      </div>`;
-
-  } catch(e) {
-    hideSaving();
-    setSS('err','Error');
-    toast('Push error: '+e.message,'e');
-  }
+function log(logId, msg, type='dim') {
+  const el = document.getElementById(logId);
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  const time = new Date().toLocaleTimeString('en-IN');
+  line.innerHTML = `<span style="color:#484f58">[${time}]</span> ${msg}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
 }
 
-// ── GOOGLE SHEETS PULL ────────────────────────────────────
-// Uses JSONP callback trick that works from file://
-function pullAll() {
-  if (!GAS) {
-    toast('Connect Google Sheets first in ⚙️ Settings','w');
-    nav('settings'); return;
-  }
-  showSaving('Loading data from Google Sheets...');
-  setSS('busy','Loading...');
+function clearLog(id) {
+  document.getElementById(id).innerHTML = '';
+}
 
-  // JSONP approach — creates a script tag, works from file://
-  const cbName = 'bwpro_cb_' + Date.now();
-  let done = false;
+// ── PING TEST ──────────────────────────────────────────────
+async function testPing() {
+  GAS = document.getElementById('gasUrl').value.trim();
+  if (!GAS) { log('pingLog','❌ No URL entered!','err'); return; }
+  if (!GAS.includes('script.google.com')) { log('pingLog','❌ URL does not look like a Google Apps Script URL','err'); return; }
 
-  window[cbName] = function(json) {
-    done = true;
-    hideSaving();
+  clearLog('pingLog');
+  log('pingLog','🔌 Testing connection...','info');
+
+  // Method 1: JSONP
+  const cbName = 'ping_cb_' + Date.now();
+  let resolved = false;
+
+  window[cbName] = function(data) {
+    resolved = true;
     delete window[cbName];
-    const script = document.getElementById('jsonp_script');
-    if (script) script.remove();
-
-    if (json && Array.isArray(json.entries)) {
-      DB.entries  = json.entries  || [];
-      DB.bills    = json.bills    || [];
-      DB.branches = json.branches || [];
-      DB.members  = json.members  || [];
-      DB.config   = json.config   || { nextBillNo:1 };
-      save();
-      setSS('ok','Loaded ✓');
-      renderCurrentPage();
-      toast(`✅ Loaded from Google Sheets!\n${DB.entries.length} entries, ${DB.branches.length} branches, ${DB.members.length} members`, 's');
+    const s = document.getElementById('pingScript');
+    if(s) s.remove();
+    if (data && (data.ok || data.msg)) {
+      log('pingLog', '✅ CONNECTED! Response: ' + JSON.stringify(data), 'ok');
+      log('pingLog', '✅ Google Apps Script is deployed and responding correctly', 'ok');
     } else {
-      setSS('err','Load Error');
-      toast('Received invalid data. Check Code.gs is deployed correctly.','e');
+      log('pingLog', '⚠️ Got response but unexpected format: ' + JSON.stringify(data), 'warn');
     }
   };
 
-  // Timeout fallback
   setTimeout(() => {
-    if (!done) {
-      hideSaving();
-      setSS('err','Timeout');
+    if (!resolved) {
       delete window[cbName];
-      toast('⚠️ Pull timed out.\n\nIf your data is in Google Sheets, try:\n1. Check the GAS URL is correct\n2. Make sure "Who has access = Anyone"\n3. Try Export/Import backup instead','w');
+      const s = document.getElementById('pingScript');
+      if(s) s.remove();
+      log('pingLog', '⚠️ JSONP timed out — trying no-cors fetch...', 'warn');
+      // Try no-cors
+      fetch(GAS + '?action=ping', { method:'GET', mode:'no-cors' })
+        .then(() => log('pingLog', '✅ no-cors fetch succeeded (data sent but response unreadable from file://)', 'ok'))
+        .catch(e => log('pingLog', '❌ no-cors also failed: ' + e.message, 'err'));
     }
-  }, 20000);
+  }, 8000);
 
   const script = document.createElement('script');
-  script.id = 'jsonp_script';
+  script.id = 'pingScript';
+  script.onerror = () => {
+    resolved = true;
+    log('pingLog', '❌ Script load error — check URL is correct', 'err');
+  };
+  script.src = GAS + '?action=ping&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
+// ── PULL TEST ─────────────────────────────────────────────
+function testPull() {
+  GAS = document.getElementById('gasUrl').value.trim();
+  if (!GAS) { log('pullLog','❌ No URL!','err'); return; }
+  clearLog('pullLog');
+  document.getElementById('pullResults').innerHTML = '';
+  log('pullLog', '📥 Pulling all data from Google Sheets...', 'info');
+
+  const cbName = 'pull_cb_' + Date.now();
+  let done = false;
+
+  window[cbName] = function(data) {
+    done = true;
+    delete window[cbName];
+    const s = document.getElementById('pullScript');
+    if(s) s.remove();
+
+    if (!data) { log('pullLog','❌ Received null/empty response','err'); return; }
+    if (data.error) { log('pullLog','❌ GAS Error: ' + data.error,'err'); return; }
+
+    log('pullLog','✅ Successfully pulled data from Google Sheets!','ok');
+
+    const entries  = Array.isArray(data.entries)  ? data.entries  : [];
+    const bills    = Array.isArray(data.bills)    ? data.bills    : [];
+    const branches = Array.isArray(data.branches) ? data.branches : [];
+    const members  = Array.isArray(data.members)  ? data.members  : [];
+
+    log('pullLog', `📊 Entries (data_master): ${entries.length} rows`, entries.length > 0 ? 'ok' : 'warn');
+    log('pullLog', `🧾 Bills: ${bills.length} rows`, bills.length > 0 ? 'ok' : 'warn');
+    log('pullLog', `🏢 Branch Master: ${branches.length} rows`, branches.length > 0 ? 'ok' : 'warn');
+    log('pullLog', `👤 Members: ${members.length} rows`, members.length > 0 ? 'ok' : 'warn');
+
+    if (branches.length === 0) {
+      log('pullLog', '⚠️ Branch Master is EMPTY in Google Sheets — that is the problem!', 'err');
+      log('pullLog', '→ Your local branches are NOT being pushed to Google Sheets', 'err');
+    }
+
+    // Show first branch if any
+    if (branches.length > 0) {
+      log('pullLog', '→ First branch: ' + JSON.stringify(branches[0]), 'info');
+    }
+
+    // Render results
+    document.getElementById('pullResults').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0;">
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:7px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Entries</div>
+          <div class="cnt">${entries.length}</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:7px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Bills</div>
+          <div class="cnt">${bills.length}</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid ${branches.length>0?'#3fb950':'#f85149'};border-radius:7px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Branches</div>
+          <div class="cnt" style="color:${branches.length>0?'#3fb950':'#f85149'}">${branches.length}</div>
+        </div>
+        <div style="background:#0d1117;border:1px solid #30363d;border-radius:7px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Members</div>
+          <div class="cnt">${members.length}</div>
+        </div>
+      </div>`;
+  };
+
+  setTimeout(() => {
+    if (!done) {
+      delete window[cbName];
+      const s = document.getElementById('pullScript');
+      if(s) s.remove();
+      log('pullLog','❌ Pull timed out after 15s — JSONP not working','err');
+      log('pullLog','→ Check: Is Code.gs updated with JSONP support?','warn');
+      log('pullLog','→ Check: Is deployment set to "Anyone" access?','warn');
+    }
+  }, 15000);
+
+  const script = document.createElement('script');
+  script.id = 'pullScript';
+  script.onerror = () => log('pullLog','❌ Script load error','err');
   script.src = GAS + '?action=getAll&callback=' + cbName;
   document.head.appendChild(script);
 }
 
-// ── UTILITIES ──────────────────────────────────────────────
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-const fmt = n => Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2});
-const fd  = d => { if(!d) return '—'; const p=String(d).split('T')[0].split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d; };
-const td  = () => new Date().toISOString().split('T')[0];
-const SB  = {Pending:'b-pend',Partial:'b-part',Received:'b-recd',Cancelled:'b-canc'};
+// ── PUSH SINGLE TESTS ─────────────────────────────────────
+async function pushData(logId, label, payload) {
+  GAS = document.getElementById('gasUrl').value.trim();
+  if (!GAS) { log(logId,'❌ No URL!','err'); return false; }
 
-function toast(msg, t='i') {
-  const ic={s:'✅',e:'❌',i:'ℹ️',w:'⚠️'};
-  const el=document.createElement('div'); el.className=`toast ${t}`;
-  el.innerHTML=`<span style="font-size:16px">${ic[t]}</span><span style="white-space:pre-line">${msg}</span>`;
-  document.getElementById('tc').appendChild(el);
-  setTimeout(()=>el.remove(),5000);
-}
-function closeMo(id){ document.getElementById(id).classList.remove('open'); }
-function updBadge(){ document.getElementById('pbadge').textContent=DB.bills.filter(b=>b.status==='Pending'||b.status==='Partial').length; }
-function setSS(s,l){ document.getElementById('sdot').className='dot '+s; document.getElementById('slbl').textContent=l; }
-function showSaving(msg){ document.getElementById('savingLbl').textContent=msg; document.getElementById('savingDiv').classList.add('show'); }
-function hideSaving(){ document.getElementById('savingDiv').classList.remove('show'); }
+  log(logId, `📤 Pushing ${label}...`, 'info');
+  const url = GAS + '?action=pushAll&payload=' + encodeURIComponent(JSON.stringify(payload));
 
-// ── NAV ────────────────────────────────────────────────────
-function nav(p) {
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  document.querySelectorAll('.ni').forEach(x=>{ if(x.getAttribute('onclick')?.includes(`'${p}'`)) x.classList.add('active'); });
-  curPage=p; renderCurrentPage();
-}
-function renderCurrentPage() {
-  if(curPage==='dashboard') renderDash();
-  if(curPage==='entry')    { popDrops(); renderEntries(); }
-  if(curPage==='bills')    { renderBStats(); renderBills(); }
-  if(curPage==='branches') renderBranches();
-  if(curPage==='members')  renderMembers();
-  if(curPage==='reports')  renderReports();
-  if(curPage==='reconcile') renderReconcile();
-  if(curPage==='settings') renderSettings();
-  updBadge();
+  try {
+    await fetch(url, { method:'GET', mode:'no-cors' });
+    log(logId, `✅ ${label} push request sent! (no-cors — GAS will execute)`, 'ok');
+    log(logId, `→ Wait 5 seconds then click Pull to verify it was saved`, 'warn');
+    return true;
+  } catch(e) {
+    log(logId, `❌ Push failed: ${e.message}`, 'err');
+    return false;
+  }
 }
 
-// ── DASHBOARD ──────────────────────────────────────────────
-function renderDash() {
-  document.getElementById('dchip').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-  const tw=DB.entries.reduce((s,e)=>s+Number(e.amount||0),0);
-  const tb=DB.bills.reduce((s,b)=>s+Number(b.amount||0),0);
-  const tr=DB.bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);
-  const pend=DB.bills.filter(b=>b.status==='Pending'||b.status==='Partial');
-  const pa=pend.reduce((s,b)=>s+(Number(b.amount||0)-Number(b.recdAmt||0)),0);
-  document.getElementById('dStats').innerHTML=`
-    <div class="sc c"><div class="slbl">Total Work Amount</div><div class="sval c">₹${fmt(tw)}</div><div class="ssub">${DB.entries.length} entries</div></div>
-    <div class="sc p"><div class="slbl">Total Billed</div><div class="sval p">₹${fmt(tb)}</div><div class="ssub">${DB.bills.length} bills</div></div>
-    <div class="sc g"><div class="slbl">Total Received</div><div class="sval g">₹${fmt(tr)}</div><div class="ssub">Collected</div></div>
-    <div class="sc d"><div class="slbl">Pending Amount</div><div class="sval d">₹${fmt(pa)}</div><div class="ssub">${pend.length} pending</div></div>
-    <div class="sc w"><div class="slbl">Branches / Members</div><div class="sval w">${DB.branches.length}</div><div class="ssub">${DB.members.length} team members</div></div>`;
-  const rec=[...DB.entries].reverse().slice(0,8);
-  document.getElementById('dRecent').innerHTML='<table><thead><tr><th>Date</th><th>Branch</th><th>Member</th><th>Type</th><th>Amount</th></tr></thead><tbody>'
-    +(rec.length?rec.map(e=>`<tr><td>${fd(e.date)}</td><td>${e.bname}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td class="amt">₹${fmt(e.amount)}</td></tr>`).join('')
-    :'<tr><td colspan="5"><div class="emp"><div class="ei">📝</div><p>No entries yet</p></div></td></tr>')+'</tbody></table>';
-  document.getElementById('dPending').innerHTML=pend.length?pend.slice(0,5).map(b=>{
-    const d=Number(b.amount||0)-Number(b.recdAmt||0);
-    return `<div style="padding:11px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-size:14px;font-weight:700;color:var(--W1)">${b.bname||'—'}</div>
-      <div style="font-size:12px;color:var(--W3);font-weight:600;margin-top:2px">${b.billNo||'—'} · ${fd(b.issueDate)}</div></div>
-      <div style="text-align:right"><div class="dp" style="font-size:15px">₹${fmt(d)}</div><span class="b ${SB[b.status]||'b-pend'}">${b.status}</span></div>
-    </div>`;
-  }).join(''):'<div class="emp"><div class="ei">🎉</div><p>All bills cleared!</p></div>';
+function testPushBranch() {
+  clearLog('pushLog');
+  const testBranch = [{ id:'TEST001', code:'TEST_BR', name:'TEST BRANCH DIAG', district:'Test District', pincode:'999999' }];
+  pushData('pushLog', '1 Test Branch → Branch Master', { branches: testBranch });
+}
+function testPushMember() {
+  const testMember = [{ id:'TEST_M1', name:'TEST MEMBER DIAG', rph:100, rpd:800 }];
+  pushData('pushLog', '1 Test Member → Members', { members: testMember });
+}
+function testPushEntry() {
+  const testEntry = [{ id:'TEST_E1', date:'2026-03-01', bcode:'TEST_BR', bname:'TEST BRANCH', memberId:'TEST_M1', member:'TEST MEMBER', worktype:'fixed', qty:'', rate:'', amount:500, remarks:'DIAGNOSTIC TEST' }];
+  pushData('pushLog', '1 Test Entry → data_master', { entries: testEntry });
+}
+function testPushBill() {
+  const testBill = [{ id:'TEST_B1', issueDate:'2026-03-01', billNo:'TEST/001', billDate:'2026-03-01', bcode:'TEST_BR', bname:'TEST BRANCH', amount:500, recdDate:'', recdAmt:0, diff:500, status:'Pending' }];
+  pushData('pushLog', '1 Test Bill → Bills', { bills: testBill });
 }
 
-// ── DATA ENTRY ─────────────────────────────────────────────
-function popDrops(){
-  document.getElementById('bcl').innerHTML=DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
-  document.getElementById('bnl').innerHTML=DB.branches.map(b=>`<option value="${b.name}">`).join('');
-  const ms=document.getElementById('e_mem'); const cv=ms.value;
-  ms.innerHTML='<option value="">-- Select --</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  if(cv) ms.value=cv;
-  document.getElementById('ef_m').innerHTML='<option value="">All Members</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  if(!document.getElementById('e_date').value) document.getElementById('e_date').value=td();
+// ── BULK PUSH TEST ────────────────────────────────────────
+async function testBulkPush() {
+  clearLog('bulkLog');
+  const branches = [];
+  for (let i = 1; i <= 5; i++) {
+    branches.push({ id:'BULK'+i, code:'BULK_BR_'+i, name:'Bulk Test Branch '+i, district:'Test District', pincode:'600'+String(i).padStart(3,'0') });
+  }
+  log('bulkLog', `📦 Pushing ${branches.length} branches to Branch Master...`, 'info');
+  log('bulkLog', `Payload size: ${JSON.stringify({branches}).length} bytes`, 'dim');
+  await pushData('bulkLog', `${branches.length} Branches (Bulk)`, { branches });
 }
-function autoCode(){ const v=document.getElementById('e_bcode').value.trim(); const b=DB.branches.find(x=>x.code.toLowerCase()===v.toLowerCase()); if(b) document.getElementById('e_bname').value=b.name; }
-function autoName(){ const v=document.getElementById('e_bname').value.trim(); const b=DB.branches.find(x=>x.name.toLowerCase()===v.toLowerCase()); if(b) document.getElementById('e_bcode').value=b.code; }
-function onMem(){ const mid=document.getElementById('e_mem').value,wt=document.getElementById('e_wt').value; if(!mid) return; const m=DB.members.find(x=>x.id===mid); if(!m) return; if(wt==='hourly'&&m.rph){document.getElementById('e_rate').value=m.rph;calcA();} if(wt==='daily'&&m.rpd){document.getElementById('e_rate').value=m.rpd;calcA();} }
-function onWt(){ const wt=document.getElementById('e_wt').value; const qg=document.getElementById('qg'),rg=document.getElementById('rg'); if(wt==='fixed'){qg.style.display='none';rg.style.display='none';document.getElementById('ahint').textContent='Enter fixed amount manually';}else{qg.style.display='';rg.style.display='';document.getElementById('ql').textContent=wt==='hourly'?'No. of Hours':'No. of Days';document.getElementById('ahint').textContent='';onMem();} }
-function calcA(){ const wt=document.getElementById('e_wt').value; if(wt==='fixed') return; const q=parseFloat(document.getElementById('e_qty').value)||0,r=parseFloat(document.getElementById('e_rate').value)||0; if(q&&r){document.getElementById('e_amt').value=(q*r).toFixed(2);document.getElementById('ahint').textContent=`${q} × ₹${r} = ₹${fmt(q*r)}`;} }
-function addEntry(){
-  const date=document.getElementById('e_date').value,bcode=document.getElementById('e_bcode').value.trim(),bname=document.getElementById('e_bname').value.trim(),mid=document.getElementById('e_mem').value,wt=document.getElementById('e_wt').value,qty=document.getElementById('e_qty').value,rate=document.getElementById('e_rate').value,amt=document.getElementById('e_amt').value,rem=document.getElementById('e_rem').value;
-  if(!date||!bcode||!bname||!wt||!amt){toast('Required: Date, Branch Code, Branch Name, Work Type, Amount','e');return;}
-  const m=DB.members.find(x=>x.id===mid);
-  DB.entries.push({id:uid(),date,bcode,bname,memberId:mid,member:m?m.name:mid,worktype:wt,qty:qty||'',rate:rate||'',amount:Number(amt),remarks:rem});
-  save();
-  toast(`✅ Entry saved!\n₹${fmt(Number(amt))} — ${bname}`,'s');
-  document.getElementById('e_mem').value='';document.getElementById('e_wt').value='';
-  document.getElementById('e_qty').value='';document.getElementById('e_rate').value='';
-  document.getElementById('e_amt').value='';document.getElementById('e_rem').value='';
-  document.getElementById('ahint').textContent='';
-  renderEntries(); updBadge();
-}
-function clearEFull(){ ['e_date','e_bcode','e_bname','e_mem','e_wt','e_qty','e_rate','e_amt','e_rem'].forEach(id=>document.getElementById(id).value=''); document.getElementById('e_date').value=td(); document.getElementById('ahint').textContent=''; }
-function clrEF(){ ['ef_d','ef_m','ef_w','ef_b'].forEach(id=>document.getElementById(id).value=''); renderEntries(); }
-function renderEntries(){
-  let data=[...DB.entries].reverse();
-  const fd_=document.getElementById('ef_d').value,fm=document.getElementById('ef_m').value,fw=document.getElementById('ef_w').value,fb=(document.getElementById('ef_b').value||'').toLowerCase();
-  if(fd_) data=data.filter(e=>e.date===fd_); if(fm) data=data.filter(e=>e.memberId===fm); if(fw) data=data.filter(e=>e.worktype===fw); if(fb) data=data.filter(e=>(e.bname||'').toLowerCase().includes(fb)||(e.bcode||'').toLowerCase().includes(fb));
-  document.getElementById('eCnt').textContent=data.length+' entries';
-  document.getElementById('eBody').innerHTML=data.length?data.map((e,i)=>`<tr><td>${i+1}</td><td>${fd(e.date)}</td><td style="color:var(--accent);font-weight:700">${e.bcode}</td><td>${e.bname}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td>${e.qty||'—'}</td><td>${e.rate?'₹'+fmt(e.rate):'—'}</td><td class="amt">₹${fmt(e.amount)}</td><td style="color:var(--W3)">${e.remarks||'—'}</td><td><button class="btn btn-d xs" onclick="delEntry('${e.id}')">Del</button></td></tr>`).join(''):'<tr><td colspan="11"><div class="emp"><div class="ei">📝</div><p>No entries yet</p></div></td></tr>';
-}
-function delEntry(id){ if(!confirm('Delete entry?')) return; DB.entries=DB.entries.filter(e=>e.id!==id); save(); renderEntries(); toast('Deleted','i'); }
 
-// ── BILLS ──────────────────────────────────────────────────
-function openBillMo(bill){
-  document.getElementById('bl_bcl').innerHTML=DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
-  eId.bill=bill?bill.id:null;
-  document.getElementById('blT').textContent=bill?'Edit Bill':'Raise Bill';
-  if(bill){ document.getElementById('bl_id').value=bill.issueDate||'';document.getElementById('bl_no').value=bill.billNo||'';document.getElementById('bl_bd').value=bill.billDate||'';document.getElementById('bl_bc').value=bill.bcode||'';document.getElementById('bl_bn').value=bill.bname||'';document.getElementById('bl_a').value=bill.amount||'';document.getElementById('bl_rd').value=bill.recdDate||'';document.getElementById('bl_ra').value=bill.recdAmt||'';document.getElementById('bl_df').value=bill.diff||'';document.getElementById('bl_st').value=bill.status||'Pending'; }
-  else { ['bl_id','bl_bc','bl_bn','bl_a','bl_rd','bl_ra','bl_df'].forEach(id=>document.getElementById(id).value=''); document.getElementById('bl_id').value=td();document.getElementById('bl_bd').value=td();document.getElementById('bl_no').value='BL/'+new Date().getFullYear()+'/'+String(DB.config.nextBillNo||1).padStart(3,'0');document.getElementById('bl_st').value='Pending'; }
-  document.getElementById('moBl').classList.add('open');
+async function testBulkPush1000() {
+  clearLog('bulkLog');
+  const branches = [];
+  for (let i = 1; i <= 50; i++) {
+    branches.push({ id:'STRESS'+i, code:'ST_BR_'+String(i).padStart(3,'0'), name:'Stress Test Branch '+i, district:'Test District '+(i%5+1), pincode:'6'+String(i).padStart(5,'0') });
+  }
+  const payload = JSON.stringify({ branches });
+  log('bulkLog', `⚡ Pushing 50 branches...`, 'info');
+  log('bulkLog', `Payload size: ${payload.length} bytes`, 'dim');
+  if (payload.length > 7000) {
+    log('bulkLog', `⚠️ Payload size ${payload.length} bytes — may need chunking!`, 'warn');
+  } else {
+    log('bulkLog', `✅ Payload size OK (${payload.length} < 7000 bytes)`, 'ok');
+  }
+  await pushData('bulkLog', '50 Branches (Stress)', { branches });
 }
-function fillBillBr(){ const v=document.getElementById('bl_bc').value.trim(); const b=DB.branches.find(x=>x.code.toLowerCase()===v.toLowerCase()); if(b) document.getElementById('bl_bn').value=b.name; }
-function calcBD(){ const a=parseFloat(document.getElementById('bl_a').value)||0,r=parseFloat(document.getElementById('bl_ra').value)||0; document.getElementById('bl_df').value=(a-r).toFixed(2); if(r>0&&r>=a) document.getElementById('bl_st').value='Received'; else if(r>0&&r<a) document.getElementById('bl_st').value='Partial'; }
-function saveBill(){
-  const iDate=document.getElementById('bl_id').value,bNo=document.getElementById('bl_no').value.trim(),amt=document.getElementById('bl_a').value;
-  if(!iDate||!bNo||!amt){toast('Issue Date, Bill No. and Amount required','e');return;}
-  const data={id:eId.bill||uid(),issueDate:iDate,billNo:bNo,billDate:document.getElementById('bl_bd').value,bcode:document.getElementById('bl_bc').value,bname:document.getElementById('bl_bn').value,amount:Number(amt),recdDate:document.getElementById('bl_rd').value,recdAmt:Number(document.getElementById('bl_ra').value)||0,diff:Number(document.getElementById('bl_df').value)||0,status:document.getElementById('bl_st').value};
-  if(eId.bill){const i=DB.bills.findIndex(x=>x.id===eId.bill); if(i>=0) DB.bills[i]=data;}
-  else{DB.bills.push(data); DB.config.nextBillNo=(parseInt(DB.config.nextBillNo)||1)+1;}
-  save(); closeMo('moBl'); renderBStats(); renderBills(); updBadge(); toast('Bill saved!','s');
-}
-function renderBStats(){
-  const t=DB.bills.length,pn=DB.bills.filter(b=>b.status==='Pending').length,pa=DB.bills.filter(b=>b.status==='Partial').length,rc=DB.bills.filter(b=>b.status==='Received').length;
-  const ta=DB.bills.reduce((s,b)=>s+Number(b.amount||0),0),tr=DB.bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);
-  document.getElementById('bStats').innerHTML=`<div class="sc c"><div class="slbl">Total Bills</div><div class="sval c">${t}</div></div><div class="sc w"><div class="slbl">Pending</div><div class="sval w">${pn}</div></div><div class="sc p"><div class="slbl">Partial</div><div class="sval p">${pa}</div></div><div class="sc g"><div class="slbl">Received</div><div class="sval g">${rc}</div></div><div class="sc d"><div class="slbl">Pending Amount</div><div class="sval d">₹${fmt(ta-tr)}</div></div>`;
-}
-function clrBF(){ ['bf_s','bf_b','bf_f','bf_t'].forEach(id=>document.getElementById(id).value=''); renderBills(); }
-function renderBills(){
-  let data=[...DB.bills].reverse();
-  const sf=document.getElementById('bf_s').value,bf=(document.getElementById('bf_b').value||'').toLowerCase(),df=document.getElementById('bf_f').value,dt=document.getElementById('bf_t').value;
-  if(sf) data=data.filter(b=>b.status===sf); if(bf) data=data.filter(b=>(b.bname||'').toLowerCase().includes(bf)||(b.bcode||'').toLowerCase().includes(bf)); if(df) data=data.filter(b=>b.issueDate>=df); if(dt) data=data.filter(b=>b.issueDate<=dt);
-  document.getElementById('bBody').innerHTML=data.length?data.map((b,i)=>{const diff=Number(b.amount||0)-Number(b.recdAmt||0);return `<tr><td>${i+1}</td><td>${fd(b.issueDate)}</td><td style="color:var(--accent);font-weight:700">${b.billNo||'—'}</td><td>${fd(b.billDate)}</td><td>${b.bname||'—'}</td><td class="amt">₹${fmt(b.amount)}</td><td>${fd(b.recdDate)}</td><td class="amt" style="color:var(--green)">₹${fmt(b.recdAmt)}</td><td class="${diff>0?'dp':'dz'}">₹${fmt(diff)}</td><td><span class="b ${SB[b.status]||'b-pend'}">${b.status}</span></td><td style="display:flex;gap:5px"><button class="btn btn-s xs" onclick='openBillMo(${JSON.stringify(b)})'>Edit</button><button class="btn btn-d xs" onclick="delBill('${b.id}')">Del</button></td></tr>`;}).join(''):'<tr><td colspan="11"><div class="emp"><div class="ei">🧾</div><p>No bills yet</p></div></td></tr>';
-}
-function delBill(id){ if(!confirm('Delete bill?')) return; DB.bills=DB.bills.filter(b=>b.id!==id); save(); renderBills(); renderBStats(); updBadge(); toast('Deleted','i'); }
 
-// ── BRANCHES ───────────────────────────────────────────────
-function openBrMo(branch){
-  eId.branch=branch?branch.id:null;
-  document.getElementById('bmT').textContent=branch?'Edit Branch':'Add Branch';
-  document.getElementById('bm_c').value=branch?branch.code:''; document.getElementById('bm_c').readOnly=!!branch;
-  document.getElementById('bm_n').value=branch?branch.name:'';
-  document.getElementById('bm_d').value=branch?branch.district:'';
-  document.getElementById('bm_p').value=branch?branch.pincode:'';
-  document.getElementById('moB').classList.add('open');
-}
-function saveBranch(){
-  const code=document.getElementById('bm_c').value.trim(),name=document.getElementById('bm_n').value.trim();
-  if(!code||!name){toast('Code and Name required','e');return;}
-  const data={id:eId.branch||uid(),code,name,district:document.getElementById('bm_d').value.trim(),pincode:document.getElementById('bm_p').value.trim()};
-  if(eId.branch){const i=DB.branches.findIndex(x=>x.id===eId.branch); if(i>=0) DB.branches[i]=data;}
-  else{if(DB.branches.find(b=>b.code===code)){toast('Branch code already exists!','e');return;} DB.branches.push(data);}
-  save(); closeMo('moB'); renderBranches(); toast('Branch saved!','s');
-}
-function renderBranches(){
-  let data=DB.branches; const s=(document.getElementById('brSrch').value||'').toLowerCase();
-  if(s) data=data.filter(b=>b.code.toLowerCase().includes(s)||b.name.toLowerCase().includes(s)||(b.district||'').toLowerCase().includes(s));
-  document.getElementById('brCnt').textContent=data.length+' branches';
-  document.getElementById('brBody').innerHTML=data.length?data.map((b,i)=>`<tr><td>${i+1}</td><td style="color:var(--accent);font-weight:700">${b.code}</td><td>${b.name}</td><td>${b.district||'—'}</td><td>${b.pincode||'—'}</td><td style="display:flex;gap:5px"><button class="btn btn-s xs" onclick='openBrMo(${JSON.stringify(b)})'>Edit</button><button class="btn btn-d xs" onclick="delBranch('${b.id}')">Del</button></td></tr>`).join(''):'<tr><td colspan="6"><div class="emp"><div class="ei">🏢</div><p>No branches. Add one or Import CSV.</p></div></td></tr>';
-}
-function delBranch(id){ if(!confirm('Delete?')) return; DB.branches=DB.branches.filter(b=>b.id!==id); save(); renderBranches(); toast('Deleted','i'); }
+// ── FULL DIAGNOSIS ────────────────────────────────────────
+async function runFullDiag() {
+  GAS = document.getElementById('gasUrl').value.trim();
+  clearLog('diagLog');
 
-// ── CSV IMPORT (BULK — INSTANT) ────────────────────────────
-function importCSV(event){
-  const file=event.target.files[0]; if(!file) return;
-  const bar=document.getElementById('impBar'),msg=document.getElementById('impMsg'),prog=document.getElementById('impProg');
-  bar.classList.add('show'); msg.textContent='Reading file...'; prog.style.width='15%';
-  const reader=new FileReader();
-  reader.onload=function(e){
-    prog.style.width='40%'; msg.textContent='Parsing rows...';
-    const text=e.target.result;
-    const lines=text.split(/\r?\n/).filter(l=>l.trim());
-    if(lines.length<2){toast('No data rows','e');bar.classList.remove('show');return;}
-    const delim=lines[0].includes(';')?';':',';
-    const pr=row=>{const r=[];let q=false,c='';for(let i=0;i<row.length;i++){const ch=row[i];if(ch==='"'){q=!q;}else if(ch===delim&&!q){r.push(c.trim());c='';}else{c+=ch;}}r.push(c.trim());return r;};
-    const first=pr(lines[0]);
-    const isHdr=isNaN(Number(first[0]))||first[0].toLowerCase().includes('code')||first[0].toLowerCase().includes('branch');
-    const start=isHdr?1:0;
-    prog.style.width='65%'; msg.textContent=`Processing ${lines.length-start} rows...`;
-    let imp=0,skip=0,inv=0;
-    const existing=new Set(DB.branches.map(b=>b.code.toLowerCase()));
-    const newOnes=[];
-    for(let i=start;i<lines.length;i++){
-      if(!lines[i].trim()) continue;
-      const cols=pr(lines[i]);
-      const code=(cols[0]||'').trim(),name=(cols[1]||'').trim();
-      if(!code||!name){inv++;continue;}
-      if(existing.has(code.toLowerCase())){skip++;continue;}
-      existing.add(code.toLowerCase());
-      newOnes.push({id:uid(),code,name,district:(cols[2]||'').trim(),pincode:(cols[3]||'').trim()});
-      imp++;
+  if (!GAS) {
+    log('diagLog','❌ STOP: No URL entered. Paste your Google Apps Script URL above first!','err');
+    return;
+  }
+
+  log('diagLog','═══════════════════════════════════════','dim');
+  log('diagLog','🔬 FULL DIAGNOSIS STARTING...','info');
+  log('diagLog','═══════════════════════════════════════','dim');
+
+  // Check URL format
+  if (!GAS.includes('script.google.com')) {
+    log('diagLog','❌ URL format wrong! Must be from script.google.com','err');
+    return;
+  }
+  if (!GAS.endsWith('/exec')) {
+    log('diagLog','⚠️ URL should end with /exec — yours ends with: ' + GAS.slice(-20),'warn');
+  } else {
+    log('diagLog','✅ URL format correct (ends with /exec)','ok');
+  }
+
+  // Check local storage
+  const bwData = localStorage.getItem('bwpro33') || localStorage.getItem('bwpro32');
+  if (bwData) {
+    try {
+      const d = JSON.parse(bwData);
+      log('diagLog', `✅ Local data found: ${d.entries?.length||0} entries, ${d.branches?.length||0} branches, ${d.members?.length||0} members`, 'ok');
+
+      const branchPayload = JSON.stringify({ branches: d.branches || [] });
+      log('diagLog', `📊 Branch payload size: ${branchPayload.length} bytes`, branchPayload.length > 6000 ? 'warn' : 'ok');
+      if (branchPayload.length > 6000) {
+        log('diagLog', '⚠️ FOUND PROBLEM: Branch data is too large for single URL request!','err');
+        log('diagLog', `→ ${d.branches?.length} branches = ${branchPayload.length} bytes (limit ~6000)`, 'err');
+        log('diagLog', '→ SOLUTION: Must send in multiple chunks', 'warn');
+      }
+
+      const fullPayload = JSON.stringify({ entries: d.entries, bills: d.bills, branches: d.branches, members: d.members, config: d.config });
+      log('diagLog', `📊 Full payload size: ${fullPayload.length} bytes`, fullPayload.length > 6000 ? 'warn' : 'ok');
+      if (fullPayload.length > 6000) {
+        log('diagLog', '⚠️ FOUND PROBLEM: Full payload too large! Chunking required.', 'err');
+      }
+    } catch(e) {
+      log('diagLog', '⚠️ Could not parse local data: ' + e.message, 'warn');
     }
-    DB.branches.push(...newOnes);
-    save();
-    prog.style.width='100%';
-    msg.textContent=`✅ Done! Imported: ${imp} | Duplicate skipped: ${skip} | Invalid: ${inv}`;
-    renderBranches(); toast(`${imp} branches imported!`,'s');
-    event.target.value=''; setTimeout(()=>bar.classList.remove('show'),7000);
-  };
-  reader.onerror=()=>{toast('File read failed','e');bar.classList.remove('show');};
-  reader.readAsText(file);
-}
-
-// ── MEMBERS ────────────────────────────────────────────────
-function openMemMo(member){
-  eId.member=member?member.id:null;
-  document.getElementById('mmT').textContent=member?'Edit Member':'Add Member';
-  document.getElementById('mm_i').value=member?member.id:''; document.getElementById('mm_i').readOnly=!!member;
-  document.getElementById('mm_n').value=member?member.name:'';
-  document.getElementById('mm_h').value=member?(member.rph||''):'';
-  document.getElementById('mm_d').value=member?(member.rpd||''):'';
-  document.getElementById('moM').classList.add('open');
-}
-function saveMember(){
-  const id=document.getElementById('mm_i').value.trim(),name=document.getElementById('mm_n').value.trim();
-  if(!id){toast('Member ID required','e');return;}
-  if(!name){toast('Member Name required','e');return;}
-  const data={id,name,rph:Number(document.getElementById('mm_h').value)||0,rpd:Number(document.getElementById('mm_d').value)||0};
-  if(eId.member){const idx=DB.members.findIndex(x=>x.id===eId.member); if(idx>=0) DB.members[idx]=data; else DB.members.push(data);}
-  else{if(DB.members.find(m=>m.id===id)){toast(`ID "${id}" already exists!`,'e');return;} DB.members.push(data);}
-  save(); closeMo('moM'); renderMembers(); toast(`Member "${name}" saved! ✅`,'s');
-}
-function renderMembers(){
-  document.getElementById('memBody').innerHTML=DB.members.length?DB.members.map(m=>{
-    const ents=DB.entries.filter(e=>e.memberId===m.id),ta=ents.reduce((s,e)=>s+Number(e.amount||0),0);
-    return `<tr><td style="color:var(--accent);font-weight:700">${m.id}</td><td style="font-weight:700">${m.name}</td><td>₹${fmt(m.rph)}/hr</td><td>₹${fmt(m.rpd)}/day</td><td>${ents.length}</td><td class="amt">₹${fmt(ta)}</td><td style="display:flex;gap:5px"><button class="btn btn-s xs" onclick='openMemMo(${JSON.stringify(m)})'>Edit</button><button class="btn btn-d xs" onclick="delMember('${m.id}')">Del</button></td></tr>`;
-  }).join(''):'<tr><td colspan="7"><div class="emp"><div class="ei">👥</div><p>No members yet. Click + Add Member.</p></div></td></tr>';
-}
-function delMember(id){ if(!confirm('Delete member?')) return; DB.members=DB.members.filter(m=>m.id!==id); save(); renderMembers(); toast('Deleted','i'); }
-
-// ── REPORTS ────────────────────────────────────────────────
-function rTab(tab){
-  rptTab=tab;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>{ if(t.getAttribute('onclick')?.includes(`'${tab}'`)) t.classList.add('active'); });
-  ['branch','detail','member'].forEach(t=>document.getElementById('rp-'+t).style.display=t===tab?'':'none');
-  renderReports();
-}
-function clrRF(){ ['rf_f','rf_t'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rf_br').value=''; document.getElementById('rf_m').value=''; renderReports(); }
-function renderReports(){
-  document.getElementById('rf_br').innerHTML='<option value="">All Branches</option>'+DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
-  document.getElementById('rf_m').innerHTML='<option value="">All Members</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  const from=document.getElementById('rf_f').value,to=document.getElementById('rf_t').value,bc=document.getElementById('rf_br').value,mid=document.getElementById('rf_m').value;
-  let ents=DB.entries.filter(e=>{ if(from&&e.date<from)return false; if(to&&e.date>to)return false; if(bc&&e.bcode!==bc)return false; if(mid&&e.memberId!==mid)return false; return true; });
-  if(rptTab==='branch'){
-    const map={};
-    ents.forEach(e=>{ if(!map[e.bcode]){const br=DB.branches.find(b=>b.code===e.bcode)||{};map[e.bcode]={bcode:e.bcode,bname:e.bname,dist:br.district||'',pin:br.pincode||'',days:new Set(),amt:0};} map[e.bcode].days.add(e.date); map[e.bcode].amt+=Number(e.amount||0); });
-    document.getElementById('r1').innerHTML=Object.values(map).length?Object.values(map).map((r,i)=>{ const bills=DB.bills.filter(b=>b.bcode===r.bcode),bi=bills.reduce((s,b)=>s+Number(b.amount||0),0),br2=bills.reduce((s,b)=>s+Number(b.recdAmt||0),0); return `<tr><td>${i+1}</td><td style="color:var(--accent);font-weight:700">${r.bcode}</td><td>${r.bname}</td><td>${r.dist}</td><td>${r.pin}</td><td>${r.days.size}</td><td class="amt">₹${fmt(r.amt)}</td><td class="amt">₹${fmt(bi)}</td><td class="amt" style="color:var(--green)">₹${fmt(br2)}</td><td class="${(bi-br2)>0?'dp':'dz'}">₹${fmt(bi-br2)}</td></tr>`; }).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data</td></tr>';
+  } else {
+    log('diagLog', '⚠️ No BankWork data in this browser (run diag from same browser as BankWork)','warn');
   }
-  if(rptTab==='detail'){
-    document.getElementById('r2').innerHTML=ents.length?ents.map((e,i)=>{ const bill=DB.bills.find(b=>b.bcode===e.bcode); return `<tr><td>${i+1}</td><td>${fd(e.date)}</td><td style="color:var(--accent);font-weight:700">${e.bcode}</td><td>${e.bname}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td>${e.qty||'—'}</td><td>${e.rate?'₹'+fmt(e.rate):'—'}</td><td class="amt">₹${fmt(e.amount)}</td><td>${bill?fd(bill.issueDate):'—'}</td><td style="font-weight:700">${bill?bill.billNo:'—'}</td><td>${bill?fd(bill.billDate):'—'}</td><td>${bill?'₹'+fmt(bill.amount):'—'}</td><td>${bill?fd(bill.recdDate):'—'}</td><td>${bill?'₹'+fmt(bill.recdAmt):'—'}</td><td class="${bill&&(Number(bill.amount||0)-Number(bill.recdAmt||0))>0?'dp':'dz'}">${bill?'₹'+fmt(Number(bill.amount||0)-Number(bill.recdAmt||0)):'—'}</td><td>${bill?`<span class="b ${SB[bill.status]}">${bill.status}</span>`:'—'}</td></tr>`; }).join(''):'<tr><td colspan="17" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data</td></tr>';
+
+  // Test JSONP pull
+  log('diagLog','─────────────────────────────────────','dim');
+  log('diagLog','🔌 Testing PULL (JSONP)...','info');
+
+  await new Promise(resolve => {
+    const cbName = 'diag_pull_' + Date.now();
+    let done = false;
+    window[cbName] = function(data) {
+      done = true;
+      delete window[cbName];
+      const s = document.getElementById('diagScript');
+      if(s) s.remove();
+      if (data && !data.error) {
+        log('diagLog', '✅ PULL works! JSONP responding correctly', 'ok');
+        const br = Array.isArray(data.branches) ? data.branches : [];
+        const me = Array.isArray(data.members)  ? data.members  : [];
+        log('diagLog', `→ Google Sheets has: ${br.length} branches, ${me.length} members`, br.length > 0 ? 'ok' : 'warn');
+        if (br.length === 0) {
+          log('diagLog', '❌ Branch Master is EMPTY in Google Sheets!', 'err');
+          log('diagLog', '→ Local branches exist but are NOT being saved to GAS', 'err');
+        }
+      } else {
+        log('diagLog', '⚠️ Pull responded but with error: ' + JSON.stringify(data), 'warn');
+      }
+      resolve();
+    };
+    setTimeout(() => {
+      if (!done) {
+        done = true; delete window[cbName];
+        const s = document.getElementById('diagScript'); if(s) s.remove();
+        log('diagLog', '❌ PULL timed out — JSONP not working', 'err');
+        log('diagLog', '→ FIX: Update Code.gs with JSONP version and re-deploy', 'err');
+        resolve();
+      }
+    }, 10000);
+    const script = document.createElement('script');
+    script.id = 'diagScript';
+    script.src = GAS + '?action=getAll&callback=' + cbName;
+    document.head.appendChild(script);
+  });
+
+  // Test PUSH
+  log('diagLog','─────────────────────────────────────','dim');
+  log('diagLog','📤 Testing PUSH (no-cors fetch)...','info');
+  try {
+    const testPayload = { branches: [{ id:'DIAG_TEST', code:'DIAG001', name:'Diagnostic Test Branch', district:'Test', pincode:'000000' }] };
+    await fetch(GAS + '?action=pushAll&payload=' + encodeURIComponent(JSON.stringify(testPayload)), { method:'GET', mode:'no-cors' });
+    log('diagLog', '✅ PUSH request sent successfully (no-cors)', 'ok');
+    log('diagLog', '→ Waiting 5 seconds then checking if it was saved...', 'dim');
+
+    await new Promise(r => setTimeout(r, 5000));
+
+    // Verify push by pulling again
+    await new Promise(resolve2 => {
+      const cbName2 = 'diag_verify_' + Date.now();
+      let done2 = false;
+      window[cbName2] = function(data) {
+        done2 = true; delete window[cbName2];
+        const s = document.getElementById('diagScript2'); if(s) s.remove();
+        if (data && Array.isArray(data.branches)) {
+          const diagBr = data.branches.find(b => b.code === 'DIAG001');
+          if (diagBr) {
+            log('diagLog', '✅✅ PUSH VERIFIED! Test branch found in Google Sheets!', 'ok');
+            log('diagLog', '→ PUSH IS WORKING CORRECTLY', 'ok');
+          } else {
+            log('diagLog', '❌ PUSH PROBLEM: Test branch was NOT saved to Google Sheets', 'err');
+            log('diagLog', '→ Possible cause: Payload too large, or GAS error', 'err');
+          }
+        }
+        resolve2();
+      };
+      setTimeout(() => { if(!done2){done2=true;delete window[cbName2];resolve2();} }, 8000);
+      const script2 = document.createElement('script');
+      script2.id = 'diagScript2';
+      script2.src = GAS + '?action=getAll&callback=' + cbName2;
+      document.head.appendChild(script2);
+    });
+
+  } catch(e) {
+    log('diagLog', '❌ PUSH failed: ' + e.message, 'err');
   }
-  if(rptTab==='member'){
-    const mm={};
-    ents.forEach(e=>{ const k=e.memberId||e.member||'?'; if(!mm[k])mm[k]={name:e.member||k,hrs:0,days:0,fixed:0,amt:0,branches:new Set()}; if(e.worktype==='hourly')mm[k].hrs+=Number(e.qty||0); if(e.worktype==='daily')mm[k].days+=Number(e.qty||0); if(e.worktype==='fixed')mm[k].fixed++; mm[k].amt+=Number(e.amount||0); mm[k].branches.add(e.bcode); });
-    document.getElementById('rm').innerHTML=Object.values(mm).length?Object.values(mm).map(m=>`<tr><td style="font-weight:700">${m.name}</td><td>${m.hrs}h</td><td>${m.days}</td><td>${m.fixed}</td><td class="amt">₹${fmt(m.amt)}</td><td>${m.branches.size}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data</td></tr>';
-  }
-}
-function expReport(n){
-  let csv='';
-  if(n===1){ csv='Sl,Branch Code,Branch Name,District,Pincode,Days Worked,Total Work Amt,Total Billed,Total Received,Difference\n'; const map={}; DB.entries.forEach(e=>{ if(!map[e.bcode]){const br=DB.branches.find(b=>b.code===e.bcode)||{};map[e.bcode]={bcode:e.bcode,bname:e.bname,dist:br.district||'',pin:br.pincode||'',days:new Set(),amt:0};} map[e.bcode].days.add(e.date); map[e.bcode].amt+=Number(e.amount||0); }); Object.values(map).forEach((r,i)=>{ const bills=DB.bills.filter(b=>b.bcode===r.bcode),bi=bills.reduce((s,b)=>s+Number(b.amount||0),0),br2=bills.reduce((s,b)=>s+Number(b.recdAmt||0),0); csv+=`${i+1},${r.bcode},"${r.bname}","${r.dist}",${r.pin},${r.days.size},${r.amt},${bi},${br2},${bi-br2}\n`; }); dlCSV('report1_branch_summary.csv',csv); }
-  else { csv='Sl,Date,Branch Code,Branch Name,Member,Work Type,Qty,Rate,Amount,Remarks\n'; DB.entries.forEach((e,i)=>{ csv+=`${i+1},${e.date},${e.bcode},"${e.bname}","${e.member||''}",${e.worktype},${e.qty||''},${e.rate||''},${e.amount},"${e.remarks||''}"\n`; }); dlCSV('report2_detailed_ledger.csv',csv); }
-}
 
-// ── RECONCILE ──────────────────────────────────────────────
-function renderReconcile(){
-  const pend=DB.bills.filter(b=>b.status==='Pending'||b.status==='Partial');
-  const tpa=pend.reduce((s,b)=>s+(Number(b.amount||0)-Number(b.recdAmt||0)),0);
-  const ov30=pend.filter(b=>Math.floor((Date.now()-new Date(b.issueDate))/86400000)>30).length;
-  document.getElementById('rcStats').innerHTML=`<div class="sc d"><div class="slbl">Pending Bills</div><div class="sval d">${pend.length}</div></div><div class="sc w"><div class="slbl">Pending Amount</div><div class="sval w">₹${fmt(tpa)}</div></div><div class="sc p"><div class="slbl">Overdue >30 Days</div><div class="sval p">${ov30}</div></div><div class="sc g"><div class="slbl">Bills Received</div><div class="sval g">${DB.bills.filter(b=>b.status==='Received').length}</div></div>`;
-  document.getElementById('rcBody').innerHTML=pend.length?pend.map(b=>{ const diff=Number(b.amount||0)-Number(b.recdAmt||0),days=Math.floor((Date.now()-new Date(b.issueDate))/86400000); return `<tr><td style="color:var(--accent);font-weight:700">${b.billNo||'—'}</td><td>${b.bname||'—'}</td><td class="amt">₹${fmt(b.amount)}</td><td style="color:var(--green);font-weight:700">₹${fmt(b.recdAmt)}</td><td class="dp">₹${fmt(diff)}</td><td><span class="b ${SB[b.status]||'b-pend'}">${b.status}</span></td><td style="color:${days>30?'var(--red)':days>7?'var(--yellow)':'var(--W1)'};font-weight:700">${days} days</td><td><button class="btn btn-g xs" onclick="quickPay('${b.id}')">💰 Update Payment</button></td></tr>`; }).join(''):'<tr><td colspan="8"><div class="emp"><div class="ei">🎉</div><p>All bills reconciled!</p></div></td></tr>';
+  // Final summary
+  log('diagLog','═══════════════════════════════════════','dim');
+  log('diagLog','📋 DIAGNOSIS COMPLETE — Check results above','info');
+  log('diagLog','═══════════════════════════════════════','dim');
+  log('diagLog','If "Branch Master EMPTY" → Payload too large, need chunked push','warn');
+  log('diagLog','If "PULL timed out" → Code.gs needs JSONP update + redeploy','warn');
+  log('diagLog','If "PUSH VERIFIED" → Everything working, just re-push from BankWork Pro','ok');
 }
-function quickPay(id){
-  const bill=DB.bills.find(b=>b.id===id); if(!bill) return;
-  const amt=prompt(`💰 Update Payment\n\nBranch: ${bill.bname}\nBill No: ${bill.billNo}\nBill Amount: ₹${bill.amount}\nAlready Received: ₹${bill.recdAmt||0}\n\nEnter NEW payment received now:`);
-  if(amt===null||amt.trim()==='') return;
-  const newR=Number(bill.recdAmt||0)+Number(amt);
-  bill.recdAmt=newR; bill.diff=Number(bill.amount)-newR; bill.recdDate=td();
-  bill.status=newR>=Number(bill.amount)?'Received':'Partial';
-  save(); renderReconcile(); updBadge(); toast(`Payment ₹${amt} recorded!`,'s');
-}
-
-// ── SETTINGS ───────────────────────────────────────────────
-function renderSettings(){
-  if(GAS) document.getElementById('gasUrl').value=GAS;
-  const box=document.getElementById('gasStatusBox');
-  if(GAS){ box.className='gbox'; box.innerHTML='✅ <strong>CONNECTED</strong> — '+GAS.slice(0,55)+'...<br><small style="font-size:11px;opacity:.8">After adding data, click the GREEN "SAVE TO GOOGLE SHEETS" button</small>'; }
-  else { box.className='wbox'; box.innerHTML='⚠️ <strong>NOT CONNECTED</strong> — Paste your Google Apps Script URL below and click Save & Connect'; }
-  document.getElementById('cfgE').textContent=DB.entries.length;
-  document.getElementById('cfgB').textContent=DB.bills.length;
-  document.getElementById('cfgBr').textContent=DB.branches.length;
-  document.getElementById('cfgM').textContent=DB.members.length;
-  const gasEl=document.getElementById('cfgGas');
-  gasEl.textContent=GAS?'CONNECTED ✅':'NOT CONNECTED ❌';
-  gasEl.style.color=GAS?'var(--green)':'var(--red)';
-}
-function saveGas(){
-  const url=document.getElementById('gasUrl').value.trim();
-  if(!url||!url.includes('script.google.com')){toast('Invalid URL! Must contain script.google.com','e');return;}
-  GAS=url; localStorage.setItem('bwpro_gas',url);
-  setSS('ok','Connected ✓'); renderSettings();
-  toast('✅ URL Saved!\n\nNow click the GREEN button\n"SAVE TO GOOGLE SHEETS"\nto upload your data.','s');
-}
-function clearGas(){ GAS=''; localStorage.removeItem('bwpro_gas'); document.getElementById('gasUrl').value=''; setSS('','Local Mode'); renderSettings(); toast('Disconnected','i'); }
-function expJSON(){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(DB,null,2)],{type:'application/json'})); a.download='bankwork_backup_'+td()+'.json'; a.click(); toast('Backup exported!','s'); }
-function impJSON(ev){ const f=ev.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(e){try{const d=JSON.parse(e.target.result); if(!confirm(`Import backup?\nEntries:${d.entries?.length||0} Bills:${d.bills?.length||0} Branches:${d.branches?.length||0} Members:${d.members?.length||0}\n\nWARNING: Replaces all current data!`)) return; DB.entries=d.entries||[];DB.bills=d.bills||[];DB.branches=d.branches||[];DB.members=d.members||[];DB.config=d.config||{nextBillNo:1}; save(); renderCurrentPage(); toast('Backup imported!','s');}catch(e){toast('Invalid file','e');}}; r.readAsText(f); ev.target.value=''; }
-function clearAll(){ if(!confirm('Delete ALL data? Cannot be undone!')) return; if(!confirm('FINAL — delete everything?')) return; DB={entries:[],bills:[],branches:[],members:[],config:{nextBillNo:1}}; save(); renderCurrentPage(); toast('All data cleared','i'); }
-
-// ── CSV EXPORT ─────────────────────────────────────────────
-function expCSV(type){
-  if(type==='entries'){let c='#,Date,Code,Branch,Member,Type,Qty,Rate,Amount,Remarks\n';DB.entries.forEach((e,i)=>{c+=`${i+1},${e.date},${e.bcode},"${e.bname}","${e.member||''}",${e.worktype},${e.qty||''},${e.rate||''},${e.amount},"${e.remarks||''}"\n`;});dlCSV('entries.csv',c);}
-  else if(type==='bills'){let c='#,Issue Date,Bill No.,Branch,Amount,Received,Difference,Status\n';DB.bills.forEach((b,i)=>{c+=`${i+1},${b.issueDate},"${b.billNo}","${b.bname}",${b.amount},${b.recdAmt||0},${Number(b.amount||0)-Number(b.recdAmt||0)},${b.status}\n`;});dlCSV('bills.csv',c);}
-  else if(type==='branches'){let c='Branch Code,Branch Name,District,Pincode\n';DB.branches.forEach(b=>{c+=`${b.code},"${b.name}","${b.district||''}",${b.pincode||''}\n`;});dlCSV('branches.csv',c);}
-}
-function dlCSV(fn,csv){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=fn; a.click(); toast('CSV exported!','s'); }
-
-// ── INIT ───────────────────────────────────────────────────
-window.onload = function(){
-  load();
-  document.getElementById('dchip').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-  if(GAS){ setSS('ok','Connected ✓'); document.getElementById('pushSideBtn').style.background='var(--green)'; }
-  else { setSS('','Local Mode'); }
-  renderDash(); updBadge();
-};
 </script>
 </body>
 </html>
