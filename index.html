@@ -380,12 +380,13 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--ac
   <div class="tabs"><div class="tab active" onclick="rTab('branch')">Branch Summary</div><div class="tab" onclick="rTab('detail')">Detailed Ledger</div><div class="tab" onclick="rTab('member')">Member-wise</div></div>
   <div class="filters">
     <input type="date" class="ff" id="rf_f" onchange="renderReports()"><span style="color:var(--W3);font-size:12px;font-weight:600;">to</span><input type="date" class="ff" id="rf_t" onchange="renderReports()">
-    <select class="ff" id="rf_br" onchange="renderReports()"><option value="">All Branches</option></select>
+    <input type="text" class="ff" id="rf_br" placeholder="🔍 Branch code/name..." oninput="renderReports()" style="min-width:180px;">
+    <select class="ff" id="rf_dist" onchange="renderReports()"><option value="">All Districts</option></select>
     <select class="ff" id="rf_m" onchange="renderReports()"><option value="">All Members</option></select>
     <button class="btn btn-s sm" onclick="clrRF()">Clear</button>
   </div>
   <div id="rp-branch"><div class="card"><div class="ctitle">Report 1 — Branch Summary</div><div class="tw"><table><thead><tr><th>Sl</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Pincode</th><th>Days Worked</th><th>Total Work Amt</th><th>Total Billed</th><th>Total Received</th><th>Difference</th></tr></thead><tbody id="r1"></tbody></table></div></div></div>
-  <div id="rp-detail" style="display:none;"><div class="card"><div class="ctitle">Report 2 — Detailed Ledger</div><div class="tw"><table><thead><tr><th>Sl</th><th>Date</th><th>Branch Code</th><th>Branch Name</th><th>Member</th><th>Type</th><th>Qty</th><th>Rate</th><th>Work Amt</th><th>Bill No.</th><th>Bill Amt</th><th>Status</th></tr></thead><tbody id="r2"></tbody></table></div></div></div>
+  <div id="rp-detail" style="display:none;"><div class="card"><div class="ctitle">Report 2 — Detailed Ledger</div><div class="tw"><table><thead><tr><th>Sl</th><th>Date</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Member</th><th>Type</th><th>Qty</th><th>Rate</th><th>Work Amt</th><th>Bill No.</th><th>Bill Amt</th><th>Status</th></tr></thead><tbody id="r2"></tbody></table></div></div></div>
   <div id="rp-member" style="display:none;"><div class="card"><div class="ctitle">Member-wise Summary</div><div class="tw"><table><thead><tr><th>Member</th><th>Total Hours</th><th>Total Days</th><th>Fixed Works</th><th>Total Amount</th><th>Branches</th></tr></thead><tbody id="rm"></tbody></table></div></div></div>
 </div>
 
@@ -492,6 +493,42 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--ac
       </div>
     </div>
     <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moBl')">Cancel</button><button class="btn btn-o sm" onclick="saveBill()">🧾 Save Bill</button></div>
+  </div>
+</div>
+
+<!-- QUICK PAY MODAL -->
+<div class="mo" id="moQP">
+  <div class="mbox" style="max-width:480px;">
+    <div class="mh">
+      <span class="mt">💰 Update Payment</span>
+      <button class="xbtn" onclick="closeMo('moQP')">×</button>
+    </div>
+    <div class="mb">
+      <input type="hidden" id="qp_billId">
+      <div id="qp_info"></div>
+      <div class="eg">
+        <div class="fg s2">
+          <label class="fl">Amount Received Now (₹) *</label>
+          <input type="number" id="qp_amt" class="fc" placeholder="Enter amount received" min="0" step="0.01" autofocus>
+        </div>
+        <div class="fg">
+          <label class="fl">Payment Received Date *</label>
+          <input type="date" id="qp_date" class="fc">
+        </div>
+        <div class="fg">
+          <label class="fl">Cheque / Reference No.</label>
+          <input type="text" id="qp_cheque" class="fc" placeholder="e.g. CHQ/001 or UPI ref">
+        </div>
+        <div class="fg s2">
+          <label class="fl">Remarks</label>
+          <input type="text" id="qp_rem" class="fc" placeholder="Optional notes...">
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-s sm" onclick="closeMo('moQP')">Cancel</button>
+      <button class="btn btn-g sm" onclick="saveQuickPay()">✅ Save Payment</button>
+    </div>
   </div>
 </div>
 
@@ -1075,27 +1112,66 @@ function rTab(tab){
   ['branch','detail','member'].forEach(t=>document.getElementById('rp-'+t).style.display=t===tab?'':'none');
   renderReports();
 }
-function clrRF(){['rf_f','rf_t'].forEach(id=>document.getElementById(id).value='');document.getElementById('rf_br').value='';document.getElementById('rf_m').value='';renderReports();}
+function clrRF(){
+  ['rf_f','rf_t','rf_br'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rf_m').value='';
+  document.getElementById('rf_dist').value='';
+  renderReports();
+}
 function renderReports(){
-  document.getElementById('rf_br').innerHTML='<option value="">All Branches</option>'+DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
+  // Populate member dropdown (preserve selection)
+  const selM=document.getElementById('rf_m').value;
   document.getElementById('rf_m').innerHTML='<option value="">All Members</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  const from=document.getElementById('rf_f').value,to=document.getElementById('rf_t').value,bc=document.getElementById('rf_br').value,mid=document.getElementById('rf_m').value;
-  let ents=DB.entries.filter(e=>{if(from&&e.date<from)return false;if(to&&e.date>to)return false;if(bc&&e.bcode!==bc)return false;if(mid&&e.memberId!==mid)return false;return true;});
+  if(selM)document.getElementById('rf_m').value=selM;
+
+  // Populate district dropdown (preserve selection)
+  const selD=document.getElementById('rf_dist').value;
+  const districts=[...new Set(DB.branches.map(b=>b.district||'').filter(Boolean))].sort();
+  document.getElementById('rf_dist').innerHTML='<option value="">All Districts</option>'+districts.map(d=>`<option value="${d}">${d}</option>`).join('');
+  if(selD)document.getElementById('rf_dist').value=selD;
+
+  // Read filters
+  const from=document.getElementById('rf_f').value;
+  const to=document.getElementById('rf_t').value;
+  const brSearch=(document.getElementById('rf_br').value||'').toLowerCase().trim();
+  const mid=document.getElementById('rf_m').value;
+  const dist=document.getElementById('rf_dist').value;
+
+  // Filter entries
+  let ents=DB.entries.filter(e=>{
+    if(from&&e.date<from)return false;
+    if(to&&e.date>to)return false;
+    // Branch: search by code or name
+    if(brSearch&&!(e.bcode.toLowerCase().includes(brSearch)||e.bname.toLowerCase().includes(brSearch)))return false;
+    // Member: filter by memberId
+    if(mid&&e.memberId!==mid)return false;
+    // District: lookup branch district
+    if(dist){const br=DB.branches.find(b=>b.code===e.bcode);if(!br||br.district!==dist)return false;}
+    return true;
+  });
+
   if(rptTab==='branch'){
     const map={};
-    ents.forEach(e=>{if(!map[e.bcode]){const br=DB.branches.find(b=>b.code===e.bcode)||{};map[e.bcode]={bcode:e.bcode,bname:e.bname,dist:br.district||'',pin:br.pincode||'',days:new Set(),amt:0};}map[e.bcode].days.add(e.date);map[e.bcode].amt+=Number(e.amount||0);});
-    document.getElementById('r1').innerHTML=Object.values(map).length?Object.values(map).map((r,i)=>{const bills=DB.bills.filter(b=>b.bcode===r.bcode),bi=bills.reduce((s,b)=>s+Number(b.amount||0),0),br2=bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);return `<tr><td>${i+1}</td><td style="color:var(--accent);font-weight:700">${r.bcode}</td><td>${r.bname}</td><td>${r.dist}</td><td>${r.pin}</td><td>${r.days.size}</td><td class="amt">₹${fmt(r.amt)}</td><td class="amt">₹${fmt(bi)}</td><td class="amt" style="color:var(--green)">₹${fmt(br2)}</td><td class="${(bi-br2)>0?'dp':'dz'}">₹${fmt(bi-br2)}</td></tr>`;}).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data</td></tr>';
+    ents.forEach(e=>{
+      if(!map[e.bcode]){const br=DB.branches.find(b=>b.code===e.bcode)||{};map[e.bcode]={bcode:e.bcode,bname:e.bname,dist:br.district||'',pin:br.pincode||'',days:new Set(),amt:0};}
+      map[e.bcode].days.add(e.date);map[e.bcode].amt+=Number(e.amount||0);
+    });
+    document.getElementById('r1').innerHTML=Object.values(map).length?Object.values(map).map((r,i)=>{
+      const bills=DB.bills.filter(b=>b.bcode===r.bcode),bi=bills.reduce((s,b)=>s+Number(b.amount||0),0),br2=bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);
+      return `<tr><td>${i+1}</td><td style="color:var(--accent);font-weight:700">${r.bcode}</td><td>${r.bname}</td><td>${r.dist}</td><td>${r.pin}</td><td>${r.days.size}</td><td class="amt">₹${fmt(r.amt)}</td><td class="amt">₹${fmt(bi)}</td><td class="amt" style="color:var(--green)">₹${fmt(br2)}</td><td class="${(bi-br2)>0?'dp':'dz'}">₹${fmt(bi-br2)}</td></tr>`;
+    }).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data for selected filters</td></tr>';
   }
   if(rptTab==='detail'){
     document.getElementById('r2').innerHTML=ents.length?ents.map((e,i)=>{
       const bill=e.billId?DB.bills.find(b=>b.id===e.billId):null;
-      return `<tr><td>${i+1}</td><td>${fd(e.date)}</td><td style="color:var(--accent);font-weight:700">${e.bcode}</td><td>${e.bname}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td>${e.qty||'—'}</td><td>${e.rate?'₹'+fmt(e.rate):'—'}</td><td class="amt">₹${fmt(e.amount)}</td><td style="font-weight:700;color:var(--accent)">${bill?bill.billNo:'—'}</td><td>${bill?'₹'+fmt(bill.amount):'—'}</td><td>${bill?`<span class="b ${SB[bill.status]}">${bill.status}</span>`:'—'}</td></tr>`;
-    }).join(''):'<tr><td colspan="12" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data</td></tr>';
+      const br=DB.branches.find(b=>b.code===e.bcode)||{};
+      return `<tr><td>${i+1}</td><td>${fd(e.date)}</td><td style="color:var(--accent);font-weight:700">${e.bcode}</td><td>${e.bname}</td><td style="color:var(--W3)">${br.district||'—'}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td>${e.qty||'—'}</td><td>${e.rate?'₹'+fmt(e.rate):'—'}</td><td class="amt">₹${fmt(e.amount)}</td><td style="font-weight:700;color:var(--accent)">${bill?bill.billNo:'—'}</td><td>${bill?'₹'+fmt(bill.amount):'—'}</td><td>${bill?`<span class="b ${SB[bill.status]}">${bill.status}</span>`:'—'}</td></tr>`;
+    }).join(''):'<tr><td colspan="13" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data for selected filters</td></tr>';
   }
   if(rptTab==='member'){
     const mm={};
     ents.forEach(e=>{const k=e.memberId||e.member||'?';if(!mm[k])mm[k]={name:e.member||k,hrs:0,days:0,fixed:0,amt:0,branches:new Set()};if(e.worktype==='hourly')mm[k].hrs+=Number(e.qty||0);if(e.worktype==='daily')mm[k].days+=Number(e.qty||0);if(e.worktype==='fixed')mm[k].fixed++;mm[k].amt+=Number(e.amount||0);mm[k].branches.add(e.bcode);});
-    document.getElementById('rm').innerHTML=Object.values(mm).length?Object.values(mm).map(m=>`<tr><td style="font-weight:700">${m.name}</td><td>${m.hrs}h</td><td>${m.days}</td><td>${m.fixed}</td><td class="amt">₹${fmt(m.amt)}</td><td>${m.branches.size}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data</td></tr>';
+    document.getElementById('rm').innerHTML=Object.values(mm).length?Object.values(mm).map(m=>`<tr><td style="font-weight:700">${m.name}</td><td>${m.hrs}h</td><td>${m.days}</td><td>${m.fixed}</td><td class="amt">₹${fmt(m.amt)}</td><td>${m.branches.size}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data for selected filters</td></tr>';
   }
 }
 function expReport(n){
@@ -1131,12 +1207,41 @@ function renderReconcile(){
 }
 function quickPay(id){
   const bill=DB.bills.find(b=>b.id===id);if(!bill)return;
-  const amt=prompt(`💰 Update Payment\n\nBranch: ${bill.bname}\nBill No: ${bill.billNo}\nBill Amount: ₹${bill.amount}\nAlready Received: ₹${bill.recdAmt||0}\n\nEnter amount received NOW:`);
-  if(amt===null||amt.trim()==='')return;
+  const diff=Number(bill.amount||0)-Number(bill.recdAmt||0);
+  // Populate modal
+  document.getElementById('qp_billId').value=id;
+  document.getElementById('qp_info').innerHTML=
+    `<div class="abox" style="margin-bottom:14px;line-height:2.2;">
+      🏢 Branch: <strong>${bill.bname||'—'}</strong><br>
+      🧾 Bill No: <strong style="color:var(--accent)">${bill.billNo||'—'}</strong><br>
+      💰 Bill Amount: <strong>₹${fmt(bill.amount)}</strong><br>
+      ✅ Already Received: <strong style="color:var(--green)">₹${fmt(bill.recdAmt||0)}</strong><br>
+      ⏳ Pending: <strong style="color:var(--red)">₹${fmt(diff)}</strong>
+    </div>`;
+  document.getElementById('qp_amt').value='';
+  document.getElementById('qp_date').value=td();
+  document.getElementById('qp_cheque').value='';
+  document.getElementById('qp_rem').value='';
+  document.getElementById('moQP').classList.add('open');
+}
+function saveQuickPay(){
+  const id=document.getElementById('qp_billId').value;
+  const amt=document.getElementById('qp_amt').value.trim();
+  const date=document.getElementById('qp_date').value;
+  const cheque=document.getElementById('qp_cheque').value.trim();
+  const rem=document.getElementById('qp_rem').value.trim();
+  if(!amt||isNaN(Number(amt))||Number(amt)<=0){toast('Enter a valid amount','e');return;}
+  if(!date){toast('Enter payment received date','e');return;}
+  const bill=DB.bills.find(b=>b.id===id);if(!bill)return;
   const newR=Number(bill.recdAmt||0)+Number(amt);
-  bill.recdAmt=newR;bill.diff=Number(bill.amount)-newR;bill.recdDate=td();
+  bill.recdAmt=newR;
+  bill.diff=Number(bill.amount)-newR;
+  bill.recdDate=date;
   bill.status=newR>=Number(bill.amount)?'Received':'Partial';
-  save();renderReconcile();updBadge();toast(`Payment ₹${fmt(Number(amt))} recorded!`,'s');
+  if(cheque)bill.chequeNo=cheque;
+  if(rem)bill.payRemarks=(bill.payRemarks?bill.payRemarks+'; ':'')+rem;
+  save();closeMo('moQP');renderReconcile();updBadge();
+  toast(`✅ Payment ₹${fmt(Number(amt))} recorded!\nDate: ${fd(date)}${cheque?'\nCheque: '+cheque:''}\nStatus: ${bill.status}`,'s');
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────
