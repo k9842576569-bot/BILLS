@@ -519,60 +519,68 @@ function load() {
 }
 
 // ── GOOGLE SHEETS PUSH ────────────────────────────────────
-// Chunked push: splits 1000+ branches into batches of 40 rows each
-// First batch: pushAll (clears sheet + writes). Subsequent: appendChunk (adds rows)
+// v4.0 FIX: Each collection sent SEPARATELY — no cross-clearing
+// entries batch 1 → only entries key in payload
+// branches batch 1 → only branches key in payload  
+// This means pushFirst in GAS only clears+writes THAT sheet
 async function pushAll() {
   if (!GAS) {
     toast('⚠️ Connect Google Sheets first!\nGo to ⚙️ Settings → paste URL → Save & Connect','w');
     nav('settings'); return;
   }
-  showSaving('Saving to Google Sheets...\nPlease wait, sending in batches');
+  showSaving('Saving to Google Sheets...\nStarting...');
   setSS('busy','Saving...');
 
   try {
-    const MAX = 40; // max rows per request (safe for URL length)
-    const batch = (arr) => {
+    const MAX = 40; // rows per request — safe URL size
+
+    // Split array into batches of MAX rows
+    const chunks = (arr) => {
+      if (!arr || arr.length === 0) return [[]];
       const out = [];
       for (let i = 0; i < arr.length; i += MAX) out.push(arr.slice(i, i + MAX));
-      if (out.length === 0) out.push([]); // always at least one batch (to clear sheet)
       return out;
     };
 
+    // Each collection pushed INDEPENDENTLY — completely separate requests
     const cols = [
-      { key:'entries',  data: DB.entries  },
-      { key:'bills',    data: DB.bills    },
-      { key:'branches', data: DB.branches },
-      { key:'members',  data: DB.members  },
+      { key: 'entries',  data: DB.entries,  label: 'Entries'       },
+      { key: 'bills',    data: DB.bills,    label: 'Bills'          },
+      { key: 'branches', data: DB.branches, label: 'Branch Master'  },
+      { key: 'members',  data: DB.members,  label: 'Members'        },
     ];
 
-    // Total requests for progress
-    const total = cols.reduce((s,c) => s + batch(c.data).length, 0);
-    let done = 0, totalRows = 0;
+    let totalRows = 0;
 
     for (const col of cols) {
-      const batches = batch(col.data);
+      const batches = chunks(col.data);
       for (let i = 0; i < batches.length; i++) {
-        const action = i === 0 ? 'pushAll' : 'appendChunk';
+        // First batch of THIS collection → pushAll (clears ONLY this sheet)
+        // Subsequent batches → appendChunk (appends to this sheet)
+        const action  = i === 0 ? 'pushAll' : 'appendChunk';
+        // KEY: only send THIS collection's key — GAS skips all other sheets
         const payload = { [col.key]: batches[i], config: DB.config };
         const url = GAS + '?action=' + action + '&payload=' + encodeURIComponent(JSON.stringify(payload));
+
         try {
-          await fetch(url, { method:'GET', mode:'no-cors' });
-        } catch(e) {
-          // no-cors fetch errors are expected — GAS still executes
-        }
-        done++;
+          await fetch(url, { method: 'GET', mode: 'no-cors' });
+        } catch(e) { /* no-cors errors are normal */ }
+
         totalRows += batches[i].length;
-        await new Promise(r => setTimeout(r, 350)); // gap between requests
-        const pct = Math.round((done / total) * 100);
-        showSaving(`Saving to Google Sheets...\n${col.key}: ${i+1}/${batches.length} batches\nOverall: ${pct}%`);
+        await new Promise(r => setTimeout(r, 400));
+
+        const pct = Math.round(
+          (cols.indexOf(col) / cols.length + (i + 1) / batches.length / cols.length) * 100
+        );
+        showSaving(`Saving to Google Sheets...\n📋 ${col.label}: batch ${i+1}/${batches.length}\nProgress: ${pct}%`);
       }
     }
 
     hideSaving();
     setSS('ok','Saved ✓');
-    toast(`✅ Saved to Google Sheets!\n${DB.branches.length} branches, ${DB.entries.length} entries, ${DB.members.length} members\n✓ Check your Google Sheet now`, 's');
+    toast(`✅ All data saved to Google Sheets!\n🏢 Branches: ${DB.branches.length}\n✏️ Entries: ${DB.entries.length}\n🧾 Bills: ${DB.bills.length}\n👤 Members: ${DB.members.length}`, 's');
     document.getElementById('gasBanner').innerHTML =
-      `<div class="gbox" style="margin-bottom:14px;">✅ Last synced: ${new Date().toLocaleTimeString('en-IN')} — branches:${DB.branches.length} entries:${DB.entries.length} members:${DB.members.length}</div>`;
+      `<div class="gbox" style="margin-bottom:14px;">✅ Synced: ${new Date().toLocaleTimeString('en-IN')} — Branches:${DB.branches.length} Entries:${DB.entries.length} Bills:${DB.bills.length} Members:${DB.members.length}</div>`;
 
   } catch(e) {
     hideSaving();
@@ -580,6 +588,7 @@ async function pushAll() {
     toast('Push error: '+e.message,'e');
   }
 }
+
 
 // ── GOOGLE SHEETS PULL ────────────────────────────────────
 // Uses JSONP callback trick that works from file://
