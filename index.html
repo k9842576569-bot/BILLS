@@ -698,6 +698,16 @@ function addEntry(){
   document.getElementById('ahint').textContent='';
   renderEntries();updBadge();
 }
+function delEntryById(btn){
+  const id=btn.getAttribute('data-id');
+  const entry=DB.entries.find(e=>e.id===id);
+  if(!entry){toast('Entry not found','e');return;}
+  if(entry.billId){toast('Cannot delete — entry is already billed.\nDelete the bill first to unlink.','w');return;}
+  if(!confirm('Delete entry?\n'+fd(entry.date)+' — '+entry.bname+'\n₹'+fmt(entry.amount)))return;
+  DB.entries=DB.entries.filter(e=>e.id!==id);
+  save();renderEntries();updBadge();
+  toast('Entry deleted','i');
+}
 function clearEFull(){['e_date','e_bcode','e_bname','e_mem','e_wt','e_qty','e_rate','e_amt','e_rem'].forEach(id=>document.getElementById(id).value='');document.getElementById('e_date').value=td();document.getElementById('ahint').textContent='';}
 function clrEF(){['ef_d','ef_m','ef_w','ef_b','ef_bstat'].forEach(id=>document.getElementById(id).value='');renderEntries();}
 
@@ -731,7 +741,7 @@ function renderEntries(){
       <td class="amt">₹${fmt(e.amount)}</td>
       <td style="color:var(--W3)">${e.remarks||'—'}</td>
       <td>${statusCell}</td>
-      <td>${isBilled?'<span style="color:#555;font-size:11px;">Billed</span>':`<button class="btn btn-d xs" onclick="delEntry('${e.id}')">Del</button>`}</td>
+      <td>${isBilled?'<span style="color:#555;font-size:11px;">Billed</span>':`<button class="btn btn-d xs" data-id="${e.id}" onclick="delEntryById(this)">Del</button>`}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="13"><div class="emp"><div class="ei">📝</div><p>No entries yet</p></div></td></tr>';
   updateEntrySelBar();
