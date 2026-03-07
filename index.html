@@ -3,187 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BankWork Pro — Bill Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>BankWork Pro v5 — Bill Management</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--surface3:#30363d;
-  --accent:#58a6ff;--green:#3fb950;--purple:#bc8cff;--yellow:#e3b341;--red:#f85149;
-  --border:#30363d;--border2:#484f58;--r:10px;--font:'Sora',sans-serif;
-  --W1:#ffffff;--W2:#f0f6fc;--W3:#cdd9e5;
+  --bg:#080c10;--s1:#0e1318;--s2:#141a21;--s3:#1c2430;--s4:#243040;
+  --acc:#00d4aa;--acc2:#00b891;--blue:#4da6ff;--purple:#a78bfa;
+  --yellow:#fbbf24;--red:#f87171;--green:#34d399;
+  --bd:#1e2d3d;--bd2:#2a3d52;
+  --t1:#e8f4f8;--t2:#b8d0e0;--t3:#7a9ab0;
+  --r:10px;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--W1);font-family:var(--font);min-height:100vh;font-size:14px;}
-::-webkit-scrollbar{width:6px;height:6px;}
-::-webkit-scrollbar-track{background:var(--surface);}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);min-height:100vh;font-size:14px;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--s1);}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
 
-/* SIDEBAR */
 .app{display:flex;min-height:100vh;}
-.sb{width:220px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);
+
+/* ── SIDEBAR ── */
+.sb{width:230px;min-height:100vh;background:var(--s1);border-right:1px solid var(--bd);
     position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;display:flex;flex-direction:column;}
-.logo-wrap{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
-.logo1{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:1px;}
-.logo2{font-size:11px;color:var(--W3);margin-top:3px;}
-.srow{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:var(--W3);}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--border2);}
+.logo-wrap{padding:18px 16px 14px;border-bottom:1px solid var(--bd);}
+.logo1{font-size:15px;font-weight:700;color:var(--acc);letter-spacing:.5px;}
+.logo2{font-size:11px;color:var(--t3);margin-top:2px;font-family:var(--mono);}
+.co-name{font-size:12px;color:var(--t2);font-weight:600;margin-top:6px;padding-top:6px;border-top:1px solid var(--bd);}
+.fy-chip{display:inline-block;font-size:10px;color:var(--acc);background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);
+  padding:2px 8px;border-radius:12px;font-weight:700;margin-top:4px;font-family:var(--mono);}
+.srow{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:var(--t3);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--bd2);}
 .dot.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
 .dot.busy{background:var(--yellow);animation:blink 1s infinite;}
 .dot.err{background:var(--red);}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
-.ns{padding:14px 14px 4px;font-size:10px;color:var(--W3);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;}
+.sync-btns{padding:10px 10px 4px;display:flex;flex-direction:column;gap:6px;}
+.push-btn{padding:9px;background:var(--acc);color:#000;border:none;border-radius:8px;
+  font-size:12px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:all .2s;font-family:var(--font);}
+.push-btn:hover{background:var(--acc2);}
+.pull-btn{padding:7px;background:transparent;color:var(--blue);border:1px solid rgba(77,166,255,.35);border-radius:8px;
+  font-size:11px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:all .2s;font-family:var(--font);}
+.pull-btn:hover{background:rgba(77,166,255,.08);}
+.ns{padding:14px 14px 4px;font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-weight:700;}
 .ni{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 6px;border-radius:8px;
-    cursor:pointer;font-size:13px;color:var(--W2);font-weight:500;transition:all .15s;border:1px solid transparent;}
-.ni:hover{background:var(--surface2);color:var(--W1);border-color:var(--border2);}
-.ni.active{background:rgba(88,166,255,.12);color:var(--accent);border-color:rgba(88,166,255,.3);}
+    cursor:pointer;font-size:13px;color:var(--t2);font-weight:500;transition:all .15s;border:1px solid transparent;}
+.ni:hover{background:var(--s2);color:var(--t1);}
+.ni.active{background:rgba(0,212,170,.1);color:var(--acc);border-color:rgba(0,212,170,.25);}
 .nicon{font-size:15px;width:20px;text-align:center;}
 .nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;}
-.push-btn-sb{margin:10px 8px 4px;padding:10px;background:var(--green);color:#000;border:none;border-radius:8px;
-  font-size:12px;font-weight:700;cursor:pointer;width:calc(100% - 16px);display:flex;align-items:center;
-  justify-content:center;gap:6px;transition:all .2s;}
-.push-btn-sb:hover{background:#2ea043;transform:translateY(-1px);}
-.pull-btn-sb{margin:0 8px 14px;padding:8px;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:8px;
-  font-size:11px;font-weight:600;cursor:pointer;width:calc(100% - 16px);display:flex;align-items:center;
-  justify-content:center;gap:6px;transition:all .2s;}
-.pull-btn-sb:hover{background:rgba(88,166,255,.1);}
 
-/* MAIN */
-.main{margin-left:220px;flex:1;padding:24px;}
+/* ── MAIN ── */
+.main{margin-left:230px;flex:1;padding:24px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-.ptitle{font-size:22px;font-weight:700;color:var(--W1);}
-.ptitle span{color:var(--accent);}
+.ptitle{font-size:20px;font-weight:700;color:var(--t1);}
+.ptitle span{color:var(--acc);}
 .tr{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.dchip{font-size:12px;color:var(--W3);background:var(--surface2);border:1px solid var(--border2);padding:5px 12px;border-radius:20px;font-weight:600;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;}
-.ctitle{font-size:12px;color:var(--W3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
+.dchip{font-size:12px;color:var(--t3);background:var(--s2);border:1px solid var(--bd2);padding:5px 12px;border-radius:20px;font-weight:600;font-family:var(--mono);}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.ctitle{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
   margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.ctitle::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;}
-.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px;}
-.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;position:relative;overflow:hidden;}
-.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.sc.c::after{background:var(--accent);}.sc.p::after{background:var(--purple);}
-.sc.g::after{background:var(--green);}.sc.w::after{background:var(--yellow);}.sc.d::after{background:var(--red);}
-.slbl{font-size:11px;color:var(--W3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:5px;}
-.sval{font-size:22px;font-weight:700;}
-.sval.c{color:var(--accent);}.sval.p{color:var(--purple);}.sval.g{color:var(--green);}.sval.w{color:var(--yellow);}.sval.d{color:var(--red);}
-.ssub{font-size:11px;color:var(--W3);margin-top:3px;font-weight:600;}
+.ctitle::before{content:'';width:3px;height:12px;background:var(--acc);border-radius:2px;display:block;}
+
+/* ── STAT GRID ── */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:18px;}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.sc.c::after{background:var(--acc);}.sc.b::after{background:var(--blue);}
+.sc.g::after{background:var(--green);}.sc.y::after{background:var(--yellow);}.sc.r::after{background:var(--red);}
+.slbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:6px;}
+.sval{font-size:20px;font-weight:700;font-family:var(--mono);}
+.sval.c{color:var(--acc);}.sval.b{color:var(--blue);}.sval.g{color:var(--green);}.sval.y{color:var(--yellow);}.sval.r{color:var(--red);}
+.ssub{font-size:11px;color:var(--t3);margin-top:3px;font-weight:600;}
+
+/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:7px;
      font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:var(--font);}
-.btn-p{background:var(--accent);color:#000;}.btn-p:hover{background:#79b8ff;transform:translateY(-1px);}
-.btn-s{background:var(--surface2);color:var(--W1);border:1px solid var(--border2);}
-.btn-s:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent);}
-.btn-d{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.3);}
-.btn-d:hover{background:rgba(248,81,73,.2);}
-.btn-g{background:var(--green);color:#000;}.btn-g:hover{background:#2ea043;}
-.btn-o{background:var(--yellow);color:#000;}.btn-o:hover{background:#d29922;}
-.sm{padding:6px 12px;font-size:12px;}.xs{padding:3px 9px;font-size:11px;}
-.btn-big{padding:14px 28px;font-size:15px;border-radius:9px;}
-.fg{display:flex;flex-direction:column;gap:5px;}
-.fl{font-size:11px;color:var(--W1);font-weight:700;letter-spacing:.5px;}
-.fc{background:var(--surface2);border:1px solid var(--border2);color:var(--W1);padding:9px 12px;
+.btn-p{background:var(--acc);color:#000;}.btn-p:hover{background:var(--acc2);}
+.btn-s{background:var(--s2);color:var(--t1);border:1px solid var(--bd2);}
+.btn-s:hover{background:var(--s3);border-color:var(--acc);color:var(--acc);}
+.btn-d{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.btn-d:hover{background:rgba(248,113,113,.2);}
+.btn-g{background:var(--green);color:#000;}.btn-g:hover{filter:brightness(0.9);}
+.btn-y{background:var(--yellow);color:#000;}.btn-y:hover{filter:brightness(0.9);}
+.btn-b{background:var(--blue);color:#000;}.btn-b:hover{filter:brightness(0.9);}
+.sm{padding:6px 11px;font-size:12px;}.xs{padding:3px 8px;font-size:11px;}
+.btn-big{padding:12px 26px;font-size:14px;border-radius:9px;}
+
+/* ── FORMS ── */
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:11px;color:var(--t2);font-weight:700;letter-spacing:.3px;}
+.fc{background:var(--s2);border:1px solid var(--bd2);color:var(--t1);padding:9px 12px;
     border-radius:7px;font-size:13px;font-family:var(--font);transition:border-color .2s;width:100%;font-weight:500;}
-.fc:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,166,255,.15);}
-.fc::placeholder{color:var(--W3);}
-select.fc option{background:var(--surface2);color:var(--W1);}
-.fhint{font-size:11px;color:var(--green);margin-top:3px;font-weight:600;}
-.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;align-items:end;}
-.s2{grid-column:span 2;}
+.fc:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,212,170,.12);}
+.fc::placeholder{color:var(--t3);}
+select.fc option{background:var(--s2);color:var(--t1);}
+.fhint{font-size:11px;color:var(--acc);margin-top:3px;font-weight:600;}
+.ferr{font-size:11px;color:var(--red);margin-top:3px;font-weight:600;}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;align-items:end;}
+.s2{grid-column:span 2;}.s3{grid-column:span 3;}.sfl{grid-column:1/-1;}
+
+/* ── TABLE ── */
 .tw{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{background:var(--surface2);color:var(--W1);font-size:11px;text-transform:uppercase;
-  letter-spacing:1px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border2);white-space:nowrap;font-weight:700;}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
-tbody tr:hover{background:var(--surface2);}
-tbody td{padding:9px 12px;color:var(--W1);vertical-align:middle;white-space:nowrap;font-weight:500;}
-.amt{font-weight:700;font-size:13px;}.dp{color:var(--red);font-weight:700;}.dz{color:var(--green);font-weight:700;}
+thead th{background:var(--s2);color:var(--t2);font-size:10px;text-transform:uppercase;
+  letter-spacing:1px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--bd2);white-space:nowrap;font-weight:700;}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s;}
+tbody tr:hover{background:var(--s2);}
+tbody td{padding:9px 12px;color:var(--t1);vertical-align:middle;white-space:nowrap;font-weight:500;}
+.amt{font-weight:700;font-family:var(--mono);}
+.dp{color:var(--red);font-weight:700;font-family:var(--mono);}
+.dz{color:var(--green);font-weight:700;font-family:var(--mono);}
+
+/* ── BADGES ── */
 .b{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
-.b-pend{background:rgba(227,179,65,.15);color:var(--yellow);border:1px solid rgba(227,179,65,.3);}
-.b-part{background:rgba(188,140,255,.15);color:var(--purple);border:1px solid rgba(188,140,255,.3);}
-.b-recd{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3);}
-.b-canc{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.3);}
-.b-hourly{background:rgba(88,166,255,.12);color:var(--accent);border:1px solid rgba(88,166,255,.25);}
-.b-daily{background:rgba(188,140,255,.12);color:var(--purple);border:1px solid rgba(188,140,255,.25);}
-.b-fixed{background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.25);}
-/* BILLED badge */
-.b-billed{background:rgba(100,100,100,.2);color:#888;border:1px solid rgba(100,100,100,.3);}
-.row-billed{opacity:.5;}
-.row-billed td{color:#888 !important;}
+.b-pend{background:rgba(251,191,36,.15);color:var(--yellow);border:1px solid rgba(251,191,36,.3);}
+.b-part{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.b-recd{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3);}
+.b-canc{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.b-active{background:rgba(0,212,170,.12);color:var(--acc);border:1px solid rgba(0,212,170,.3);}
+.b-closed{background:rgba(100,100,100,.2);color:#888;border:1px solid rgba(100,100,100,.3);}
 
-/* CHECKBOX */
-input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);}
-
-/* SELECTION BAR — appears when entries are selected */
-.sel-bar{display:none;position:sticky;top:0;z-index:50;background:linear-gradient(135deg,#1a2235,#1e2d42);
-  border:1px solid var(--accent);border-radius:10px;padding:14px 18px;margin-bottom:14px;
-  align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 4px 24px rgba(88,166,255,.2);}
-.sel-bar.show{display:flex;}
-.sel-count{font-size:15px;font-weight:700;color:var(--accent);}
-.sel-total{font-size:14px;font-weight:700;color:var(--green);}
-.sel-disc{font-size:12px;color:var(--yellow);font-weight:600;}
-.sel-clear{margin-left:auto;background:none;border:1px solid var(--border2);color:var(--W3);
-  padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;}
-.sel-clear:hover{border-color:var(--red);color:var(--red);}
-
-/* PAGES */
+/* ── PAGES ── */
 .page{display:none;}.page.active{display:block;}
-.tabs{display:flex;gap:3px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px;width:fit-content;}
-.tab{padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--W2);font-weight:600;transition:all .15s;}
-.tab.active{background:var(--accent);color:#000;}
+.tabs{display:flex;gap:3px;margin-bottom:16px;background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:3px;width:fit-content;}
+.tab{padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--t2);font-weight:600;transition:all .15s;}
+.tab.active{background:var(--acc);color:#000;}
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
-.ff{background:var(--surface2);border:1px solid var(--border2);color:var(--W1);padding:7px 10px;
+.ff{background:var(--s2);border:1px solid var(--bd2);color:var(--t1);padding:7px 10px;
     border-radius:7px;font-size:12px;font-family:var(--font);font-weight:600;}
-.ff:focus{outline:none;border-color:var(--accent);}
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;justify-content:center;align-items:center;}
+.ff:focus{outline:none;border-color:var(--acc);}
+
+/* ── MODAL ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;justify-content:center;align-items:center;}
 .mo.open{display:flex;}
-.mbox{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);width:90%;max-width:660px;max-height:90vh;overflow-y:auto;}
-.mh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.mt{font-weight:700;font-size:16px;color:var(--W1);}
-.mb{padding:20px;}.mf{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
-.xbtn{background:none;border:none;color:var(--W3);cursor:pointer;font-size:24px;line-height:1;}
-.xbtn:hover{color:var(--W1);}
+.mbox{background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);width:90%;max-width:680px;max-height:90vh;overflow-y:auto;}
+.mh{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;}
+.mt{font-weight:700;font-size:16px;color:var(--t1);}
+.mb{padding:20px;}
+.mf{padding:12px 20px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:8px;}
+.xbtn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;}
+.xbtn:hover{color:var(--t1);}
+
+/* ── TOAST ── */
 .tc{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:7px;}
-.toast{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:11px 16px;
-  font-size:13px;color:var(--W1);font-weight:600;display:flex;align-items:center;gap:9px;min-width:240px;
+.toast{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:11px 16px;
+  font-size:13px;color:var(--t1);font-weight:600;display:flex;align-items:center;gap:9px;min-width:240px;
   animation:tin .25s ease;box-shadow:0 8px 32px rgba(0,0,0,.6);}
-.toast.s{border-left:3px solid var(--green);}.toast.e{border-left:3px solid var(--red);}
-.toast.i{border-left:3px solid var(--accent);}.toast.w{border-left:3px solid var(--yellow);}
+.toast.s{border-left:3px solid var(--green);}
+.toast.e{border-left:3px solid var(--red);}
+.toast.i{border-left:3px solid var(--blue);}
+.toast.w{border-left:3px solid var(--yellow);}
 @keyframes tin{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-.emp{text-align:center;padding:50px 20px;color:var(--W3);}
-.emp .ei{font-size:38px;margin-bottom:10px;}.emp p{font-size:14px;font-weight:600;}
-.gbox{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);border-radius:8px;
-  padding:12px 15px;font-size:13px;color:#7ee787;font-weight:600;margin-bottom:14px;}
-.wbox{background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.3);border-radius:8px;
-  padding:12px 15px;font-size:13px;color:var(--yellow);font-weight:600;margin-bottom:14px;}
-.abox{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);border-radius:8px;
-  padding:14px 16px;font-size:13px;color:var(--W2);font-weight:600;margin-bottom:14px;line-height:1.9;}
-/* DISCOUNT INFO BOX inside bill modal */
-.disc-box{background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.3);border-radius:8px;
-  padding:12px 16px;margin:10px 0;font-size:13px;line-height:2;}
-.saving{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;
-  justify-content:center;align-items:center;flex-direction:column;gap:16px;}
-.saving.show{display:flex;}
-.spin{width:44px;height:44px;border:4px solid var(--border2);border-top-color:var(--accent);
-  border-radius:50%;animation:rot .8s linear infinite;}
-.spin-lbl{color:var(--W1);font-size:15px;font-weight:700;text-align:center;max-width:320px;line-height:1.6;}
-@keyframes rot{to{transform:rotate(360deg);}}
-.import-bar{display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;margin:10px 0;}
-.import-bar.show{display:block;}
-.prog-wrap{background:var(--surface);border-radius:4px;height:8px;overflow:hidden;margin-top:8px;}
-.prog-fill{height:100%;border-radius:4px;background:var(--green);transition:width .2s;}
+
+/* ── MISC ── */
+.emp{text-align:center;padding:50px 20px;color:var(--t3);}
+.emp .ei{font-size:36px;margin-bottom:10px;}
+.emp p{font-size:14px;font-weight:600;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:1000px){.g2{grid-template-columns:1fr;}}
-@media(max-width:768px){.sb{width:56px;}.logo2,.logo1,.srow,.ns,.ni span:not(.nicon),.push-btn-sb span,.pull-btn-sb span{display:none;}.ni{justify-content:center;padding:11px;}.main{margin-left:56px;padding:12px;}.push-btn-sb,.pull-btn-sb{width:calc(100% - 12px);margin:3px 6px;padding:10px 4px;}.eg{grid-template-columns:1fr 1fr;}.sgrid{grid-template-columns:1fr 1fr;}}
+.gbox{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:8px;
+  padding:12px 15px;font-size:13px;color:var(--green);font-weight:600;margin-bottom:12px;}
+.wbox{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;
+  padding:12px 15px;font-size:13px;color:var(--yellow);font-weight:600;margin-bottom:12px;}
+.abox{background:rgba(77,166,255,.08);border:1px solid rgba(77,166,255,.2);border-radius:8px;
+  padding:14px 16px;font-size:13px;color:var(--t2);font-weight:600;margin-bottom:12px;line-height:1.9;}
+.saving{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;
+  justify-content:center;align-items:center;flex-direction:column;gap:16px;}
+.saving.show{display:flex;}
+.spin{width:42px;height:42px;border:3px solid var(--bd2);border-top-color:var(--acc);
+  border-radius:50%;animation:rot .8s linear infinite;}
+.spin-lbl{color:var(--t1);font-size:14px;font-weight:700;text-align:center;max-width:300px;line-height:1.6;}
+@keyframes rot{to{transform:rotate(360deg);}}
+.prog-wrap{background:var(--s3);border-radius:4px;height:6px;overflow:hidden;margin-top:8px;}
+.prog-fill{height:100%;border-radius:4px;background:var(--acc);transition:width .2s;}
+.divider{height:1px;background:var(--bd);margin:14px 0;}
+.mono{font-family:var(--mono);}
+input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--acc);}
 
-/* ENTRY SELECTION FROM BILLS PAGE */
-.entry-pick{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;margin-bottom:14px;}
-.ep-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
-.ep-row:last-child{border-bottom:none;}
-.ep-chk{flex-shrink:0;}
-.ep-date{font-size:12px;color:var(--W3);font-weight:600;width:80px;}
-.ep-mem{font-size:12px;color:var(--purple);font-weight:600;width:100px;}
-.ep-type{width:60px;}
-.ep-amt{font-weight:700;color:var(--green);margin-left:auto;}
-.ep-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;margin-top:8px;border-top:2px solid var(--accent);}
+/* ── BILL BOOK CARD ── */
+.bb-card{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:16px;
+  display:flex;flex-direction:column;gap:8px;transition:border-color .2s;cursor:default;}
+.bb-card:hover{border-color:var(--acc);}
+.bb-num{font-size:22px;font-weight:700;color:var(--acc);font-family:var(--mono);}
+.bb-range{font-size:12px;color:var(--t3);font-family:var(--mono);}
+.bb-fy{font-size:11px;color:var(--t3);}
+.bb-prog{margin-top:4px;}
+.bb-prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:4px;}
+.bb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px;}
+.bb-actions{display:flex;gap:6px;margin-top:6px;}
+
+/* ── BILL RECEIVE MATCH ── */
+.match-row{display:flex;align-items:center;gap:10px;padding:10px;background:var(--s3);
+  border-radius:8px;margin-bottom:6px;border:1px solid var(--bd);}
+.match-row.matched{border-color:var(--green);background:rgba(52,211,153,.06);}
+.match-row.partial{border-color:var(--yellow);background:rgba(251,191,36,.06);}
+.match-detail{flex:1;}
+.match-billno{font-size:13px;font-weight:700;color:var(--t1);font-family:var(--mono);}
+.match-branch{font-size:11px;color:var(--t3);}
+.match-amt{text-align:right;}
+
+/* ── REPORT SECTION ── */
+.rpt-card{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:10px;}
+.rpt-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.rpt-title{font-size:13px;font-weight:700;color:var(--t1);}
+.rpt-val{font-size:18px;font-weight:700;font-family:var(--mono);}
+
+/* ── PROFILE SETUP ── */
+.setup-banner{background:linear-gradient(135deg,rgba(0,212,170,.1),rgba(77,166,255,.08));
+  border:1px solid rgba(0,212,170,.3);border-radius:10px;padding:20px;margin-bottom:16px;
+  display:flex;align-items:center;gap:16px;}
+.setup-icon{font-size:32px;}
+.setup-text h3{font-size:15px;font-weight:700;color:var(--acc);}
+.setup-text p{font-size:12px;color:var(--t3);margin-top:3px;}
+
+/* RECONCILE */
+.recon-upload{border:2px dashed var(--bd2);border-radius:10px;padding:30px;text-align:center;
+  cursor:pointer;transition:border-color .2s;margin-bottom:14px;}
+.recon-upload:hover{border-color:var(--acc);}
+.recon-upload input{display:none;}
+
+@media(max-width:768px){
+  .sb{width:54px;}
+  .logo2,.logo1,.co-name,.fy-chip,.srow,.ns,.ni span:not(.nicon),.push-btn span,.pull-btn span{display:none;}
+  .ni{justify-content:center;padding:11px;}
+  .main{margin-left:54px;padding:12px;}
+  .eg{grid-template-columns:1fr 1fr;}
+  .sgrid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
@@ -192,1107 +242,1569 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--ac
 <!-- SIDEBAR -->
 <nav class="sb">
   <div class="logo-wrap">
-    <div class="logo1">BANKWORK PRO</div>
-    <div class="logo2">Bill Management System</div>
+    <div class="logo1">🏦 BANKWORK PRO</div>
+    <div class="logo2">v5.0 · Bill Management</div>
+    <div class="co-name" id="sbCoName">—</div>
+    <div class="fy-chip" id="sbFY">FY —</div>
     <div class="srow"><div class="dot" id="sdot"></div><span id="slbl">Local Mode</span></div>
   </div>
-  <button class="push-btn-sb" onclick="pushAll()" id="pushSideBtn"><span>📤</span><span>SAVE TO GOOGLE SHEETS</span></button>
-  <button class="pull-btn-sb" onclick="pullAll()"><span>📥</span><span>Load from Google Sheets</span></button>
+  <div class="sync-btns">
+    <button class="push-btn" onclick="pushAll()" id="pushSideBtn">📤 SAVE TO SHEETS</button>
+    <button class="pull-btn" onclick="pullAll()">📥 Load from Sheets</button>
+  </div>
   <div class="ns">Main</div>
-  <div class="ni active" onclick="nav('dashboard')"><span class="nicon">📊</span><span>Dashboard</span></div>
-  <div class="ni" onclick="nav('entry')"><span class="nicon">✏️</span><span>Data Entry</span></div>
-  <div class="ni" onclick="nav('bills')"><span class="nicon">🧾</span><span>Bill Tracker</span><span class="nbadge" id="pbadge">0</span></div>
+  <div class="ni active" onclick="nav('dashboard')" id="ni-dashboard"><span class="nicon">📊</span><span>Dashboard</span></div>
+  <div class="ni" onclick="nav('billentry')" id="ni-billentry"><span class="nicon">🧾</span><span>Bill Entry</span><span class="nbadge" id="pbadge">0</span></div>
+  <div class="ni" onclick="nav('received')" id="ni-received"><span class="nicon">💰</span><span>Mark Received</span></div>
   <div class="ns">Masters</div>
-  <div class="ni" onclick="nav('branches')"><span class="nicon">🏢</span><span>Branch Master</span></div>
-  <div class="ni" onclick="nav('members')"><span class="nicon">👥</span><span>Team Members</span></div>
+  <div class="ni" onclick="nav('profile')" id="ni-profile"><span class="nicon">🏢</span><span>Company Profile</span></div>
+  <div class="ni" onclick="nav('billbook')" id="ni-billbook"><span class="nicon">📚</span><span>Bill Books</span></div>
+  <div class="ni" onclick="nav('branches')" id="ni-branches"><span class="nicon">🏛️</span><span>Branches</span></div>
   <div class="ns">Reports</div>
-  <div class="ni" onclick="nav('reports')"><span class="nicon">📈</span><span>Reports</span></div>
-  <div class="ni" onclick="nav('reconcile')"><span class="nicon">🔄</span><span>Reconcile</span></div>
+  <div class="ni" onclick="nav('reports')" id="ni-reports"><span class="nicon">📈</span><span>Reports</span></div>
   <div class="ns">Config</div>
-  <div class="ni" onclick="nav('settings')"><span class="nicon">⚙️</span><span>Settings</span></div>
+  <div class="ni" onclick="nav('settings')" id="ni-settings"><span class="nicon">⚙️</span><span>Settings</span></div>
 </nav>
 
 <main class="main">
 
-<!-- DASHBOARD -->
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
 <div id="page-dashboard" class="page active">
   <div class="topbar">
     <div class="ptitle">Dashboard <span>Overview</span></div>
-    <div class="tr"><div class="dchip" id="dchip"></div><button class="btn btn-p sm" onclick="nav('entry')">+ New Entry</button></div>
+    <div class="tr">
+      <div class="dchip" id="dchip"></div>
+      <button class="btn btn-p sm" onclick="nav('billentry')">+ New Bill</button>
+    </div>
   </div>
   <div id="gasBanner"></div>
   <div class="sgrid" id="dStats"></div>
   <div class="g2">
-    <div class="card"><div class="ctitle">Recent Entries</div><div class="tw" id="dRecent"></div></div>
+    <div class="card"><div class="ctitle">Recent Bills</div><div class="tw" id="dRecent"></div></div>
     <div class="card"><div class="ctitle">Top Pending Bills</div><div id="dPending"></div></div>
   </div>
 </div>
 
-<!-- DATA ENTRY -->
-<div id="page-entry" class="page">
+<!-- ═══════════════════ BILL ENTRY ═══════════════════ -->
+<div id="page-billentry" class="page">
   <div class="topbar">
-    <div class="ptitle">Data <span>Entry</span></div>
-    <div class="tr"><button class="btn btn-s sm" onclick="clearEFull()">Clear Form</button></div>
+    <div class="ptitle">Bill <span>Entry</span></div>
+    <div class="tr">
+      <button class="btn btn-s sm" onclick="clearBillForm()">Clear Form</button>
+      <button class="btn btn-g sm" onclick="expCSV('bills')">⬇ CSV</button>
+    </div>
   </div>
+
   <div class="card" style="margin-bottom:16px;">
-    <div class="ctitle">New Work Entry</div>
+    <div class="ctitle">New Bill</div>
     <div class="eg">
-      <div class="fg"><label class="fl">Date *</label><input type="date" id="e_date" class="fc"></div>
-      <div class="fg"><label class="fl">Branch Code *</label><input type="text" id="e_bcode" class="fc" list="bcl" placeholder="Type code..." oninput="autoCode()"><datalist id="bcl"></datalist></div>
-      <div class="fg s2"><label class="fl">Branch Name *</label><input type="text" id="e_bname" class="fc" list="bnl" placeholder="Auto-filled or type..." oninput="autoName()"><datalist id="bnl"></datalist></div>
-      <div class="fg"><label class="fl">Team Member</label><select id="e_mem" class="fc" onchange="onMem()"><option value="">-- Select --</option></select></div>
-      <div class="fg"><label class="fl">Work Type *</label>
-        <select id="e_wt" class="fc" onchange="onWt()">
-          <option value="">-- Select --</option>
-          <option value="hourly">Hourly</option>
-          <option value="daily">Full Day</option>
-          <option value="fixed">Fixed Amount</option>
+      <div class="fg">
+        <label class="fl">Bill Book *</label>
+        <select id="bl_book" class="fc" onchange="onBookSelect()">
+          <option value="">— Select Book —</option>
         </select>
       </div>
-      <div class="fg" id="qg"><label class="fl" id="ql">Hours / Days</label><input type="number" id="e_qty" class="fc" placeholder="e.g. 4" step="0.5" min="0" oninput="calcA()"></div>
-      <div class="fg" id="rg"><label class="fl">Rate (₹)</label><input type="number" id="e_rate" class="fc" placeholder="Auto-filled" oninput="calcA()"></div>
-      <div class="fg"><label class="fl">Amount (₹) *</label><input type="number" id="e_amt" class="fc" placeholder="Auto-calculated"><div class="fhint" id="ahint"></div></div>
-      <div class="fg s2"><label class="fl">Remarks</label><input type="text" id="e_rem" class="fc" placeholder="Optional notes..."></div>
+      <div class="fg">
+        <label class="fl">Bill Number *</label>
+        <input type="text" id="bl_no" class="fc" placeholder="Auto-suggested" oninput="checkBillNo()">
+        <div class="fhint" id="bl_no_hint"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Issue Date *</label>
+        <input type="date" id="bl_issue" class="fc">
+      </div>
+      <div class="fg">
+        <label class="fl">Actual Bill Date</label>
+        <input type="date" id="bl_date" class="fc">
+      </div>
+      <div class="fg">
+        <label class="fl">Branch Code *</label>
+        <input type="text" id="bl_bc" class="fc" list="bbl_cl" placeholder="Code..." oninput="fillBillBr()">
+        <datalist id="bbl_cl"></datalist>
+      </div>
+      <div class="fg s2">
+        <label class="fl">Branch Name *</label>
+        <input type="text" id="bl_bn" class="fc" list="bbl_nl" placeholder="Auto-filled or type..." oninput="fillBillBrByName()">
+        <datalist id="bbl_nl"></datalist>
+      </div>
+      <div class="fg">
+        <label class="fl">District</label>
+        <input type="text" id="bl_dist" class="fc" placeholder="Auto-filled" readonly>
+      </div>
+      <div class="fg">
+        <label class="fl">Bill Amount (₹) *</label>
+        <input type="number" id="bl_amt" class="fc" placeholder="e.g. 5000">
+      </div>
+      <div class="fg s2">
+        <label class="fl">Remarks</label>
+        <input type="text" id="bl_rem" class="fc" placeholder="Optional notes...">
+      </div>
     </div>
     <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <button class="btn btn-p btn-big" onclick="addEntry()">+ Add Entry</button>
-      <span style="font-size:12px;color:var(--W3);font-weight:600;">Same day, multiple branches → enter separately ✓</span>
+      <button class="btn btn-p btn-big" onclick="saveBill()">+ Save Bill</button>
+      <button class="btn btn-s" onclick="clearBillForm()">Clear</button>
+      <span id="bl_edit_id" style="display:none;"></span>
     </div>
   </div>
 
-  <!-- SELECTION BAR — shows when entries checked -->
-  <div class="sel-bar" id="eSelBar">
-    <div>
-      <div class="sel-count" id="eSelCount">0 entries selected</div>
-      <div class="sel-total" id="eSelTotal">Total: ₹0.00</div>
-    </div>
-    <button class="btn btn-o sm" onclick="raiseFromEntry()">🧾 Raise Bill from Selected</button>
-    <button class="sel-clear" onclick="clearEntrySelection()">✕ Clear Selection</button>
-  </div>
-
+  <!-- Bill List -->
   <div class="card">
     <div class="ctitle">
-      All Entries
-      <span id="eCnt" style="font-size:11px;margin-left:6px;background:var(--surface3);padding:2px 9px;border-radius:10px;font-weight:700;color:var(--W1);"></span>
-      <span style="margin-left:auto;font-size:11px;color:var(--W3);font-weight:600;">☑ Check rows → Raise Bill</span>
+      All Bills
+      <span id="bCnt" style="font-size:11px;margin-left:6px;background:var(--s3);padding:2px 9px;border-radius:10px;color:var(--t1);font-weight:700;"></span>
     </div>
     <div class="filters">
-      <input type="date" class="ff" id="ef_d" onchange="renderEntries()">
-      <select class="ff" id="ef_m" onchange="renderEntries()"><option value="">All Members</option></select>
-      <select class="ff" id="ef_w" onchange="renderEntries()"><option value="">All Types</option><option value="hourly">Hourly</option><option value="daily">Full Day</option><option value="fixed">Fixed</option></select>
-      <input type="text" class="ff" id="ef_b" placeholder="Search branch..." oninput="renderEntries()">
-      <select class="ff" id="ef_bstat" onchange="renderEntries()"><option value="">All Status</option><option value="unbilled">Unbilled Only</option><option value="billed">Billed Only</option></select>
-      <button class="btn btn-s sm" onclick="clrEF()">Clear</button>
-      <button class="btn btn-g sm" style="margin-left:auto" onclick="expCSV('entries')">⬇ CSV</button>
+      <select class="ff" id="bf_book" onchange="renderBills()"><option value="">All Books</option></select>
+      <select class="ff" id="bf_s" onchange="renderBills()">
+        <option value="">All Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Partial">Partial</option>
+        <option value="Received">Received</option>
+      </select>
+      <input type="text" class="ff" id="bf_b" placeholder="Search branch/bill#..." oninput="renderBills()">
+      <input type="date" class="ff" id="bf_from" onchange="renderBills()">
+      <input type="date" class="ff" id="bf_to" onchange="renderBills()">
+      <select class="ff" id="bf_fy" onchange="renderBills()"><option value="">All FY</option></select>
+      <button class="btn btn-s sm" onclick="clrBF()">Clear</button>
     </div>
     <div class="tw">
       <table>
         <thead><tr>
-          <th><input type="checkbox" id="chkAll" onchange="toggleAllEntries(this.checked)" title="Select all unbilled"></th>
-          <th>Sl</th><th>Date</th><th>Branch Code</th><th>Branch Name</th>
-          <th>Member</th><th>Type</th><th>Qty</th><th>Rate</th><th>Amount</th>
-          <th>Remarks</th><th>Status</th><th>Del</th>
+          <th>Sl</th><th>Book</th><th>Bill #</th><th>Issue Date</th><th>Bill Date</th>
+          <th>Branch Code</th><th>Branch Name</th><th>District</th><th>Amount</th>
+          <th>Recd Date</th><th>Recd Amt</th><th>Diff</th><th>Status</th><th>Actions</th>
         </tr></thead>
-        <tbody id="eBody"></tbody>
+        <tbody id="bBody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- BILL TRACKER -->
-<div id="page-bills" class="page">
+<!-- ═══════════════════ MARK RECEIVED ═══════════════════ -->
+<div id="page-received" class="page">
   <div class="topbar">
-    <div class="ptitle">Bill <span>Tracker</span></div>
+    <div class="ptitle">Mark <span>Received</span></div>
     <div class="tr">
-      <button class="btn btn-o sm" onclick="openPickEntries()">☑ Select Entries → Raise Bill</button>
+      <button class="btn btn-b sm" onclick="openImportStmt()">📂 Import Bank Statement</button>
     </div>
   </div>
-  <div class="sgrid" id="bStats"></div>
 
-  <!-- ENTRY PICKER for Bills page -->
-  <div id="billEntryPicker" style="display:none;">
-    <div class="card" style="border-color:var(--accent);">
-      <div class="ctitle" style="color:var(--accent);">Step 1 — Select Entries for this Bill</div>
-      <div class="filters">
-        <input type="text" class="ff" id="bep_br" placeholder="Filter by branch..." oninput="renderBillEntryPicker()">
-        <select class="ff" id="bep_mem" onchange="renderBillEntryPicker()"><option value="">All Members</option></select>
-        <input type="date" class="ff" id="bep_from" onchange="renderBillEntryPicker()">
-        <span style="color:var(--W3);font-size:12px;font-weight:600;">to</span>
-        <input type="date" class="ff" id="bep_to" onchange="renderBillEntryPicker()">
-        <button class="btn btn-s sm" onclick="clrBEP()">Clear</button>
-      </div>
-      <div id="bepList"></div>
-      <!-- Selection summary + raise bill button -->
-      <div class="sel-bar show" id="bepSelBar" style="margin-top:10px;margin-bottom:0;">
-        <div>
-          <div class="sel-count" id="bepSelCount">0 entries selected</div>
-          <div class="sel-total" id="bepSelTotal">Total: ₹0.00</div>
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="ctitle">Quick Manual Entry</div>
+      <div class="eg">
+        <div class="fg s2">
+          <label class="fl">Search Bill (Bill# / Branch)</label>
+          <input type="text" id="qp_search" class="fc" placeholder="Type bill number or branch..." oninput="renderQuickPay()">
         </div>
-        <button class="btn btn-o sm" onclick="raiseFromBillPicker()">🧾 Raise Bill from Selected</button>
-        <button class="sel-clear" onclick="closeBillPicker()">✕ Cancel</button>
       </div>
+      <div id="qp_list" style="margin-top:12px;max-height:400px;overflow-y:auto;"></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Summary</div>
+      <div id="recv_summary"></div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="ctitle">All Bills</div>
-    <div class="filters">
-      <select class="ff" id="bf_s" onchange="renderBills()"><option value="">All Status</option><option value="Pending">Pending</option><option value="Partial">Partial</option><option value="Received">Received</option><option value="Cancelled">Cancelled</option></select>
-      <input type="text" class="ff" placeholder="Search branch..." id="bf_b" oninput="renderBills()">
-      <input type="date" class="ff" id="bf_f" onchange="renderBills()"><span style="color:var(--W3);font-size:12px;font-weight:600;">to</span><input type="date" class="ff" id="bf_t" onchange="renderBills()">
-      <button class="btn btn-s sm" onclick="clrBF()">Clear</button>
-      <button class="btn btn-g sm" style="margin-left:auto" onclick="expCSV('bills')">⬇ CSV</button>
+  <!-- CSV import area -->
+  <div class="card" id="stmtImportCard" style="display:none;">
+    <div class="ctitle">Bank Statement Import</div>
+    <div class="abox">CSV must have columns: <strong>bill_no, received_date, received_amount</strong><br>
+    Optional: branch_code, remarks</div>
+    <div class="recon-upload" onclick="document.getElementById('stmtFile').click()">
+      <input type="file" id="stmtFile" accept=".csv" onchange="importBankStmt(event)">
+      <div style="font-size:28px;margin-bottom:8px;">📂</div>
+      <div style="font-size:13px;font-weight:600;color:var(--t2);">Click to upload CSV bank statement</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px;">Automatic matching with pending bills</div>
     </div>
-    <div class="tw"><table><thead><tr><th>Sl</th><th>Issue Date</th><th>Bill No.</th><th>Bill Date</th><th>Branch</th><th>Work Total</th><th>Bill Amt</th><th>Discount</th><th>Recd Date</th><th>Recd Amt</th><th>Difference</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bBody"></tbody></table></div>
+    <div id="stmtResults"></div>
   </div>
 </div>
 
-<!-- BRANCH MASTER -->
+<!-- ═══════════════════ COMPANY PROFILE ═══════════════════ -->
+<div id="page-profile" class="page">
+  <div class="topbar">
+    <div class="ptitle">Company <span>Profile</span></div>
+  </div>
+  <div class="setup-banner">
+    <div class="setup-icon">🏢</div>
+    <div class="setup-text">
+      <h3>Master Setup</h3>
+      <p>Configure your company details, manage financial years, and maintain bill book ranges</p>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Company Details</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="fg"><label class="fl">Company Name *</label><input type="text" id="pr_name" class="fc" placeholder="Your company / firm name..."></div>
+        <div class="fg"><label class="fl">Address</label><textarea id="pr_addr" class="fc" rows="3" placeholder="Full address..."></textarea></div>
+        <div class="fg"><label class="fl">Phone</label><input type="text" id="pr_phone" class="fc" placeholder="Contact number..."></div>
+        <div class="fg"><label class="fl">Email</label><input type="email" id="pr_email" class="fc" placeholder="Email address..."></div>
+        <div class="fg"><label class="fl">GST Number</label><input type="text" id="pr_gst" class="fc" placeholder="GST/TAN number..."></div>
+        <button class="btn btn-p" onclick="saveProfile()">💾 Save Profile</button>
+      </div>
+    </div>
+    <div>
+      <!-- Financial Years -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ctitle">Financial Years</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input type="text" id="fy_new" class="fc" placeholder="e.g. 2025-26" style="flex:1;">
+          <button class="btn btn-p sm" onclick="addFY()">+ Add</button>
+        </div>
+        <div id="fy_list"></div>
+        <div class="divider"></div>
+        <div class="fg" style="margin-top:4px;">
+          <label class="fl">Active Financial Year</label>
+          <select id="fy_active" class="fc" onchange="setActiveFY()"><option value="">— Select —</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BILL BOOKS ═══════════════════ -->
+<div id="page-billbook" class="page">
+  <div class="topbar">
+    <div class="ptitle">Bill <span>Books</span></div>
+    <button class="btn btn-p sm" onclick="openBBMo()">+ New Bill Book</button>
+  </div>
+  <div class="bb-grid" id="bbGrid"></div>
+  <div class="card">
+    <div class="ctitle">All Bill Books</div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Sl</th><th>Book Number</th><th>FY</th><th>From #</th><th>To #</th><th>Total</th><th>Used</th><th>Available</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="bbBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BRANCHES ═══════════════════ -->
 <div id="page-branches" class="page">
   <div class="topbar">
     <div class="ptitle">Branch <span>Master</span></div>
     <div class="tr">
-      <label class="btn btn-s sm" style="cursor:pointer;">📁 Import CSV <input type="file" id="csvFile" accept=".csv,.txt" style="display:none" onchange="importCSV(event)"></label>
-      <button class="btn btn-p sm" onclick="openBrMo(null)">+ Add Branch</button>
+      <button class="btn btn-p sm" onclick="openBrMo()">+ Add Branch</button>
+      <button class="btn btn-s sm" onclick="document.getElementById('brCSV').click()">📂 Import CSV</button>
+      <input type="file" id="brCSV" accept=".csv" style="display:none" onchange="importBranchCSV(event)">
+      <button class="btn btn-s sm" onclick="expCSV('branches')">⬇ Export CSV</button>
     </div>
   </div>
-  <div class="abox">📋 <strong>CSV Format:</strong> Branch Code, Branch Name, District, Pincode &nbsp;·&nbsp; First row = header (auto-skipped) &nbsp;·&nbsp; 1000+ records in 1 second</div>
-  <div id="impBar" class="import-bar"><div style="font-size:13px;color:var(--green);font-weight:700;" id="impMsg">Importing...</div><div class="prog-wrap"><div class="prog-fill" id="impProg" style="width:0%"></div></div></div>
   <div class="card">
-    <div class="ctitle">All Branches <span id="brCnt" style="font-size:11px;margin-left:6px;background:var(--surface3);padding:2px 9px;border-radius:10px;font-weight:700;color:var(--W1);"></span></div>
-    <div class="filters"><input type="text" class="ff" placeholder="Search code / name / district..." id="brSrch" oninput="renderBranches()"><button class="btn btn-g sm" style="margin-left:auto" onclick="expCSV('branches')">⬇ CSV</button></div>
-    <div class="tw"><table><thead><tr><th>Sl</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Pincode</th><th>Actions</th></tr></thead><tbody id="brBody"></tbody></table></div>
+    <div class="filters">
+      <input type="text" class="ff" id="brf_s" placeholder="Search code / name / district..." oninput="renderBranches()">
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Sl</th><th>Code</th><th>Name</th><th>District</th><th>Pincode</th><th>Actions</th></tr></thead>
+        <tbody id="brBody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- TEAM MEMBERS -->
-<div id="page-members" class="page">
-  <div class="topbar"><div class="ptitle">Team <span>Members</span></div><div class="tr"><button class="btn btn-p sm" onclick="openMemMo(null)">+ Add Member</button></div></div>
-  <div class="card">
-    <div class="ctitle">Member Directory</div>
-    <div class="tw"><table><thead><tr><th>Member ID</th><th>Member Name</th><th>Rate/Hour (₹)</th><th>Rate/Full Day (₹)</th><th>Total Entries</th><th>Total Earnings</th><th>Actions</th></tr></thead><tbody id="memBody"></tbody></table></div>
-  </div>
-</div>
-
-<!-- REPORTS -->
+<!-- ═══════════════════ REPORTS ═══════════════════ -->
 <div id="page-reports" class="page">
-  <div class="topbar"><div class="ptitle">Reports & <span>Analytics</span></div><div class="tr"><button class="btn btn-g sm" onclick="expReport(1)">⬇ Report 1 CSV</button><button class="btn btn-g sm" onclick="expReport(2)">⬇ Report 2 CSV</button></div></div>
-  <div class="tabs"><div class="tab active" onclick="rTab('branch')">Branch Summary</div><div class="tab" onclick="rTab('detail')">Detailed Ledger</div><div class="tab" onclick="rTab('member')">Member-wise</div></div>
+  <div class="topbar">
+    <div class="ptitle">Reports <span>&amp; Analytics</span></div>
+    <div class="tr">
+      <select class="ff" id="rpt_fy" onchange="renderReports()"><option value="">All FY</option></select>
+      <button class="btn btn-s sm" onclick="expReportCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="rTab('branch',this)">Branch-wise</div>
+    <div class="tab" onclick="rTab('district',this)">District-wise</div>
+    <div class="tab" onclick="rTab('billbook',this)">Bill Book</div>
+    <div class="tab" onclick="rTab('monthly',this)">Monthly</div>
+    <div class="tab" onclick="rTab('outstanding',this)">Outstanding</div>
+  </div>
   <div class="filters">
-    <input type="date" class="ff" id="rf_f" onchange="renderReports()"><span style="color:var(--W3);font-size:12px;font-weight:600;">to</span><input type="date" class="ff" id="rf_t" onchange="renderReports()">
-    <input type="text" class="ff" id="rf_br" placeholder="🔍 Branch code/name..." oninput="renderReports()" style="min-width:180px;">
-    <select class="ff" id="rf_dist" onchange="renderReports()"><option value="">All Districts</option></select>
-    <select class="ff" id="rf_m" onchange="renderReports()"><option value="">All Members</option></select>
+    <select class="ff" id="rf_status" onchange="renderReports()">
+      <option value="">All Status</option>
+      <option value="Pending">Pending</option>
+      <option value="Partial">Partial</option>
+      <option value="Received">Received</option>
+    </select>
+    <input type="date" class="ff" id="rf_from" onchange="renderReports()">
+    <input type="date" class="ff" id="rf_to" onchange="renderReports()">
     <button class="btn btn-s sm" onclick="clrRF()">Clear</button>
   </div>
-  <div id="rp-branch"><div class="card"><div class="ctitle">Report 1 — Branch Summary</div><div class="tw"><table><thead><tr><th>Sl</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Pincode</th><th>Days Worked</th><th>Total Work Amt</th><th>Total Billed</th><th>Total Received</th><th>Difference</th></tr></thead><tbody id="r1"></tbody></table></div></div></div>
-  <div id="rp-detail" style="display:none;"><div class="card"><div class="ctitle">Report 2 — Detailed Ledger</div><div class="tw"><table><thead><tr><th>Sl</th><th>Date</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Member</th><th>Type</th><th>Qty</th><th>Rate</th><th>Work Amt</th><th>Bill No.</th><th>Bill Amt</th><th>Status</th></tr></thead><tbody id="r2"></tbody></table></div></div></div>
-  <div id="rp-member" style="display:none;"><div class="card"><div class="ctitle">Member-wise Summary</div><div class="tw"><table><thead><tr><th>Member</th><th>Total Hours</th><th>Total Days</th><th>Fixed Works</th><th>Total Amount</th><th>Branches</th></tr></thead><tbody id="rm"></tbody></table></div></div></div>
+  <div id="rptContent"></div>
 </div>
 
-<!-- RECONCILE -->
-<div id="page-reconcile" class="page">
-  <div class="topbar"><div class="ptitle">Bill <span>Reconciliation</span></div></div>
-  <div class="sgrid" id="rcStats"></div>
-  <div class="card"><div class="ctitle">Pending & Partial — Action Required</div>
-  <div class="tw"><table><thead><tr><th>Bill No.</th><th>Branch</th><th>Work Total</th><th>Bill Amt</th><th>Discount</th><th>Received</th><th>Pending</th><th>Status</th><th>Days</th><th>Quick Update</th></tr></thead><tbody id="rcBody"></tbody></table></div></div>
-</div>
-
-<!-- SETTINGS -->
+<!-- ═══════════════════ SETTINGS ═══════════════════ -->
 <div id="page-settings" class="page">
-  <div class="topbar"><div class="ptitle">App <span>Settings</span></div></div>
+  <div class="topbar"><div class="ptitle">Settings <span>&amp; Sync</span></div></div>
   <div class="g2">
     <div class="card">
-      <div class="ctitle">Google Sheets Connection</div>
-      <div id="gasStatusBox" class="wbox">Not connected yet</div>
+      <div class="ctitle">Google Sheets Sync</div>
       <div class="fg" style="margin-bottom:12px;">
         <label class="fl">Google Apps Script URL</label>
-        <input type="text" id="gasUrl" class="fc" placeholder="https://script.google.com/macros/s/.../exec">
+        <input type="text" id="gasUrl" class="fc" placeholder="https://script.google.com/macros/s/...">
+        <div class="fhint" id="gasHint"></div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-        <button class="btn btn-p sm" onclick="saveGas()">💾 Save & Connect</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-p sm" onclick="saveGas()">💾 Save URL</button>
+        <button class="btn btn-s sm" onclick="testGas()">🔌 Test Connection</button>
         <button class="btn btn-d sm" onclick="clearGas()">✕ Disconnect</button>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-g" style="padding:14px;font-size:15px;justify-content:center;" onclick="pushAll()">📤 SAVE ALL DATA → Google Sheets</button>
-        <button class="btn btn-s" style="padding:12px;font-size:14px;justify-content:center;border-color:var(--accent);color:var(--accent);" onclick="pullAll()">📥 LOAD DATA ← Google Sheets</button>
-      </div>
-      <div id="gasTestMsg" style="margin-top:12px;font-size:13px;font-weight:700;color:var(--W3);"></div>
+      <div id="gasBannerSet" style="margin-top:12px;"></div>
     </div>
     <div class="card">
-      <div class="ctitle">Backup & Restore</div>
+      <div class="ctitle">Data Management</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-g sm" onclick="expJSON()">⬇ Export Full Backup (.json)</button>
-        <label class="btn btn-s sm" style="cursor:pointer;">📁 Import Backup (.json)<input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
-        <button class="btn btn-d sm" onclick="clearAll()">🗑 Delete ALL Data</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="ctitle">App Info</div>
-      <div style="font-size:14px;color:var(--W1);font-weight:700;line-height:2.6;">
-        <div>Version: <span style="color:var(--accent)">4.0</span></div>
-        <div>Entries: <span id="cfgE" style="color:var(--accent)">0</span></div>
-        <div>Bills: <span id="cfgB" style="color:var(--accent)">0</span></div>
-        <div>Branches: <span id="cfgBr" style="color:var(--accent)">0</span></div>
-        <div>Members: <span id="cfgM" style="color:var(--accent)">0</span></div>
-        <div>GAS Sync: <span id="cfgGas" style="color:var(--red)">NOT CONNECTED</span></div>
+        <button class="btn btn-s" onclick="expJSON()">📤 Export Full Backup (JSON)</button>
+        <label class="btn btn-s" style="cursor:pointer;">📥 Import Backup (JSON)<input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
+        <button class="btn btn-d" onclick="clearAll()">🗑 Clear ALL Data</button>
       </div>
     </div>
   </div>
 </div>
 
 </main>
-</div>
+</div><!-- /app -->
 
-<!-- MODALS -->
-<div class="mo" id="moB">
-  <div class="mbox"><div class="mh"><span class="mt" id="bmT">Add Branch</span><button class="xbtn" onclick="closeMo('moB')">×</button></div>
-  <div class="mb"><div class="eg">
-    <div class="fg"><label class="fl">Branch Code *</label><input type="text" id="bm_c" class="fc" placeholder="e.g. BR001"></div>
-    <div class="fg"><label class="fl">Branch Name *</label><input type="text" id="bm_n" class="fc"></div>
-    <div class="fg"><label class="fl">District</label><input type="text" id="bm_d" class="fc"></div>
-    <div class="fg"><label class="fl">Pincode</label><input type="text" id="bm_p" class="fc"></div>
-  </div></div>
-  <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moB')">Cancel</button><button class="btn btn-p sm" onclick="saveBranch()">Save Branch</button></div></div>
-</div>
+<!-- ═══════════════════ MODALS ═══════════════════ -->
 
-<div class="mo" id="moM">
-  <div class="mbox"><div class="mh"><span class="mt" id="mmT">Add Member</span><button class="xbtn" onclick="closeMo('moM')">×</button></div>
-  <div class="mb"><div class="eg">
-    <div class="fg"><label class="fl">Member ID *</label><input type="text" id="mm_i" class="fc" placeholder="e.g. M001"></div>
-    <div class="fg"><label class="fl">Member Name *</label><input type="text" id="mm_n" class="fc"></div>
-    <div class="fg"><label class="fl">Rate Per Hour (₹)</label><input type="number" id="mm_h" class="fc" placeholder="0"></div>
-    <div class="fg"><label class="fl">Rate Per Full Day (₹)</label><input type="number" id="mm_d" class="fc" placeholder="0"></div>
-  </div></div>
-  <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moM')">Cancel</button><button class="btn btn-p sm" onclick="saveMember()">Save Member</button></div></div>
-</div>
-
-<!-- BILL MODAL — opened from entry selection -->
-<div class="mo" id="moBl">
-  <div class="mbox" style="max-width:720px;">
-    <div class="mh"><span class="mt" id="blT">Raise Bill</span><button class="xbtn" onclick="closeMo('moBl')">×</button></div>
+<!-- Bill Book Modal -->
+<div class="mo" id="moBB">
+  <div class="mbox">
+    <div class="mh"><div class="mt" id="moBBTitle">New Bill Book</div><button class="xbtn" onclick="closeMo('moBB')">✕</button></div>
     <div class="mb">
-      <!-- Entries summary (shown when raised from selection) -->
-      <div id="blEntryInfo" style="display:none;margin-bottom:14px;"></div>
-      <!-- Discount info (shown when bill amount < work total) -->
-      <div id="blDiscInfo" style="display:none;" class="disc-box"></div>
       <div class="eg">
-        <div class="fg"><label class="fl">Issue Date *</label><input type="date" id="bl_id" class="fc"></div>
-        <div class="fg"><label class="fl">Bill No. *</label><input type="text" id="bl_no" class="fc"></div>
-        <div class="fg"><label class="fl">Bill Date</label><input type="date" id="bl_bd" class="fc"></div>
-        <div class="fg"><label class="fl">Branch Code</label><input type="text" id="bl_bc" class="fc" list="bl_bcl" oninput="fillBillBr()"><datalist id="bl_bcl"></datalist></div>
-        <div class="fg s2"><label class="fl">Branch Name</label><input type="text" id="bl_bn" class="fc"></div>
-        <div class="fg"><label class="fl">Work Total (₹)</label><input type="number" id="bl_wt" class="fc" readonly style="color:var(--green);font-weight:700;" placeholder="Auto from entries"></div>
-        <div class="fg"><label class="fl">Bill Amount (₹) *</label><input type="number" id="bl_a" class="fc" oninput="calcBD()" placeholder="Can edit for discount"></div>
-        <div class="fg"><label class="fl">Received Date</label><input type="date" id="bl_rd" class="fc"></div>
-        <div class="fg"><label class="fl">Received Amount (₹)</label><input type="number" id="bl_ra" class="fc" oninput="calcBD()"></div>
-        <div class="fg"><label class="fl">Difference (₹)</label><input type="number" id="bl_df" class="fc" readonly style="color:var(--yellow);font-weight:700;"></div>
-        <div class="fg"><label class="fl">Status *</label>
-          <select id="bl_st" class="fc"><option value="Pending">Pending</option><option value="Partial">Partial</option><option value="Received">Received</option><option value="Cancelled">Cancelled</option></select>
+        <div class="fg"><label class="fl">Bill Book Number *</label><input type="text" id="bb_num" class="fc" placeholder="e.g. BB-01 or 2025-A"></div>
+        <div class="fg"><label class="fl">Financial Year *</label><select id="bb_fy" class="fc"><option value="">— Select FY —</option></select></div>
+        <div class="fg"><label class="fl">From Number *</label><input type="number" id="bb_from" class="fc" placeholder="e.g. 4001" oninput="calcBBTotal()"></div>
+        <div class="fg"><label class="fl">To Number *</label><input type="number" id="bb_to" class="fc" placeholder="e.g. 4100" oninput="calcBBTotal()"></div>
+        <div class="fg s2"><div class="fhint" id="bb_total_hint"></div></div>
+        <div class="fg"><label class="fl">Status</label>
+          <select id="bb_status" class="fc">
+            <option value="Active">Active</option>
+            <option value="Closed">Closed</option>
+          </select>
         </div>
+        <div class="fg"><label class="fl">Notes</label><input type="text" id="bb_notes" class="fc" placeholder="Optional..."></div>
       </div>
+      <span id="bb_edit_id" style="display:none;"></span>
     </div>
-    <div class="mf"><button class="btn btn-s sm" onclick="closeMo('moBl')">Cancel</button><button class="btn btn-o sm" onclick="saveBill()">🧾 Save Bill</button></div>
+    <div class="mf">
+      <button class="btn btn-s" onclick="closeMo('moBB')">Cancel</button>
+      <button class="btn btn-p" onclick="saveBillBook()">💾 Save</button>
+    </div>
   </div>
 </div>
 
-<!-- QUICK PAY MODAL -->
-<div class="mo" id="moQP">
-  <div class="mbox" style="max-width:480px;">
-    <div class="mh">
-      <span class="mt">💰 Update Payment</span>
-      <button class="xbtn" onclick="closeMo('moQP')">×</button>
-    </div>
+<!-- Branch Modal -->
+<div class="mo" id="moBr">
+  <div class="mbox" style="max-width:500px;">
+    <div class="mh"><div class="mt" id="moBrTitle">Add Branch</div><button class="xbtn" onclick="closeMo('moBr')">✕</button></div>
     <div class="mb">
-      <input type="hidden" id="qp_billId">
-      <div id="qp_info"></div>
-      <div class="eg">
-        <div class="fg s2">
-          <label class="fl">Amount Received Now (₹) *</label>
-          <input type="number" id="qp_amt" class="fc" placeholder="Enter amount received" min="0" step="0.01" autofocus>
-        </div>
-        <div class="fg">
-          <label class="fl">Payment Received Date *</label>
-          <input type="date" id="qp_date" class="fc">
-        </div>
-        <div class="fg">
-          <label class="fl">Cheque / Reference No.</label>
-          <input type="text" id="qp_cheque" class="fc" placeholder="e.g. CHQ/001 or UPI ref">
-        </div>
-        <div class="fg s2">
-          <label class="fl">Remarks</label>
-          <input type="text" id="qp_rem" class="fc" placeholder="Optional notes...">
-        </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="fg"><label class="fl">Branch Code *</label><input type="text" id="br_code" class="fc" placeholder="e.g. SBI001"></div>
+        <div class="fg"><label class="fl">Branch Name *</label><input type="text" id="br_name" class="fc" placeholder="Full branch name..."></div>
+        <div class="fg"><label class="fl">District *</label><input type="text" id="br_dist" class="fc" placeholder="e.g. Coimbatore"></div>
+        <div class="fg"><label class="fl">Pincode</label><input type="text" id="br_pin" class="fc" placeholder="e.g. 641001"></div>
+        <span id="br_edit_id" style="display:none;"></span>
       </div>
     </div>
     <div class="mf">
-      <button class="btn btn-s sm" onclick="closeMo('moQP')">Cancel</button>
-      <button class="btn btn-g sm" onclick="saveQuickPay()">✅ Save Payment</button>
+      <button class="btn btn-s" onclick="closeMo('moBr')">Cancel</button>
+      <button class="btn btn-p" onclick="saveBranch()">💾 Save</button>
     </div>
   </div>
 </div>
 
-<div class="saving" id="savingDiv"><div class="spin"></div><div class="spin-lbl" id="savingLbl">Saving...</div></div>
+<!-- Quick Pay Modal -->
+<div class="mo" id="moQP">
+  <div class="mbox" style="max-width:500px;">
+    <div class="mh"><div class="mt">Mark as Received</div><button class="xbtn" onclick="closeMo('moQP')">✕</button></div>
+    <div class="mb">
+      <div id="qp_bill_info" class="abox" style="margin-bottom:12px;"></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="fg"><label class="fl">Received Date *</label><input type="date" id="qp_date" class="fc"></div>
+        <div class="fg"><label class="fl">Received Amount (₹) *</label><input type="number" id="qp_amt" class="fc" placeholder="Amount received..."></div>
+        <div class="fg"><label class="fl">Remarks</label><input type="text" id="qp_rem" class="fc" placeholder="Optional..."></div>
+        <span id="qp_bid" style="display:none;"></span>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-s" onclick="closeMo('moQP')">Cancel</button>
+      <button class="btn btn-p" onclick="saveQuickPay()">✅ Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Saving overlay -->
+<div class="saving" id="savingDiv">
+  <div class="spin"></div>
+  <div class="spin-lbl" id="savingLbl">Saving...</div>
+</div>
+
+<!-- Toast container -->
 <div class="tc" id="tc"></div>
 
 <script>
-const LS='bwpro40';
-let DB={entries:[],bills:[],branches:[],members:[],config:{nextBillNo:1}};
-let GAS='';
-let eId={branch:null,member:null,bill:null};
-let rptTab='branch';
-let curPage='dashboard';
-let selectedEntryIds=new Set(); // entries checked in Data Entry page
-let billEntryIds=[]; // entry ids linked to the bill being raised
+// ═══════════════════════════════════════════════════════════════
+//  BANKWORK PRO v5.0 — Main Script
+// ═══════════════════════════════════════════════════════════════
+
+const LS = 'bwpro5';
+
+let DB = {
+  entries:   [],
+  bills:     [],
+  branches:  [],
+  billbooks: [],
+  config:    { nextBillNo: 1 },
+  profile:   { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' },
+  fyList:    []
+};
+
+let GAS = '';
+let curPage = 'dashboard';
+let curRptTab = 'branch';
+let eId = { branch: null, billbook: null, bill: null };
 
 // ── STORAGE ──────────────────────────────────────────────────────
-function save(){try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){toast('Storage full! Export backup.','w');}}
-function load(){
-  try{
-    // Migrate from older keys
-    const keys=['bwpro33','bwpro32'];
-    let s=localStorage.getItem(LS);
-    if(!s){for(const k of keys){s=localStorage.getItem(k);if(s)break;}}
-    if(s){const d=JSON.parse(s);DB.entries=Array.isArray(d.entries)?d.entries:[];DB.bills=Array.isArray(d.bills)?d.bills:[];DB.branches=Array.isArray(d.branches)?d.branches:[];DB.members=Array.isArray(d.members)?d.members:[];DB.config=d.config||{nextBillNo:1};}
-    GAS=localStorage.getItem('bwpro_gas')||'';
-  }catch(e){}
+function save() {
+  try { localStorage.setItem(LS, JSON.stringify(DB)); }
+  catch(e) { toast('Storage full! Export backup.','w'); }
 }
 
-// ── PUSH / PULL ───────────────────────────────────────────────────
-async function pushAll(){
-  if(!GAS){toast('⚠️ Connect Google Sheets first!\nGo to ⚙️ Settings','w');nav('settings');return;}
-  showSaving('Saving to Google Sheets...\nStarting...');setSS('busy','Saving...');
-  try{
-    const MAX=40;
-    const chunks=(arr)=>{if(!arr||arr.length===0)return[[]];const out=[];for(let i=0;i<arr.length;i+=MAX)out.push(arr.slice(i,i+MAX));return out;};
-    const cols=[{key:'entries',data:DB.entries,label:'Entries'},{key:'bills',data:DB.bills,label:'Bills'},{key:'branches',data:DB.branches,label:'Branch Master'},{key:'members',data:DB.members,label:'Members'}];
-    let totalRows=0;
-    for(const col of cols){
-      const batches=chunks(col.data);
-      for(let i=0;i<batches.length;i++){
-        const action=i===0?'pushAll':'appendChunk';
-        const payload={[col.key]:batches[i],config:DB.config};
-        const url=GAS+'?action='+action+'&payload='+encodeURIComponent(JSON.stringify(payload));
-        try{await fetch(url,{method:'GET',mode:'no-cors'});}catch(e){}
-        totalRows+=batches[i].length;
-        await new Promise(r=>setTimeout(r,400));
-        showSaving(`Saving...\n📋 ${col.label}: ${i+1}/${batches.length}`);
+function load() {
+  try {
+    let s = localStorage.getItem(LS);
+    if (!s) { // migrate from old versions
+      const old = ['bwpro4','bwpro33','bwpro32'];
+      for (const k of old) { s = localStorage.getItem(k); if (s) break; }
+    }
+    if (s) {
+      const d = JSON.parse(s);
+      DB.bills     = Array.isArray(d.bills)     ? d.bills     : [];
+      DB.branches  = Array.isArray(d.branches)  ? d.branches  : [];
+      DB.entries   = Array.isArray(d.entries)   ? d.entries   : [];
+      DB.billbooks = Array.isArray(d.billbooks) ? d.billbooks : [];
+      DB.config    = d.config  || { nextBillNo: 1 };
+      DB.profile   = d.profile || { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' };
+      DB.fyList    = Array.isArray(d.fyList)    ? d.fyList    : [];
+    }
+    GAS = localStorage.getItem('bwpro_gas') || '';
+  } catch(e) {}
+}
+
+// ── UTILS ────────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function td()  { return new Date().toISOString().slice(0,10); }
+function fmt(n) { return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtd(s) { if (!s) return '—'; try { return new Date(s).toLocaleDateString('en-IN'); } catch(e) { return s; } }
+function closeMo(id) { document.getElementById(id).classList.remove('open'); }
+function showSaving(msg) { document.getElementById('savingLbl').textContent = msg; document.getElementById('savingDiv').classList.add('show'); }
+function hideSaving() { document.getElementById('savingDiv').classList.remove('show'); }
+
+function toast(msg, t='i') {
+  const c = document.getElementById('tc');
+  const el = document.createElement('div');
+  el.className = 'toast ' + t;
+  el.innerHTML = (t==='s'?'✅':t==='e'?'❌':t==='w'?'⚠️':'ℹ️') + ' ' + msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+function nav(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  const ni = document.getElementById('ni-' + p);
+  if (ni) ni.classList.add('active');
+  curPage = p;
+  renderCurrentPage();
+}
+
+function renderCurrentPage() {
+  const fns = {
+    dashboard: renderDash,
+    billentry: renderBillEntry,
+    received:  renderReceived,
+    profile:   renderProfile,
+    billbook:  renderBillBooks,
+    branches:  renderBranches,
+    reports:   renderReports,
+    settings:  renderSettings
+  };
+  if (fns[curPage]) fns[curPage]();
+  updateBadge();
+  updateSidebar();
+}
+
+function updateBadge() {
+  const n = DB.bills.filter(b => b.status === 'Pending' || b.status === 'Partial').length;
+  document.getElementById('pbadge').textContent = n;
+}
+
+function updateSidebar() {
+  const p = DB.profile || {};
+  document.getElementById('sbCoName').textContent = p.name || '(No Company)';
+  document.getElementById('sbFY').textContent = 'FY ' + (p.activeFY || '—');
+  document.getElementById('dchip').textContent = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function setSS(s, l) {
+  document.getElementById('sdot').className = 'dot ' + s;
+  document.getElementById('slbl').textContent = l;
+}
+
+// ── GAS SYNC ─────────────────────────────────────────────────────
+async function pushAll() {
+  if (!GAS) { toast('Set Google Sheets URL in Settings first','w'); nav('settings'); return; }
+  showSaving('Saving to Google Sheets…');
+  try {
+    const BATCH = 40;
+    const data = { bills: DB.bills, branches: DB.branches, billbooks: DB.billbooks, config: DB.config };
+    
+    // First batch
+    const first = {};
+    ['bills','branches','billbooks'].forEach(k => { first[k] = (data[k]||[]).slice(0,BATCH); });
+    first.config = data.config;
+    
+    const r1 = await gasReq('pushAll', first);
+    if (!r1.ok) throw new Error(r1.error || 'Push failed');
+
+    // Extra chunks
+    for (const k of ['bills','branches','billbooks']) {
+      const arr = data[k] || [];
+      for (let i = BATCH; i < arr.length; i += BATCH) {
+        const chunk = {}; chunk[k] = arr.slice(i, i + BATCH);
+        await gasReq('appendChunk', chunk);
       }
     }
-    hideSaving();setSS('ok','Saved ✓');
-    toast(`✅ Saved!\nBranches:${DB.branches.length} Entries:${DB.entries.length}\nBills:${DB.bills.length} Members:${DB.members.length}`,'s');
-    document.getElementById('gasBanner').innerHTML=`<div class="gbox" style="margin-bottom:14px;">✅ Synced: ${new Date().toLocaleTimeString('en-IN')}</div>`;
-  }catch(e){hideSaving();setSS('err','Error');toast('Push error: '+e.message,'e');}
+
+    setSS('ok','Synced'); toast('Saved to Google Sheets ✓','s');
+  } catch(e) { setSS('err','Sync Error'); toast('Sync failed: ' + e.message,'e'); }
+  hideSaving();
 }
 
-function pullAll(){
-  if(!GAS){toast('Connect Google Sheets first in ⚙️ Settings','w');nav('settings');return;}
-  showSaving('Loading from Google Sheets...');setSS('busy','Loading...');
-  const cbName='bwpro_cb_'+Date.now();let done=false;
-  window[cbName]=function(json){
-    done=true;hideSaving();delete window[cbName];
-    const s=document.getElementById('jsonp_script');if(s)s.remove();
-    if(json&&Array.isArray(json.entries)){
-      DB.entries=json.entries||[];DB.bills=json.bills||[];DB.branches=json.branches||[];DB.members=json.members||[];DB.config=json.config||{nextBillNo:1};
-      save();setSS('ok','Loaded ✓');renderCurrentPage();
-      toast(`✅ Loaded!\n${DB.entries.length} entries, ${DB.branches.length} branches`,'s');
-    }else{setSS('err','Error');toast('Invalid data from GAS','e');}
+function pullAll() {
+  if (!GAS) { toast('Set Google Sheets URL in Settings first','w'); nav('settings'); return; }
+  showSaving('Loading from Google Sheets…');
+  setSS('busy','Loading…');
+  const url = GAS + '?action=getAll&callback=_bwcb_';
+  const s = document.createElement('script');
+  s.src = url; document.body.appendChild(s);
+  window._bwcb_ = function(d) {
+    s.remove(); delete window._bwcb_;
+    if (d.error) { setSS('err','Error'); hideSaving(); toast('Load failed: ' + d.error,'e'); return; }
+    DB.bills     = d.bills     || [];
+    DB.branches  = d.branches  || [];
+    DB.billbooks = d.billbooks || [];
+    DB.config    = d.config    || { nextBillNo: 1 };
+    save(); renderCurrentPage(); setSS('ok','Synced');
+    hideSaving(); toast('Data loaded ✓','s');
   };
-  setTimeout(()=>{if(!done){hideSaving();setSS('err','Timeout');delete window[cbName];toast('⚠️ Pull timed out. Check URL and access settings.','w');}},20000);
-  const script=document.createElement('script');script.id='jsonp_script';
-  script.src=GAS+'?action=getAll&callback='+cbName;document.head.appendChild(script);
+  setTimeout(() => { if (window._bwcb_) { hideSaving(); setSS('err','Timeout'); toast('Timeout','e'); } }, 15000);
 }
 
-// ── UTILS ─────────────────────────────────────────────────────────
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const fmt=n=>Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2});
-const fd=d=>{if(!d)return'—';const p=String(d).split('T')[0].split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d;};
-const td=()=>new Date().toISOString().split('T')[0];
-const SB={Pending:'b-pend',Partial:'b-part',Received:'b-recd',Cancelled:'b-canc'};
-
-function toast(msg,t='i'){
-  const ic={s:'✅',e:'❌',i:'ℹ️',w:'⚠️'};
-  const el=document.createElement('div');el.className=`toast ${t}`;
-  el.innerHTML=`<span style="font-size:16px">${ic[t]}</span><span style="white-space:pre-line">${msg}</span>`;
-  document.getElementById('tc').appendChild(el);setTimeout(()=>el.remove(),5000);
-}
-function closeMo(id){document.getElementById(id).classList.remove('open');}
-function updBadge(){document.getElementById('pbadge').textContent=DB.bills.filter(b=>b.status==='Pending'||b.status==='Partial').length;}
-function setSS(s,l){document.getElementById('sdot').className='dot '+s;document.getElementById('slbl').textContent=l;}
-function showSaving(msg){document.getElementById('savingLbl').textContent=msg;document.getElementById('savingDiv').classList.add('show');}
-function hideSaving(){document.getElementById('savingDiv').classList.remove('show');}
-
-// ── NAV ───────────────────────────────────────────────────────────
-function nav(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  document.querySelectorAll('.ni').forEach(x=>{if(x.getAttribute('onclick')?.includes(`'${p}'`))x.classList.add('active');});
-  curPage=p;renderCurrentPage();
-}
-function renderCurrentPage(){
-  if(curPage==='dashboard')renderDash();
-  if(curPage==='entry'){popDrops();renderEntries();}
-  if(curPage==='bills'){renderBStats();renderBills();renderBillEntryPicker();}
-  if(curPage==='branches')renderBranches();
-  if(curPage==='members')renderMembers();
-  if(curPage==='reports')renderReports();
-  if(curPage==='reconcile')renderReconcile();
-  if(curPage==='settings')renderSettings();
-  updBadge();
+async function gasReq(action, data) {
+  const r = await fetch(GAS + '?action=' + action + '&payload=' + encodeURIComponent(JSON.stringify(data)));
+  return r.json();
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────
-function renderDash(){
-  document.getElementById('dchip').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-  const tw=DB.entries.reduce((s,e)=>s+Number(e.amount||0),0);
-  const tb=DB.bills.reduce((s,b)=>s+Number(b.amount||0),0);
-  const tr=DB.bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);
-  const pend=DB.bills.filter(b=>b.status==='Pending'||b.status==='Partial');
-  const pa=pend.reduce((s,b)=>s+(Number(b.amount||0)-Number(b.recdAmt||0)),0);
-  const unbilled=DB.entries.filter(e=>!e.billId).length;
-  document.getElementById('dStats').innerHTML=`
-    <div class="sc c"><div class="slbl">Total Work Amount</div><div class="sval c">₹${fmt(tw)}</div><div class="ssub">${DB.entries.length} entries</div></div>
-    <div class="sc w"><div class="slbl">Unbilled Entries</div><div class="sval w">${unbilled}</div><div class="ssub">Not yet billed</div></div>
-    <div class="sc p"><div class="slbl">Total Billed</div><div class="sval p">₹${fmt(tb)}</div><div class="ssub">${DB.bills.length} bills</div></div>
-    <div class="sc g"><div class="slbl">Total Received</div><div class="sval g">₹${fmt(tr)}</div><div class="ssub">Collected</div></div>
-    <div class="sc d"><div class="slbl">Pending Amount</div><div class="sval d">₹${fmt(pa)}</div><div class="ssub">${pend.length} pending</div></div>`;
-  const rec=[...DB.entries].reverse().slice(0,8);
-  document.getElementById('dRecent').innerHTML='<table><thead><tr><th>Date</th><th>Branch</th><th>Member</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>'
-    +(rec.length?rec.map(e=>`<tr><td>${fd(e.date)}</td><td>${e.bname}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td class="amt">₹${fmt(e.amount)}</td><td>${e.billId?`<span class="b b-billed">BILLED</span>`:'<span class="b" style="background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.3);">Unbilled</span>'}</td></tr>`).join('')
-    :'<tr><td colspan="6"><div class="emp"><div class="ei">📝</div><p>No entries yet</p></div></td></tr>')+'</tbody></table>';
-  document.getElementById('dPending').innerHTML=pend.length?pend.slice(0,5).map(b=>{
-    const d=Number(b.amount||0)-Number(b.recdAmt||0);
-    return `<div style="padding:11px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-size:14px;font-weight:700;">${b.bname||'—'}</div>
-      <div style="font-size:12px;color:var(--W3);font-weight:600;margin-top:2px">${b.billNo||'—'} · ${fd(b.issueDate)}</div></div>
-      <div style="text-align:right"><div class="dp" style="font-size:15px">₹${fmt(d)}</div><span class="b ${SB[b.status]||'b-pend'}">${b.status}</span></div>
-    </div>`}).join(''):'<div class="emp"><div class="ei">🎉</div><p>All bills cleared!</p></div>';
+// ── DASHBOARD ────────────────────────────────────────────────────
+function renderDash() {
+  const bills = DB.bills;
+  const total  = bills.reduce((s,b) => s + (Number(b.amount)||0), 0);
+  const recd   = bills.reduce((s,b) => s + (Number(b.recdAmt)||0), 0);
+  const pend   = bills.filter(b => b.status === 'Pending').length;
+  const partial= bills.filter(b => b.status === 'Partial').length;
+  const diff   = bills.reduce((s,b) => s + (Number(b.diff)||0), 0);
+
+  document.getElementById('dStats').innerHTML = `
+    <div class="sc c"><div class="slbl">Total Billed</div><div class="sval c">₹${fmt(total)}</div><div class="ssub">${bills.length} bills</div></div>
+    <div class="sc g"><div class="slbl">Total Received</div><div class="sval g">₹${fmt(recd)}</div></div>
+    <div class="sc r"><div class="slbl">Outstanding</div><div class="sval r">₹${fmt(diff)}</div></div>
+    <div class="sc y"><div class="slbl">Pending Bills</div><div class="sval y">${pend}</div><div class="ssub">${partial} partial</div></div>
+    <div class="sc b"><div class="slbl">Bill Books</div><div class="sval b">${DB.billbooks.length}</div><div class="ssub">${DB.billbooks.filter(b=>b.status==='Active').length} active</div></div>
+  `;
+
+  // Recent bills
+  const recent = [...bills].sort((a,b) => (b.issueDate||'').localeCompare(a.issueDate||'')).slice(0,8);
+  document.getElementById('dRecent').innerHTML = recent.length ? `
+    <table><thead><tr><th>Bill#</th><th>Branch</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>${recent.map(b=>`<tr><td class="mono">${b.billNo||'—'}</td><td>${b.bname||'—'}</td>
+      <td class="amt">₹${fmt(b.amount)}</td><td>${statusBadge(b.status)}</td></tr>`).join('')}</tbody></table>
+  ` : '<div class="emp"><div class="ei">🧾</div><p>No bills yet</p></div>';
+
+  // Top pending
+  const topPend = bills.filter(b=>b.status==='Pending'||b.status==='Partial')
+    .sort((a,b)=>(Number(b.diff)||0)-(Number(a.diff)||0)).slice(0,6);
+  document.getElementById('dPending').innerHTML = topPend.length ? topPend.map(b=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);">
+      <div><div style="font-size:13px;font-weight:600;">${b.bname||'—'}</div>
+        <div style="font-size:11px;color:var(--t3);font-family:var(--mono);">${b.billNo||'—'} · ${fmtd(b.issueDate)}</div></div>
+      <div style="text-align:right;"><div class="dp">₹${fmt(b.diff||b.amount)}</div>${statusBadge(b.status)}</div>
+    </div>`).join('')
+  : '<div class="emp"><div class="ei">✅</div><p>All bills received!</p></div>';
 }
 
-// ── DATA ENTRY ────────────────────────────────────────────────────
-function popDrops(){
-  document.getElementById('bcl').innerHTML=DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
-  document.getElementById('bnl').innerHTML=DB.branches.map(b=>`<option value="${b.name}">`).join('');
-  const ms=document.getElementById('e_mem');const cv=ms.value;
-  ms.innerHTML='<option value="">-- Select --</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  if(cv)ms.value=cv;
-  document.getElementById('ef_m').innerHTML='<option value="">All Members</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  if(!document.getElementById('e_date').value)document.getElementById('e_date').value=td();
-}
-function autoCode(){const v=document.getElementById('e_bcode').value.trim();const b=DB.branches.find(x=>x.code.toLowerCase()===v.toLowerCase());if(b)document.getElementById('e_bname').value=b.name;}
-function autoName(){const v=document.getElementById('e_bname').value.trim();const b=DB.branches.find(x=>x.name.toLowerCase()===v.toLowerCase());if(b)document.getElementById('e_bcode').value=b.code;}
-function onMem(){const mid=document.getElementById('e_mem').value,wt=document.getElementById('e_wt').value;if(!mid)return;const m=DB.members.find(x=>x.id===mid);if(!m)return;if(wt==='hourly'&&m.rph){document.getElementById('e_rate').value=m.rph;calcA();}if(wt==='daily'&&m.rpd){document.getElementById('e_rate').value=m.rpd;calcA();}}
-function onWt(){const wt=document.getElementById('e_wt').value;const qg=document.getElementById('qg'),rg=document.getElementById('rg');if(wt==='fixed'){qg.style.display='none';rg.style.display='none';document.getElementById('ahint').textContent='Enter fixed amount manually';}else{qg.style.display='';rg.style.display='';document.getElementById('ql').textContent=wt==='hourly'?'No. of Hours':'No. of Days';document.getElementById('ahint').textContent='';onMem();}}
-function calcA(){const wt=document.getElementById('e_wt').value;if(wt==='fixed')return;const q=parseFloat(document.getElementById('e_qty').value)||0,r=parseFloat(document.getElementById('e_rate').value)||0;if(q&&r){document.getElementById('e_amt').value=(q*r).toFixed(2);document.getElementById('ahint').textContent=`${q} × ₹${r} = ₹${fmt(q*r)}`;}}
-function addEntry(){
-  const date=document.getElementById('e_date').value,bcode=document.getElementById('e_bcode').value.trim(),bname=document.getElementById('e_bname').value.trim(),mid=document.getElementById('e_mem').value,wt=document.getElementById('e_wt').value,qty=document.getElementById('e_qty').value,rate=document.getElementById('e_rate').value,amt=document.getElementById('e_amt').value,rem=document.getElementById('e_rem').value;
-  if(!date||!bcode||!bname||!wt||!amt){toast('Required: Date, Branch Code, Branch Name, Work Type, Amount','e');return;}
-  const m=DB.members.find(x=>x.id===mid);
-  DB.entries.push({id:uid(),date,bcode,bname,memberId:mid,member:m?m.name:mid,worktype:wt,qty:qty||'',rate:rate||'',amount:Number(amt),remarks:rem,billId:null});
-  save();
-  toast(`✅ Entry saved!\n₹${fmt(Number(amt))} — ${bname}`,'s');
-  document.getElementById('e_mem').value='';document.getElementById('e_wt').value='';
-  document.getElementById('e_qty').value='';document.getElementById('e_rate').value='';
-  document.getElementById('e_amt').value='';document.getElementById('e_rem').value='';
-  document.getElementById('ahint').textContent='';
-  renderEntries();updBadge();
-}
-function delEntryById(btn){
-  const id=btn.getAttribute('data-id');
-  const entry=DB.entries.find(e=>e.id===id);
-  if(!entry){toast('Entry not found','e');return;}
-  if(entry.billId){toast('Cannot delete — entry is already billed.\nDelete the bill first to unlink.','w');return;}
-  if(!confirm('Delete entry?\n'+fd(entry.date)+' — '+entry.bname+'\n₹'+fmt(entry.amount)))return;
-  DB.entries=DB.entries.filter(e=>e.id!==id);
-  save();renderEntries();updBadge();
-  toast('Entry deleted','i');
-}
-function clearEFull(){['e_date','e_bcode','e_bname','e_mem','e_wt','e_qty','e_rate','e_amt','e_rem'].forEach(id=>document.getElementById(id).value='');document.getElementById('e_date').value=td();document.getElementById('ahint').textContent='';}
-function clrEF(){['ef_d','ef_m','ef_w','ef_b','ef_bstat'].forEach(id=>document.getElementById(id).value='');renderEntries();}
-
-function renderEntries(){
-  let data=[...DB.entries].reverse();
-  const fd_=document.getElementById('ef_d').value,fm=document.getElementById('ef_m').value,fw=document.getElementById('ef_w').value,fb=(document.getElementById('ef_b').value||'').toLowerCase(),fs=document.getElementById('ef_bstat').value;
-  if(fd_)data=data.filter(e=>e.date===fd_);
-  if(fm)data=data.filter(e=>e.memberId===fm);
-  if(fw)data=data.filter(e=>e.worktype===fw);
-  if(fb)data=data.filter(e=>(e.bname||'').toLowerCase().includes(fb)||(e.bcode||'').toLowerCase().includes(fb));
-  if(fs==='unbilled')data=data.filter(e=>!e.billId);
-  if(fs==='billed')data=data.filter(e=>!!e.billId);
-  document.getElementById('eCnt').textContent=data.length+' entries';
-  document.getElementById('eBody').innerHTML=data.length?data.map((e,i)=>{
-    const isBilled=!!e.billId;
-    const bill=isBilled?DB.bills.find(b=>b.id===e.billId):null;
-    const rowCls=isBilled?'row-billed':'';
-    const chk=isBilled?`<input type="checkbox" disabled title="Already billed in ${bill?bill.billNo:''}">`
-      :`<input type="checkbox" ${selectedEntryIds.has(e.id)?'checked':''} onchange="toggleEntry('${e.id}',this.checked)">`;
-    const statusCell=isBilled
-      ?`<span class="b b-billed" title="Bill: ${bill?bill.billNo:''}">BILLED${bill?' — '+bill.billNo:''}</span>`
-      :`<span class="b" style="background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.3);">Unbilled</span>`;
-    return `<tr class="${rowCls}">
-      <td>${chk}</td>
-      <td>${i+1}</td><td>${fd(e.date)}</td>
-      <td style="color:var(--accent);font-weight:700">${e.bcode}</td>
-      <td>${e.bname}</td>
-      <td>${e.member||'—'}</td>
-      <td><span class="b b-${e.worktype}">${e.worktype}</span></td>
-      <td>${e.qty||'—'}</td><td>${e.rate?'₹'+fmt(e.rate):'—'}</td>
-      <td class="amt">₹${fmt(e.amount)}</td>
-      <td style="color:var(--W3)">${e.remarks||'—'}</td>
-      <td>${statusCell}</td>
-      <td>${isBilled?'<span style="color:#555;font-size:11px;">Billed</span>':`<button class="btn btn-d xs" data-id="${e.id}" onclick="delEntryById(this)">Del</button>`}</td>
-    </tr>`;
-  }).join(''):'<tr><td colspan="13"><div class="emp"><div class="ei">📝</div><p>No entries yet</p></div></td></tr>';
-  updateEntrySelBar();
+function statusBadge(s) {
+  const map = { Pending:'b-pend', Partial:'b-part', Received:'b-recd', Cancelled:'b-canc' };
+  return `<span class="b ${map[s]||'b-pend'}">${s||'Pending'}</span>`;
 }
 
-// ── ENTRY SELECTION (Data Entry page) ─────────────────────────────
-function toggleEntry(id,checked){
-  if(checked)selectedEntryIds.add(id);else selectedEntryIds.delete(id);
-  updateEntrySelBar();
+// ── BILL ENTRY ───────────────────────────────────────────────────
+function renderBillEntry() {
+  popBillDrops();
+  renderBills();
 }
-function toggleAllEntries(checked){
-  // Only toggle unbilled entries
-  const unbilled=DB.entries.filter(e=>!e.billId);
-  if(checked)unbilled.forEach(e=>selectedEntryIds.add(e.id));
-  else selectedEntryIds.clear();
-  renderEntries();
+
+function popBillDrops() {
+  // Book dropdown
+  const bookSel = document.getElementById('bl_book');
+  const bfBook  = document.getElementById('bf_book');
+  const activeBooks = DB.billbooks.filter(b=>b.status==='Active');
+  const opts = `<option value="">— Select Book —</option>` + DB.billbooks.map(b=>`<option value="${b.id}">${b.bookNumber} (${b.fyear}) [${b.fromNo}–${b.toNo}]</option>`).join('');
+  bookSel.innerHTML = opts;
+  bfBook.innerHTML = `<option value="">All Books</option>` + DB.billbooks.map(b=>`<option value="${b.id}">${b.bookNumber}</option>`).join('');
+
+  // FY filter
+  const bfFY = document.getElementById('bf_fy');
+  bfFY.innerHTML = `<option value="">All FY</option>` + DB.fyList.map(f=>`<option value="${f}">${f}</option>`).join('');
+
+  // Branch datalists
+  document.getElementById('bbl_cl').innerHTML = DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
+  document.getElementById('bbl_nl').innerHTML = DB.branches.map(b=>`<option value="${b.name}">${b.name} (${b.code})</option>`).join('');
 }
-function clearEntrySelection(){selectedEntryIds.clear();renderEntries();}
-function updateEntrySelBar(){
-  const ids=Array.from(selectedEntryIds);
-  const selEntries=DB.entries.filter(e=>ids.includes(e.id)&&!e.billId);
-  const total=selEntries.reduce((s,e)=>s+Number(e.amount||0),0);
-  const bar=document.getElementById('eSelBar');
-  if(selEntries.length>0){
-    bar.classList.add('show');
-    document.getElementById('eSelCount').textContent=selEntries.length+' entries selected';
-    document.getElementById('eSelTotal').textContent='Total: ₹'+fmt(total);
-  }else{
-    bar.classList.remove('show');
+
+function onBookSelect() {
+  const bid = document.getElementById('bl_book').value;
+  if (!bid) { document.getElementById('bl_no_hint').textContent = ''; return; }
+  const book = DB.billbooks.find(b => b.id === bid);
+  if (!book) return;
+  const used = DB.bills.filter(b => b.bookId === bid).map(b => Number(b.billNo)).filter(n => !isNaN(n));
+  const next = nextInBook(book, used);
+  if (next) {
+    document.getElementById('bl_no').value = next;
+    document.getElementById('bl_no_hint').textContent = `Suggested: ${next} (range ${book.fromNo}–${book.toNo})`;
+  } else {
+    document.getElementById('bl_no_hint').textContent = `Book full! All ${book.toNo-book.fromNo+1} numbers used.`;
   }
 }
-function raiseFromEntry(){
-  const ids=Array.from(selectedEntryIds);
-  const selEntries=DB.entries.filter(e=>ids.includes(e.id)&&!e.billId);
-  if(selEntries.length===0){toast('Select at least one unbilled entry','w');return;}
-  billEntryIds=selEntries.map(e=>e.id);
-  openBillMoFromEntries(selEntries);
+
+function nextInBook(book, usedArr) {
+  for (let n = Number(book.fromNo); n <= Number(book.toNo); n++) {
+    if (!usedArr.includes(n)) return n;
+  }
+  return null;
 }
 
-// ── BILL ENTRY PICKER (Bills page) ────────────────────────────────
-let bepSelected=new Set();
-function openPickEntries(){
-  document.getElementById('billEntryPicker').style.display='block';
-  bepSelected.clear();
-  // populate member dropdown
-  document.getElementById('bep_mem').innerHTML='<option value="">All Members</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  renderBillEntryPicker();
-}
-function closeBillPicker(){document.getElementById('billEntryPicker').style.display='none';bepSelected.clear();}
-function clrBEP(){['bep_br','bep_from','bep_to'].forEach(id=>document.getElementById(id).value='');document.getElementById('bep_mem').value='';renderBillEntryPicker();}
-
-function renderBillEntryPicker(){
-  const fb=(document.getElementById('bep_br').value||'').toLowerCase();
-  const fm=document.getElementById('bep_mem').value;
-  const from=document.getElementById('bep_from').value;
-  const to=document.getElementById('bep_to').value;
-  let unbilled=DB.entries.filter(e=>!e.billId);
-  if(fb)unbilled=unbilled.filter(e=>(e.bname||'').toLowerCase().includes(fb)||(e.bcode||'').toLowerCase().includes(fb));
-  if(fm)unbilled=unbilled.filter(e=>e.memberId===fm);
-  if(from)unbilled=unbilled.filter(e=>e.date>=from);
-  if(to)unbilled=unbilled.filter(e=>e.date<=to);
-
-  const total=Array.from(bepSelected).reduce((s,id)=>{const e=DB.entries.find(x=>x.id===id);return s+(e?Number(e.amount||0):0);},0);
-  document.getElementById('bepSelCount').textContent=bepSelected.size+' entries selected';
-  document.getElementById('bepSelTotal').textContent='Total: ₹'+fmt(total);
-
-  if(unbilled.length===0){
-    document.getElementById('bepList').innerHTML='<div class="emp"><div class="ei">✅</div><p>No unbilled entries found. Adjust filters above.</p></div>';
+function checkBillNo() {
+  const bid = document.getElementById('bl_book').value;
+  const no  = document.getElementById('bl_no').value.trim();
+  if (!bid || !no) return;
+  const book = DB.billbooks.find(b => b.id === bid);
+  if (!book) return;
+  const n = Number(no);
+  const editId = document.getElementById('bl_edit_id').textContent;
+  if (n < Number(book.fromNo) || n > Number(book.toNo)) {
+    document.getElementById('bl_no_hint').textContent = `⚠️ Outside range ${book.fromNo}–${book.toNo}`;
     return;
   }
-  document.getElementById('bepList').innerHTML=`<div class="tw"><table>
-    <thead><tr>
-      <th><input type="checkbox" onchange="bepToggleAll(this.checked,${JSON.stringify(unbilled.map(e=>e.id))})"></th>
-      <th>Date</th><th>Branch</th><th>Member</th><th>Type</th><th>Qty</th><th>Amount</th>
-    </tr></thead>
-    <tbody>${unbilled.map(e=>`<tr>
-      <td><input type="checkbox" ${bepSelected.has(e.id)?'checked':''} onchange="bepToggle('${e.id}',this.checked)"></td>
-      <td>${fd(e.date)}</td>
-      <td><span style="color:var(--accent);font-weight:700">${e.bcode}</span> ${e.bname}</td>
-      <td>${e.member||'—'}</td>
-      <td><span class="b b-${e.worktype}">${e.worktype}</span></td>
-      <td>${e.qty||'—'}</td>
-      <td class="amt">₹${fmt(e.amount)}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
-}
-function bepToggle(id,checked){if(checked)bepSelected.add(id);else bepSelected.delete(id);renderBillEntryPicker();}
-function bepToggleAll(checked,ids){if(checked)ids.forEach(id=>bepSelected.add(id));else ids.forEach(id=>bepSelected.delete(id));renderBillEntryPicker();}
-function raiseFromBillPicker(){
-  if(bepSelected.size===0){toast('Select at least one entry','w');return;}
-  const selEntries=DB.entries.filter(e=>bepSelected.has(e.id));
-  billEntryIds=selEntries.map(e=>e.id);
-  closeBillPicker();
-  openBillMoFromEntries(selEntries);
+  const dup = DB.bills.find(b => b.bookId === bid && b.billNo == no && b.id !== editId);
+  if (dup) { document.getElementById('bl_no_hint').textContent = '⚠️ Bill number already used in this book'; return; }
+  document.getElementById('bl_no_hint').textContent = `✓ Valid`;
+  document.getElementById('bl_no_hint').style.color = 'var(--green)';
 }
 
-// ── BILL MODAL ────────────────────────────────────────────────────
-function openBillMoFromEntries(entries){
-  document.getElementById('bl_bcl').innerHTML=DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
-  eId.bill=null;
-  document.getElementById('blT').textContent='Raise Bill';
-
-  // Auto-fill from entries
-  const workTotal=entries.reduce((s,e)=>s+Number(e.amount||0),0);
-  const dates=entries.map(e=>e.date).sort();
-  const bcode=entries[0]?.bcode||'';
-  const bname=entries[0]?.bname||'';
-
-  ['bl_id','bl_bc','bl_bn','bl_a','bl_rd','bl_ra','bl_df'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('bl_id').value=td();
-  document.getElementById('bl_bd').value=td();
-  document.getElementById('bl_no').value='BL/'+new Date().getFullYear()+'/'+String(DB.config.nextBillNo||1).padStart(3,'0');
-  document.getElementById('bl_bc').value=bcode;
-  document.getElementById('bl_bn').value=bname;
-  document.getElementById('bl_wt').value=workTotal.toFixed(2);
-  document.getElementById('bl_a').value=workTotal.toFixed(2);
-  document.getElementById('bl_df').value='0.00';
-  document.getElementById('bl_st').value='Pending';
-
-  // Entry summary
-  const members=[...new Set(entries.map(e=>e.member).filter(Boolean))].join(', ')||'—';
-  document.getElementById('blEntryInfo').style.display='block';
-  document.getElementById('blEntryInfo').innerHTML=`
-    <div class="abox">
-      📋 <strong>${entries.length} entries</strong> selected for this bill<br>
-      📅 Date range: <strong>${fd(dates[0])}</strong> to <strong>${fd(dates[dates.length-1])}</strong><br>
-      🏢 Branch: <strong>${bname} (${bcode})</strong><br>
-      👤 Members: <strong>${members}</strong><br>
-      💰 Work Total: <strong style="color:var(--green)">₹${fmt(workTotal)}</strong>
-      <span style="margin-left:10px;font-size:11px;color:var(--W3)">You can change Bill Amount below for discount</span>
-    </div>`;
-  document.getElementById('blDiscInfo').style.display='none';
-  document.getElementById('moBl').classList.add('open');
+function fillBillBr() {
+  const v = document.getElementById('bl_bc').value.trim();
+  const b = DB.branches.find(x => x.code.toLowerCase() === v.toLowerCase());
+  if (b) {
+    document.getElementById('bl_bn').value = b.name;
+    document.getElementById('bl_dist').value = b.district || '';
+  }
 }
 
-function openBillMo(bill){
-  // Edit existing bill — classic mode
-  document.getElementById('bl_bcl').innerHTML=DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
-  eId.bill=bill?bill.id:null;
-  billEntryIds=[];
-  document.getElementById('blEntryInfo').style.display='none';
-  document.getElementById('blDiscInfo').style.display='none';
-  document.getElementById('blT').textContent=bill?'Edit Bill':'Raise Bill (Manual)';
-  if(bill){
-    document.getElementById('bl_id').value=bill.issueDate||'';
-    document.getElementById('bl_no').value=bill.billNo||'';
-    document.getElementById('bl_bd').value=bill.billDate||'';
-    document.getElementById('bl_bc').value=bill.bcode||'';
-    document.getElementById('bl_bn').value=bill.bname||'';
-    document.getElementById('bl_wt').value=bill.workTotal||'';
-    document.getElementById('bl_a').value=bill.amount||'';
-    document.getElementById('bl_rd').value=bill.recdDate||'';
-    document.getElementById('bl_ra').value=bill.recdAmt||'';
-    document.getElementById('bl_df').value=bill.diff||'';
-    document.getElementById('bl_st').value=bill.status||'Pending';
-    // Show entry info if linked
-    if(bill.entryIds&&bill.entryIds.length>0){
-      const linkedEntries=DB.entries.filter(e=>bill.entryIds.includes(e.id));
-      if(linkedEntries.length>0){
-        document.getElementById('blEntryInfo').style.display='block';
-        document.getElementById('blEntryInfo').innerHTML=`<div class="abox">📋 <strong>${linkedEntries.length} entries</strong> linked to this bill</div>`;
-      }
+function fillBillBrByName() {
+  const v = document.getElementById('bl_bn').value.trim();
+  const b = DB.branches.find(x => x.name.toLowerCase() === v.toLowerCase());
+  if (b) {
+    document.getElementById('bl_bc').value = b.code;
+    document.getElementById('bl_dist').value = b.district || '';
+  }
+}
+
+function saveBill() {
+  const bookId = document.getElementById('bl_book').value;
+  const billNo = document.getElementById('bl_no').value.trim();
+  const issue  = document.getElementById('bl_issue').value;
+  const date   = document.getElementById('bl_date').value;
+  const bcode  = document.getElementById('bl_bc').value.trim();
+  const bname  = document.getElementById('bl_bn').value.trim();
+  const dist   = document.getElementById('bl_dist').value.trim();
+  const amt    = parseFloat(document.getElementById('bl_amt').value) || 0;
+  const rem    = document.getElementById('bl_rem').value.trim();
+  const editId = document.getElementById('bl_edit_id').textContent;
+
+  if (!bookId) { toast('Select a bill book','w'); return; }
+  if (!billNo) { toast('Enter bill number','w'); return; }
+  if (!issue)  { toast('Enter issue date','w'); return; }
+  if (!bcode)  { toast('Enter branch code','w'); return; }
+  if (!bname)  { toast('Enter branch name','w'); return; }
+  if (!amt)    { toast('Enter bill amount','w'); return; }
+
+  const book = DB.billbooks.find(b => b.id === bookId);
+  const dup  = DB.bills.find(b => b.bookId === bookId && b.billNo == billNo && b.id !== editId);
+  if (dup) { toast('Bill number already exists in this book','e'); return; }
+
+  if (editId) {
+    const idx = DB.bills.findIndex(b => b.id === editId);
+    if (idx > -1) {
+      DB.bills[idx] = { ...DB.bills[idx], bookId, billNo, issueDate: issue, billDate: date,
+        bcode, bname, district: dist, amount: amt, remarks: rem, fyear: book?.fyear || '' };
+      toast('Bill updated','s');
     }
-  }else{
-    ['bl_id','bl_bc','bl_bn','bl_wt','bl_a','bl_rd','bl_ra','bl_df'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('bl_id').value=td();document.getElementById('bl_bd').value=td();
-    document.getElementById('bl_no').value='BL/'+new Date().getFullYear()+'/'+String(DB.config.nextBillNo||1).padStart(3,'0');
-    document.getElementById('bl_st').value='Pending';
-  }
-  document.getElementById('moBl').classList.add('open');
-}
-
-function fillBillBr(){const v=document.getElementById('bl_bc').value.trim();const b=DB.branches.find(x=>x.code.toLowerCase()===v.toLowerCase());if(b)document.getElementById('bl_bn').value=b.name;}
-
-function calcBD(){
-  const a=parseFloat(document.getElementById('bl_a').value)||0;
-  const r=parseFloat(document.getElementById('bl_ra').value)||0;
-  const wt=parseFloat(document.getElementById('bl_wt').value)||0;
-  document.getElementById('bl_df').value=(a-r).toFixed(2);
-  if(r>0&&r>=a)document.getElementById('bl_st').value='Received';
-  else if(r>0&&r<a)document.getElementById('bl_st').value='Partial';
-  // Show discount box if bill amount < work total
-  const disc=wt-a;
-  const discBox=document.getElementById('blDiscInfo');
-  if(wt>0&&disc>0.01){
-    discBox.style.display='block';
-    discBox.innerHTML=`⚠️ <strong>Discount Applied</strong><br>
-      Work Total: <strong style="color:var(--green)">₹${fmt(wt)}</strong><br>
-      Bill Amount: <strong style="color:var(--accent)">₹${fmt(a)}</strong><br>
-      Discount: <strong style="color:var(--yellow)">₹${fmt(disc)}</strong>`;
-  }else{
-    discBox.style.display='none';
-  }
-}
-
-function saveBill(){
-  const iDate=document.getElementById('bl_id').value,bNo=document.getElementById('bl_no').value.trim(),amt=document.getElementById('bl_a').value;
-  if(!iDate||!bNo||!amt){toast('Issue Date, Bill No. and Amount required','e');return;}
-  const wt=parseFloat(document.getElementById('bl_wt').value)||0;
-  const billAmt=Number(amt);
-  const data={
-    id:eId.bill||uid(),
-    issueDate:iDate,billNo:bNo,billDate:document.getElementById('bl_bd').value,
-    bcode:document.getElementById('bl_bc').value,bname:document.getElementById('bl_bn').value,
-    workTotal:wt,amount:billAmt,
-    discount:wt>0?Math.max(0,wt-billAmt):0,
-    recdDate:document.getElementById('bl_rd').value,
-    recdAmt:Number(document.getElementById('bl_ra').value)||0,
-    diff:Number(document.getElementById('bl_df').value)||0,
-    status:document.getElementById('bl_st').value,
-    entryIds:billEntryIds.length>0?[...billEntryIds]:[]
-  };
-
-  if(eId.bill){
-    const i=DB.bills.findIndex(x=>x.id===eId.bill);if(i>=0)DB.bills[i]=data;
-  }else{
-    DB.bills.push(data);
-    DB.config.nextBillNo=(parseInt(DB.config.nextBillNo)||1)+1;
-  }
-
-  // Mark entries as billed
-  if(billEntryIds.length>0){
-    DB.entries.forEach(e=>{
-      if(billEntryIds.includes(e.id)){e.billId=data.id;e.billNo=data.billNo;}
+  } else {
+    DB.bills.push({
+      id: uid(), bookId, billNo, issueDate: issue, billDate: date,
+      bcode, bname, district: dist, amount: amt,
+      recdDate: '', recdAmt: 0, diff: amt, status: 'Pending', remarks: rem,
+      fyear: book?.fyear || ''
     });
-    selectedEntryIds.clear();
-    bepSelected.clear();
-    billEntryIds=[];
+    toast('Bill saved','s');
+  }
+  save();
+  clearBillForm();
+  renderBills();
+  updateBadge();
+}
+
+function clearBillForm() {
+  ['bl_book','bl_no','bl_issue','bl_date','bl_bc','bl_bn','bl_dist','bl_amt','bl_rem'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('bl_no_hint').textContent = '';
+  document.getElementById('bl_edit_id').textContent = '';
+  document.getElementById('bl_issue').value = td();
+}
+
+function editBill(id) {
+  const b = DB.bills.find(x => x.id === id);
+  if (!b) return;
+  nav('billentry');
+  setTimeout(() => {
+    document.getElementById('bl_book').value   = b.bookId || '';
+    document.getElementById('bl_no').value     = b.billNo || '';
+    document.getElementById('bl_issue').value  = b.issueDate || '';
+    document.getElementById('bl_date').value   = b.billDate || '';
+    document.getElementById('bl_bc').value     = b.bcode || '';
+    document.getElementById('bl_bn').value     = b.bname || '';
+    document.getElementById('bl_dist').value   = b.district || '';
+    document.getElementById('bl_amt').value    = b.amount || '';
+    document.getElementById('bl_rem').value    = b.remarks || '';
+    document.getElementById('bl_edit_id').textContent = id;
+    document.getElementById('bl_no_hint').textContent = 'Editing bill — change as needed';
+    window.scrollTo(0,0);
+  }, 100);
+}
+
+function delBill(id) {
+  if (!confirm('Delete this bill?')) return;
+  DB.bills = DB.bills.filter(b => b.id !== id);
+  save(); renderBills(); updateBadge(); toast('Deleted','i');
+}
+
+function clrBF() {
+  ['bf_book','bf_s','bf_b','bf_from','bf_to','bf_fy'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  renderBills();
+}
+
+function renderBills() {
+  const bookF = document.getElementById('bf_book')?.value || '';
+  const stF   = document.getElementById('bf_s')?.value || '';
+  const srch  = (document.getElementById('bf_b')?.value || '').toLowerCase();
+  const from  = document.getElementById('bf_from')?.value || '';
+  const to    = document.getElementById('bf_to')?.value || '';
+  const fyF   = document.getElementById('bf_fy')?.value || '';
+
+  let bills = DB.bills.filter(b => {
+    if (bookF && b.bookId !== bookF) return false;
+    if (stF   && b.status !== stF) return false;
+    if (fyF   && b.fyear !== fyF) return false;
+    if (srch  && !((b.billNo||'').toLowerCase().includes(srch) || (b.bname||'').toLowerCase().includes(srch) || (b.bcode||'').toLowerCase().includes(srch))) return false;
+    if (from  && (b.issueDate||'') < from) return false;
+    if (to    && (b.issueDate||'') > to) return false;
+    return true;
+  }).sort((a,b)=>(b.issueDate||'').localeCompare(a.issueDate||''));
+
+  const cnt = document.getElementById('bCnt');
+  if (cnt) cnt.textContent = bills.length + ' bills';
+
+  const body = document.getElementById('bBody');
+  if (!body) return;
+
+  if (!bills.length) {
+    body.innerHTML = `<tr><td colspan="14"><div class="emp"><div class="ei">🧾</div><p>No bills found</p></div></td></tr>`;
+    return;
   }
 
-  save();closeMo('moBl');renderBStats();renderBills();updBadge();
-  toast(`🧾 Bill ${data.billNo} saved!\nAmount: ₹${fmt(data.amount)}${data.discount>0?'\nDiscount: ₹'+fmt(data.discount):''}${data.entryIds.length>0?'\n'+data.entryIds.length+' entries marked as Billed':''}`,'s');
-  renderEntries();
-}
-
-function renderBStats(){
-  const t=DB.bills.length,pn=DB.bills.filter(b=>b.status==='Pending').length,pa=DB.bills.filter(b=>b.status==='Partial').length,rc=DB.bills.filter(b=>b.status==='Received').length;
-  const ta=DB.bills.reduce((s,b)=>s+Number(b.amount||0),0),tr=DB.bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);
-  const td2=DB.bills.reduce((s,b)=>s+Number(b.discount||0),0);
-  document.getElementById('bStats').innerHTML=`
-    <div class="sc c"><div class="slbl">Total Bills</div><div class="sval c">${t}</div></div>
-    <div class="sc w"><div class="slbl">Pending</div><div class="sval w">${pn}</div></div>
-    <div class="sc p"><div class="slbl">Partial</div><div class="sval p">${pa}</div></div>
-    <div class="sc g"><div class="slbl">Received</div><div class="sval g">${rc}</div></div>
-    <div class="sc d"><div class="slbl">Pending Amount</div><div class="sval d">₹${fmt(ta-tr)}</div></div>
-    <div class="sc w"><div class="slbl">Total Discount</div><div class="sval w">₹${fmt(td2)}</div></div>`;
-}
-function clrBF(){['bf_s','bf_b','bf_f','bf_t'].forEach(id=>document.getElementById(id).value='');renderBills();}
-function renderBills(){
-  let data=[...DB.bills].reverse();
-  const sf=document.getElementById('bf_s').value,bf=(document.getElementById('bf_b').value||'').toLowerCase(),df=document.getElementById('bf_f').value,dt=document.getElementById('bf_t').value;
-  if(sf)data=data.filter(b=>b.status===sf);
-  if(bf)data=data.filter(b=>(b.bname||'').toLowerCase().includes(bf)||(b.bcode||'').toLowerCase().includes(bf));
-  if(df)data=data.filter(b=>b.issueDate>=df);if(dt)data=data.filter(b=>b.issueDate<=dt);
-  document.getElementById('bBody').innerHTML=data.length?data.map((b,i)=>{
-    const diff=Number(b.amount||0)-Number(b.recdAmt||0);
-    const disc=Number(b.discount||0);
-    const wt=Number(b.workTotal||0);
+  body.innerHTML = bills.map((b,i) => {
+    const book = DB.billbooks.find(x => x.id === b.bookId);
     return `<tr>
-      <td>${i+1}</td><td>${fd(b.issueDate)}</td>
-      <td style="color:var(--accent);font-weight:700">${b.billNo||'—'}</td>
-      <td>${fd(b.billDate)}</td><td>${b.bname||'—'}</td>
-      <td class="amt" style="color:var(--green)">₹${fmt(wt)}</td>
+      <td>${i+1}</td>
+      <td class="mono">${book?.bookNumber||'—'}</td>
+      <td class="mono" style="color:var(--acc);font-weight:700;">${b.billNo||'—'}</td>
+      <td>${fmtd(b.issueDate)}</td>
+      <td>${fmtd(b.billDate)||'—'}</td>
+      <td class="mono">${b.bcode||'—'}</td>
+      <td>${b.bname||'—'}</td>
+      <td>${b.district||'—'}</td>
       <td class="amt">₹${fmt(b.amount)}</td>
-      <td class="${disc>0?'':'dz'}" style="${disc>0?'color:var(--yellow);font-weight:700':''}">₹${fmt(disc)}</td>
-      <td>${fd(b.recdDate)}</td>
-      <td class="amt" style="color:var(--green)">₹${fmt(b.recdAmt)}</td>
-      <td class="${diff>0?'dp':'dz'}">₹${fmt(diff)}</td>
-      <td><span class="b ${SB[b.status]||'b-pend'}">${b.status}</span></td>
-      <td style="display:flex;gap:5px">
-        <button class="btn btn-s xs" onclick='openBillMo(${JSON.stringify(b)})'>Edit</button>
-        <button class="btn btn-d xs" onclick="delBill('${b.id}')">Del</button>
+      <td>${fmtd(b.recdDate)||'—'}</td>
+      <td class="amt">${b.recdAmt>0?'₹'+fmt(b.recdAmt):'—'}</td>
+      <td class="${Number(b.diff)>0?'dp':'dz'}">${b.diff>0?'₹'+fmt(b.diff):'✓'}</td>
+      <td>${statusBadge(b.status)}</td>
+      <td>
+        <button class="btn btn-s xs" onclick="openQP('${b.id}')">💰 Recv</button>
+        <button class="btn btn-s xs" onclick="editBill('${b.id}')">✏️</button>
+        <button class="btn btn-d xs" onclick="delBill('${b.id}')">🗑</button>
       </td>
     </tr>`;
-  }).join(''):'<tr><td colspan="13"><div class="emp"><div class="ei">🧾</div><p>No bills yet. Select entries and click Raise Bill.</p></div></td></tr>';
+  }).join('');
 }
-function delBill(id){
-  if(!confirm('Delete bill? Linked entries will become Unbilled again.'))return;
-  const bill=DB.bills.find(b=>b.id===id);
-  // Unlink entries
-  if(bill&&bill.entryIds){DB.entries.forEach(e=>{if(bill.entryIds.includes(e.id)){e.billId=null;e.billNo=null;}});}
-  DB.bills=DB.bills.filter(b=>b.id!==id);
-  save();renderBills();renderBStats();updBadge();renderEntries();toast('Bill deleted. Entries unlinked.','i');
+
+// ── RECEIVED ─────────────────────────────────────────────────────
+function renderReceived() {
+  renderQuickPay();
+  renderRecvSummary();
+}
+
+function openImportStmt() {
+  const card = document.getElementById('stmtImportCard');
+  card.style.display = card.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderQuickPay() {
+  const srch = (document.getElementById('qp_search')?.value || '').toLowerCase();
+  const pending = DB.bills.filter(b => b.status !== 'Received');
+  const filtered = srch ? pending.filter(b =>
+    (b.billNo||'').toLowerCase().includes(srch) ||
+    (b.bname||'').toLowerCase().includes(srch) ||
+    (b.bcode||'').toLowerCase().includes(srch)
+  ) : pending.slice(0,20);
+
+  const el = document.getElementById('qp_list');
+  if (!el) return;
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="emp"><div class="ei">✅</div><p>' + (srch?'No match':'All bills received!') + '</p></div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(b => {
+    const cls = b.status==='Partial'?'partial':'';
+    return `<div class="match-row ${cls}">
+      <div class="match-detail">
+        <div class="match-billno">${b.billNo||'—'}</div>
+        <div class="match-branch">${b.bname||'—'} · ${fmtd(b.issueDate)}</div>
+      </div>
+      <div class="match-amt">
+        <div class="amt">₹${fmt(b.amount)}</div>
+        <div style="font-size:11px;color:var(--red);">Due: ₹${fmt(b.diff||b.amount)}</div>
+      </div>
+      ${statusBadge(b.status)}
+      <button class="btn btn-p xs" onclick="openQP('${b.id}')">Receive</button>
+    </div>`;
+  }).join('');
+}
+
+function renderRecvSummary() {
+  const el = document.getElementById('recv_summary');
+  if (!el) return;
+  const bills = DB.bills;
+  const total = bills.reduce((s,b)=>s+(Number(b.amount)||0),0);
+  const recd  = bills.reduce((s,b)=>s+(Number(b.recdAmt)||0),0);
+  const out   = bills.reduce((s,b)=>s+(Number(b.diff)||0),0);
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="rpt-card"><div class="rpt-head"><span class="rpt-title">Total Billed</span></div><div class="rpt-val" style="color:var(--blue);">₹${fmt(total)}</div></div>
+      <div class="rpt-card"><div class="rpt-head"><span class="rpt-title">Total Received</span></div><div class="rpt-val" style="color:var(--green);">₹${fmt(recd)}</div></div>
+      <div class="rpt-card"><div class="rpt-head"><span class="rpt-title">Outstanding</span></div><div class="rpt-val" style="color:var(--red);">₹${fmt(out)}</div></div>
+      <div class="rpt-card"><div class="rpt-head"><span class="rpt-title">Pending Bills</span></div><div class="rpt-val" style="color:var(--yellow);">${bills.filter(b=>b.status!=='Received').length}</div></div>
+    </div>`;
+}
+
+function openQP(id) {
+  const b = DB.bills.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('qp_bid').textContent = id;
+  document.getElementById('qp_date').value = td();
+  document.getElementById('qp_amt').value  = b.diff || b.amount || '';
+  document.getElementById('qp_rem').value  = '';
+  document.getElementById('qp_bill_info').innerHTML =
+    `Bill: <strong>${b.billNo||'—'}</strong> | Branch: <strong>${b.bname||'—'}</strong><br>
+     Billed: ₹${fmt(b.amount)} | Already Recd: ₹${fmt(b.recdAmt||0)} | Pending: ₹${fmt(b.diff||b.amount)}`;
+  document.getElementById('moQP').classList.add('open');
+}
+
+function saveQuickPay() {
+  const id   = document.getElementById('qp_bid').textContent;
+  const date = document.getElementById('qp_date').value;
+  const amt  = parseFloat(document.getElementById('qp_amt').value) || 0;
+  const rem  = document.getElementById('qp_rem').value.trim();
+  if (!date || !amt) { toast('Fill date and amount','w'); return; }
+  const idx = DB.bills.findIndex(b => b.id === id);
+  if (idx < 0) return;
+  const b   = DB.bills[idx];
+  const tot = (Number(b.recdAmt)||0) + amt;
+  const diff = Math.max(0, (Number(b.amount)||0) - tot);
+  DB.bills[idx] = { ...b, recdDate: date, recdAmt: tot, diff,
+    status: diff === 0 ? 'Received' : tot > 0 ? 'Partial' : 'Pending',
+    remarks: rem || b.remarks };
+  save();
+  closeMo('moQP');
+  renderReceived();
+  renderBills();
+  updateBadge();
+  toast(diff===0 ? 'Bill fully received ✓':'Partial payment saved','s');
+}
+
+// ── BANK STATEMENT IMPORT ─────────────────────────────────────────
+function importBankStmt(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
+    if (lines.length < 2) { toast('Empty CSV','e'); return; }
+    const headers = lines[0].split(',').map(h=>h.trim().toLowerCase());
+    const bi = headers.indexOf('bill_no');
+    const di = headers.indexOf('received_date');
+    const ai = headers.indexOf('received_amount');
+    if (bi<0||di<0||ai<0) { toast('CSV must have: bill_no, received_date, received_amount','e'); return; }
+
+    let matched=0, partial=0, notFound=0;
+    const results = [];
+
+    for (let i=1; i<lines.length; i++) {
+      const cols = lines[i].split(',').map(c=>c.trim());
+      const billNo = cols[bi]||''; const date = cols[di]||''; const amt = parseFloat(cols[ai])||0;
+      const b = DB.bills.find(x => String(x.billNo).trim() === String(billNo).trim());
+      if (!b) { results.push({billNo, status:'Not Found', note:'Bill not in system'}); notFound++; continue; }
+      const tot = (Number(b.recdAmt)||0) + amt;
+      const diff = Math.max(0, (Number(b.amount)||0)-tot);
+      const status = diff===0?'Received':tot>0?'Partial':'Pending';
+      const idx = DB.bills.findIndex(x=>x.id===b.id);
+      DB.bills[idx] = {...b, recdDate:date, recdAmt:tot, diff, status};
+      if(status==='Received') matched++; else partial++;
+      results.push({billNo, status, amount:amt, note:`₹${fmt(amt)} → ${status}`});
+    }
+    save(); renderBills(); updateBadge();
+    document.getElementById('stmtResults').innerHTML = `
+      <div class="gbox" style="margin-top:12px;">✅ Import complete: ${matched} fully received, ${partial} partial, ${notFound} not found</div>
+      <div class="tw"><table><thead><tr><th>Bill#</th><th>Amount</th><th>Status</th><th>Note</th></tr></thead>
+      <tbody>${results.slice(0,50).map(r=>`<tr><td class="mono">${r.billNo}</td><td class="amt">${r.amount?'₹'+fmt(r.amount):'—'}</td>
+        <td>${statusBadge(r.status)}</td><td style="color:var(--t3);font-size:12px;">${r.note}</td></tr>`).join('')}</tbody></table></div>`;
+    toast(`Import done: ${matched} matched, ${notFound} not found`,'s');
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ── COMPANY PROFILE ───────────────────────────────────────────────
+function renderProfile() {
+  const p = DB.profile || {};
+  document.getElementById('pr_name').value  = p.name    || '';
+  document.getElementById('pr_addr').value  = p.address || '';
+  document.getElementById('pr_phone').value = p.phone   || '';
+  document.getElementById('pr_email').value = p.email   || '';
+  document.getElementById('pr_gst').value   = p.gst     || '';
+  renderFYList();
+}
+
+function saveProfile() {
+  DB.profile = {
+    ...DB.profile,
+    name:    document.getElementById('pr_name').value.trim(),
+    address: document.getElementById('pr_addr').value.trim(),
+    phone:   document.getElementById('pr_phone').value.trim(),
+    email:   document.getElementById('pr_email').value.trim(),
+    gst:     document.getElementById('pr_gst').value.trim()
+  };
+  save(); updateSidebar(); toast('Profile saved','s');
+}
+
+function addFY() {
+  const val = document.getElementById('fy_new').value.trim();
+  if (!val) { toast('Enter FY value','w'); return; }
+  if (DB.fyList.includes(val)) { toast('FY already exists','w'); return; }
+  DB.fyList.push(val);
+  save(); renderFYList(); document.getElementById('fy_new').value = '';
+  toast('Financial year added','s');
+}
+
+function delFY(fy) {
+  if (!confirm(`Delete FY ${fy}?`)) return;
+  DB.fyList = DB.fyList.filter(f => f !== fy);
+  if (DB.profile.activeFY === fy) DB.profile.activeFY = '';
+  save(); renderFYList(); updateSidebar(); toast('Deleted','i');
+}
+
+function setActiveFY() {
+  const val = document.getElementById('fy_active').value;
+  DB.profile.activeFY = val;
+  save(); updateSidebar(); toast('Active FY set to ' + val,'s');
+}
+
+function renderFYList() {
+  const el = document.getElementById('fy_list');
+  const sel = document.getElementById('fy_active');
+  const activeFY = DB.profile?.activeFY || '';
+
+  if (!DB.fyList.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--t3);padding:8px 0;">No financial years added yet</div>';
+  } else {
+    el.innerHTML = DB.fyList.map(f=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);">
+        <span style="font-size:13px;font-weight:600;font-family:var(--mono);">${f}</span>
+        ${f===activeFY?'<span class="b b-active">Active</span>':''}
+        <button class="btn btn-d xs" onclick="delFY('${f}')">🗑</button>
+      </div>`).join('');
+  }
+
+  sel.innerHTML = `<option value="">— Select —</option>` + DB.fyList.map(f=>`<option value="${f}" ${f===activeFY?'selected':''}>${f}</option>`).join('');
+}
+
+// ── BILL BOOKS ────────────────────────────────────────────────────
+function renderBillBooks() {
+  renderBBGrid();
+  renderBBTable();
+}
+
+function renderBBGrid() {
+  const el = document.getElementById('bbGrid');
+  const active = DB.billbooks.filter(b=>b.status==='Active');
+  if (!active.length) { el.innerHTML = ''; return; }
+  el.innerHTML = active.map(b => {
+    const total = Number(b.toNo) - Number(b.fromNo) + 1;
+    const used  = DB.bills.filter(x=>x.bookId===b.id).length;
+    const pct   = total>0 ? Math.round(used/total*100) : 0;
+    return `<div class="bb-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div><div class="bb-num">📚 ${b.bookNumber}</div><div class="bb-range">${b.fromNo} → ${b.toNo}</div></div>
+        <span class="b b-active">${b.fyear||'—'}</span>
+      </div>
+      <div class="bb-prog">
+        <div class="bb-prog-lbl"><span>${used} used</span><span>${total-used} left</span></div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${pct>90?'var(--red)':pct>70?'var(--yellow)':'var(--acc)'};"></div></div>
+      </div>
+      <div class="bb-actions">
+        <button class="btn btn-s xs" onclick="editBB('${b.id}')">✏️ Edit</button>
+        <button class="btn btn-d xs" onclick="delBB('${b.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBBTable() {
+  const body = document.getElementById('bbBody');
+  if (!body) return;
+  if (!DB.billbooks.length) {
+    body.innerHTML = `<tr><td colspan="10"><div class="emp"><div class="ei">📚</div><p>No bill books yet</p></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = DB.billbooks.map((b,i) => {
+    const total = Number(b.toNo) - Number(b.fromNo) + 1;
+    const used  = DB.bills.filter(x=>x.bookId===b.id).length;
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="mono" style="color:var(--acc);font-weight:700;">${b.bookNumber}</td>
+      <td class="mono">${b.fyear||'—'}</td>
+      <td class="mono">${b.fromNo}</td>
+      <td class="mono">${b.toNo}</td>
+      <td>${total}</td>
+      <td>${used}</td>
+      <td style="color:${total-used<10?'var(--red)':'var(--green)'};">${total-used}</td>
+      <td>${b.status==='Active'?'<span class="b b-active">Active</span>':'<span class="b b-closed">Closed</span>'}</td>
+      <td>
+        <button class="btn btn-s xs" onclick="editBB('${b.id}')">✏️</button>
+        <button class="btn btn-d xs" onclick="delBB('${b.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openBBMo(editId) {
+  document.getElementById('moBBTitle').textContent = editId ? 'Edit Bill Book' : 'New Bill Book';
+  document.getElementById('bb_edit_id').textContent = editId || '';
+  if (!editId) {
+    ['bb_num','bb_from','bb_to','bb_notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('bb_status').value = 'Active';
+    document.getElementById('bb_total_hint').textContent = '';
+  }
+  // Populate FY options
+  const sel = document.getElementById('bb_fy');
+  sel.innerHTML = `<option value="">— Select FY —</option>` + DB.fyList.map(f=>`<option value="${f}">${f}</option>`).join('');
+  document.getElementById('moBB').classList.add('open');
+}
+
+function editBB(id) {
+  const b = DB.billbooks.find(x=>x.id===id);
+  if (!b) return;
+  openBBMo(id);
+  setTimeout(()=>{
+    document.getElementById('bb_num').value    = b.bookNumber||'';
+    document.getElementById('bb_fy').value     = b.fyear||'';
+    document.getElementById('bb_from').value   = b.fromNo||'';
+    document.getElementById('bb_to').value     = b.toNo||'';
+    document.getElementById('bb_status').value = b.status||'Active';
+    document.getElementById('bb_notes').value  = b.notes||'';
+    calcBBTotal();
+  },50);
+}
+
+function delBB(id) {
+  const used = DB.bills.filter(b=>b.bookId===id).length;
+  if (used && !confirm(`This book has ${used} bills. Delete anyway?`)) return;
+  DB.billbooks = DB.billbooks.filter(b=>b.id!==id);
+  save(); renderBillBooks(); toast('Deleted','i');
+}
+
+function calcBBTotal() {
+  const from = parseInt(document.getElementById('bb_from').value)||0;
+  const to   = parseInt(document.getElementById('bb_to').value)||0;
+  const hint = document.getElementById('bb_total_hint');
+  if (from && to && to>=from) {
+    hint.textContent = `Total ${to-from+1} bill numbers (${from} to ${to})`;
+    hint.style.color = 'var(--acc)';
+  } else if (from && to && to<from) {
+    hint.textContent = '⚠️ To must be ≥ From';
+    hint.style.color = 'var(--red)';
+  } else {
+    hint.textContent = '';
+  }
+}
+
+function saveBillBook() {
+  const num    = document.getElementById('bb_num').value.trim();
+  const fy     = document.getElementById('bb_fy').value;
+  const from   = parseInt(document.getElementById('bb_from').value)||0;
+  const to     = parseInt(document.getElementById('bb_to').value)||0;
+  const status = document.getElementById('bb_status').value;
+  const notes  = document.getElementById('bb_notes').value.trim();
+  const editId = document.getElementById('bb_edit_id').textContent;
+
+  if (!num)  { toast('Enter book number','w'); return; }
+  if (!fy)   { toast('Select financial year','w'); return; }
+  if (!from) { toast('Enter From number','w'); return; }
+  if (!to)   { toast('Enter To number','w'); return; }
+  if (to < from) { toast('To must be ≥ From','w'); return; }
+
+  const dup = DB.billbooks.find(b => b.bookNumber === num && b.id !== editId);
+  if (dup) { toast('Book number already exists','e'); return; }
+
+  if (editId) {
+    const idx = DB.billbooks.findIndex(b=>b.id===editId);
+    if (idx>-1) DB.billbooks[idx] = {...DB.billbooks[idx], bookNumber:num, fyear:fy, fromNo:from, toNo:to, status, notes};
+    toast('Bill book updated','s');
+  } else {
+    DB.billbooks.push({ id:uid(), bookNumber:num, fyear:fy, fromNo:from, toNo:to, status, notes });
+    toast('Bill book created','s');
+  }
+  save(); closeMo('moBB'); renderBillBooks(); popBillDrops();
 }
 
 // ── BRANCHES ─────────────────────────────────────────────────────
-function openBrMo(branch){
-  eId.branch=branch?branch.id:null;
-  document.getElementById('bmT').textContent=branch?'Edit Branch':'Add Branch';
-  document.getElementById('bm_c').value=branch?branch.code:'';document.getElementById('bm_c').readOnly=!!branch;
-  document.getElementById('bm_n').value=branch?branch.name:'';
-  document.getElementById('bm_d').value=branch?branch.district:'';
-  document.getElementById('bm_p').value=branch?branch.pincode:'';
-  document.getElementById('moB').classList.add('open');
-}
-function saveBranch(){
-  const code=document.getElementById('bm_c').value.trim(),name=document.getElementById('bm_n').value.trim();
-  if(!code||!name){toast('Code and Name required','e');return;}
-  const data={id:eId.branch||uid(),code,name,district:document.getElementById('bm_d').value.trim(),pincode:document.getElementById('bm_p').value.trim()};
-  if(eId.branch){const i=DB.branches.findIndex(x=>x.id===eId.branch);if(i>=0)DB.branches[i]=data;}
-  else{if(DB.branches.find(b=>b.code===code)){toast('Branch code already exists!','e');return;}DB.branches.push(data);}
-  save();closeMo('moB');renderBranches();toast('Branch saved!','s');
-}
-function renderBranches(){
-  let data=DB.branches;const s=(document.getElementById('brSrch').value||'').toLowerCase();
-  if(s)data=data.filter(b=>b.code.toLowerCase().includes(s)||b.name.toLowerCase().includes(s)||(b.district||'').toLowerCase().includes(s));
-  document.getElementById('brCnt').textContent=data.length+' branches';
-  document.getElementById('brBody').innerHTML=data.length?data.map((b,i)=>`<tr><td>${i+1}</td><td style="color:var(--accent);font-weight:700">${b.code}</td><td>${b.name}</td><td>${b.district||'—'}</td><td>${b.pincode||'—'}</td><td style="display:flex;gap:5px"><button class="btn btn-s xs" onclick='openBrMo(${JSON.stringify(b)})'>Edit</button><button class="btn btn-d xs" onclick="delBranch('${b.id}')">Del</button></td></tr>`).join(''):'<tr><td colspan="6"><div class="emp"><div class="ei">🏢</div><p>No branches. Add one or Import CSV.</p></div></td></tr>';
-}
-function delBranch(id){if(!confirm('Delete?'))return;DB.branches=DB.branches.filter(b=>b.id!==id);save();renderBranches();toast('Deleted','i');}
+function renderBranches() {
+  const srch = (document.getElementById('brf_s')?.value||'').toLowerCase();
+  const branches = DB.branches.filter(b =>
+    !srch || (b.code||'').toLowerCase().includes(srch) ||
+    (b.name||'').toLowerCase().includes(srch) || (b.district||'').toLowerCase().includes(srch)
+  );
 
-function importCSV(event){
-  const file=event.target.files[0];if(!file)return;
-  const bar=document.getElementById('impBar'),msg=document.getElementById('impMsg'),prog=document.getElementById('impProg');
-  bar.classList.add('show');msg.textContent='Reading file...';prog.style.width='15%';
-  const reader=new FileReader();
-  reader.onload=function(e){
-    prog.style.width='40%';msg.textContent='Parsing rows...';
-    const text=e.target.result;const lines=text.split(/\r?\n/).filter(l=>l.trim());
-    if(lines.length<2){toast('No data rows','e');bar.classList.remove('show');return;}
-    const delim=lines[0].includes(';')?';':',';
-    const pr=row=>{const r=[];let q=false,c='';for(let i=0;i<row.length;i++){const ch=row[i];if(ch==='"'){q=!q;}else if(ch===delim&&!q){r.push(c.trim());c='';}else{c+=ch;}}r.push(c.trim());return r;};
-    const first=pr(lines[0]);
-    const isHdr=isNaN(Number(first[0]))||first[0].toLowerCase().includes('code')||first[0].toLowerCase().includes('branch');
-    const start=isHdr?1:0;
-    prog.style.width='65%';msg.textContent=`Processing ${lines.length-start} rows...`;
-    let imp=0,skip=0,inv=0;
-    const existing=new Set(DB.branches.map(b=>b.code.toLowerCase()));
-    const newOnes=[];
-    for(let i=start;i<lines.length;i++){
-      if(!lines[i].trim())continue;
-      const cols=pr(lines[i]);const code=(cols[0]||'').trim(),name=(cols[1]||'').trim();
-      if(!code||!name){inv++;continue;}
-      if(existing.has(code.toLowerCase())){skip++;continue;}
-      existing.add(code.toLowerCase());
-      newOnes.push({id:uid(),code,name,district:(cols[2]||'').trim(),pincode:(cols[3]||'').trim()});imp++;
+  const body = document.getElementById('brBody');
+  if (!body) return;
+
+  if (!branches.length) {
+    body.innerHTML = `<tr><td colspan="6"><div class="emp"><div class="ei">🏛️</div><p>No branches yet</p></div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = branches.map((b,i) => `<tr>
+    <td>${i+1}</td>
+    <td class="mono" style="color:var(--acc);font-weight:700;">${b.code}</td>
+    <td>${b.name}</td>
+    <td>${b.district||'—'}</td>
+    <td class="mono">${b.pincode||'—'}</td>
+    <td>
+      <button class="btn btn-s xs" onclick="openBrMo('${b.id}')">✏️</button>
+      <button class="btn btn-d xs" onclick="delBranch('${b.id}')">🗑</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openBrMo(id) {
+  const b = id ? DB.branches.find(x=>x.id===id) : null;
+  document.getElementById('moBrTitle').textContent = b ? 'Edit Branch' : 'Add Branch';
+  document.getElementById('br_edit_id').textContent = b?.id || '';
+  document.getElementById('br_code').value = b?.code    || '';
+  document.getElementById('br_name').value = b?.name    || '';
+  document.getElementById('br_dist').value = b?.district|| '';
+  document.getElementById('br_pin').value  = b?.pincode || '';
+  document.getElementById('moBr').classList.add('open');
+}
+
+function saveBranch() {
+  const code = document.getElementById('br_code').value.trim().toUpperCase();
+  const name = document.getElementById('br_name').value.trim();
+  const dist = document.getElementById('br_dist').value.trim();
+  const pin  = document.getElementById('br_pin').value.trim();
+  const editId = document.getElementById('br_edit_id').textContent;
+
+  if (!code) { toast('Enter branch code','w'); return; }
+  if (!name) { toast('Enter branch name','w'); return; }
+
+  const dup = DB.branches.find(b=>b.code===code && b.id!==editId);
+  if (dup) { toast('Code already exists','e'); return; }
+
+  if (editId) {
+    const idx = DB.branches.findIndex(b=>b.id===editId);
+    if (idx>-1) DB.branches[idx] = {...DB.branches[idx], code, name, district:dist, pincode:pin};
+    toast('Branch updated','s');
+  } else {
+    DB.branches.push({id:uid(),code,name,district:dist,pincode:pin});
+    toast('Branch added','s');
+  }
+  save(); closeMo('moBr'); renderBranches();
+}
+
+function delBranch(id) {
+  if (!confirm('Delete branch?')) return;
+  DB.branches = DB.branches.filter(b=>b.id!==id);
+  save(); renderBranches(); toast('Deleted','i');
+}
+
+function importBranchCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
+    if (lines.length<2) return;
+    const headers = lines[0].split(',').map(h=>h.trim().toLowerCase());
+    let added=0, skipped=0;
+    for (let i=1;i<lines.length;i++) {
+      const cols = lines[i].split(',').map(c=>c.trim());
+      const code = (cols[headers.indexOf('code')]||cols[headers.indexOf('brnch_code')]||'').toUpperCase();
+      const name = cols[headers.indexOf('name')]||cols[headers.indexOf('branch_name')]||'';
+      const dist = cols[headers.indexOf('district')]||'';
+      const pin  = cols[headers.indexOf('pincode')]||'';
+      if (!code||!name) { skipped++; continue; }
+      if (DB.branches.find(b=>b.code===code)) { skipped++; continue; }
+      DB.branches.push({id:uid(),code,name,district:dist,pincode:pin}); added++;
     }
-    DB.branches.push(...newOnes);save();
-    prog.style.width='100%';msg.textContent=`✅ Done! Imported: ${imp} | Skipped: ${skip} | Invalid: ${inv}`;
-    renderBranches();toast(`${imp} branches imported!`,'s');
-    event.target.value='';setTimeout(()=>bar.classList.remove('show'),7000);
+    save(); renderBranches(); toast(`Imported ${added} branches, ${skipped} skipped`,'s');
   };
-  reader.onerror=()=>{toast('File read failed','e');bar.classList.remove('show');};
   reader.readAsText(file);
+  event.target.value = '';
 }
-
-// ── MEMBERS ──────────────────────────────────────────────────────
-function openMemMo(member){
-  eId.member=member?member.id:null;
-  document.getElementById('mmT').textContent=member?'Edit Member':'Add Member';
-  document.getElementById('mm_i').value=member?member.id:'';document.getElementById('mm_i').readOnly=!!member;
-  document.getElementById('mm_n').value=member?member.name:'';
-  document.getElementById('mm_h').value=member?(member.rph||''):'';
-  document.getElementById('mm_d').value=member?(member.rpd||''):'';
-  document.getElementById('moM').classList.add('open');
-}
-function saveMember(){
-  const id=document.getElementById('mm_i').value.trim(),name=document.getElementById('mm_n').value.trim();
-  if(!id){toast('Member ID required','e');return;}if(!name){toast('Member Name required','e');return;}
-  const data={id,name,rph:Number(document.getElementById('mm_h').value)||0,rpd:Number(document.getElementById('mm_d').value)||0};
-  if(eId.member){const idx=DB.members.findIndex(x=>x.id===eId.member);if(idx>=0)DB.members[idx]=data;else DB.members.push(data);}
-  else{if(DB.members.find(m=>m.id===id)){toast(`ID "${id}" already exists!`,'e');return;}DB.members.push(data);}
-  save();closeMo('moM');renderMembers();toast(`Member "${name}" saved! ✅`,'s');
-}
-function renderMembers(){
-  document.getElementById('memBody').innerHTML=DB.members.length?DB.members.map(m=>{
-    const ents=DB.entries.filter(e=>e.memberId===m.id),ta=ents.reduce((s,e)=>s+Number(e.amount||0),0);
-    return `<tr><td style="color:var(--accent);font-weight:700">${m.id}</td><td style="font-weight:700">${m.name}</td><td>₹${fmt(m.rph)}/hr</td><td>₹${fmt(m.rpd)}/day</td><td>${ents.length}</td><td class="amt">₹${fmt(ta)}</td><td style="display:flex;gap:5px"><button class="btn btn-s xs" onclick='openMemMo(${JSON.stringify(m)})'>Edit</button><button class="btn btn-d xs" onclick="delMember('${m.id}')">Del</button></td></tr>`;
-  }).join(''):'<tr><td colspan="7"><div class="emp"><div class="ei">👥</div><p>No members yet.</p></div></td></tr>';
-}
-function delMember(id){if(!confirm('Delete member?'))return;DB.members=DB.members.filter(m=>m.id!==id);save();renderMembers();toast('Deleted','i');}
 
 // ── REPORTS ──────────────────────────────────────────────────────
-function rTab(tab){
-  rptTab=tab;
+function rTab(tab, el) {
+  curRptTab = tab;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick')?.includes(`'${tab}'`))t.classList.add('active');});
-  ['branch','detail','member'].forEach(t=>document.getElementById('rp-'+t).style.display=t===tab?'':'none');
+  if (el) el.classList.add('active');
   renderReports();
 }
-function clrRF(){
-  ['rf_f','rf_t','rf_br'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('rf_m').value='';
-  document.getElementById('rf_dist').value='';
+
+function clrRF() {
+  ['rf_status','rf_from','rf_to','rpt_fy'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderReports();
 }
-function renderReports(){
-  // Populate member dropdown (preserve selection)
-  const selM=document.getElementById('rf_m').value;
-  document.getElementById('rf_m').innerHTML='<option value="">All Members</option>'+DB.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  if(selM)document.getElementById('rf_m').value=selM;
 
-  // Populate district dropdown (preserve selection)
-  const selD=document.getElementById('rf_dist').value;
-  const districts=[...new Set(DB.branches.map(b=>b.district||'').filter(Boolean))].sort();
-  document.getElementById('rf_dist').innerHTML='<option value="">All Districts</option>'+districts.map(d=>`<option value="${d}">${d}</option>`).join('');
-  if(selD)document.getElementById('rf_dist').value=selD;
+function renderReports() {
+  const fyEl = document.getElementById('rpt_fy');
+  if (fyEl) {
+    const cur = fyEl.value;
+    fyEl.innerHTML = `<option value="">All FY</option>` + DB.fyList.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join('');
+  }
 
-  // Read filters
-  const from=document.getElementById('rf_f').value;
-  const to=document.getElementById('rf_t').value;
-  const brSearch=(document.getElementById('rf_br').value||'').toLowerCase().trim();
-  const mid=document.getElementById('rf_m').value;
-  const dist=document.getElementById('rf_dist').value;
+  const fyF  = fyEl?.value || '';
+  const stF  = document.getElementById('rf_status')?.value || '';
+  const from = document.getElementById('rf_from')?.value || '';
+  const to   = document.getElementById('rf_to')?.value || '';
 
-  // Filter entries
-  let ents=DB.entries.filter(e=>{
-    if(from&&e.date<from)return false;
-    if(to&&e.date>to)return false;
-    // Branch: search by code or name
-    if(brSearch&&!(e.bcode.toLowerCase().includes(brSearch)||e.bname.toLowerCase().includes(brSearch)))return false;
-    // Member: filter by memberId
-    if(mid&&e.memberId!==mid)return false;
-    // District: lookup branch district
-    if(dist){const br=DB.branches.find(b=>b.code===e.bcode);if(!br||br.district!==dist)return false;}
+  let bills = DB.bills.filter(b=>{
+    if (fyF && b.fyear!==fyF) return false;
+    if (stF && b.status!==stF) return false;
+    if (from && (b.issueDate||'')<from) return false;
+    if (to   && (b.issueDate||'')>to)   return false;
     return true;
   });
 
-  if(rptTab==='branch'){
-    const map={};
-    ents.forEach(e=>{
-      if(!map[e.bcode]){const br=DB.branches.find(b=>b.code===e.bcode)||{};map[e.bcode]={bcode:e.bcode,bname:e.bname,dist:br.district||'',pin:br.pincode||'',days:new Set(),amt:0};}
-      map[e.bcode].days.add(e.date);map[e.bcode].amt+=Number(e.amount||0);
-    });
-    document.getElementById('r1').innerHTML=Object.values(map).length?Object.values(map).map((r,i)=>{
-      const bills=DB.bills.filter(b=>b.bcode===r.bcode),bi=bills.reduce((s,b)=>s+Number(b.amount||0),0),br2=bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);
-      return `<tr><td>${i+1}</td><td style="color:var(--accent);font-weight:700">${r.bcode}</td><td>${r.bname}</td><td>${r.dist}</td><td>${r.pin}</td><td>${r.days.size}</td><td class="amt">₹${fmt(r.amt)}</td><td class="amt">₹${fmt(bi)}</td><td class="amt" style="color:var(--green)">₹${fmt(br2)}</td><td class="${(bi-br2)>0?'dp':'dz'}">₹${fmt(bi-br2)}</td></tr>`;
-    }).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data for selected filters</td></tr>';
+  const el = document.getElementById('rptContent');
+  if (!el) return;
+
+  if (!bills.length) { el.innerHTML = '<div class="emp"><div class="ei">📊</div><p>No data for this filter</p></div>'; return; }
+
+  switch(curRptTab) {
+    case 'branch':   el.innerHTML = rptBranch(bills);   break;
+    case 'district': el.innerHTML = rptDistrict(bills); break;
+    case 'billbook': el.innerHTML = rptBillBook(bills); break;
+    case 'monthly':  el.innerHTML = rptMonthly(bills);  break;
+    case 'outstanding': el.innerHTML = rptOutstanding(bills); break;
+    default: el.innerHTML = rptBranch(bills);
   }
-  if(rptTab==='detail'){
-    document.getElementById('r2').innerHTML=ents.length?ents.map((e,i)=>{
-      const bill=e.billId?DB.bills.find(b=>b.id===e.billId):null;
-      const br=DB.branches.find(b=>b.code===e.bcode)||{};
-      return `<tr><td>${i+1}</td><td>${fd(e.date)}</td><td style="color:var(--accent);font-weight:700">${e.bcode}</td><td>${e.bname}</td><td style="color:var(--W3)">${br.district||'—'}</td><td>${e.member||'—'}</td><td><span class="b b-${e.worktype}">${e.worktype}</span></td><td>${e.qty||'—'}</td><td>${e.rate?'₹'+fmt(e.rate):'—'}</td><td class="amt">₹${fmt(e.amount)}</td><td style="font-weight:700;color:var(--accent)">${bill?bill.billNo:'—'}</td><td>${bill?'₹'+fmt(bill.amount):'—'}</td><td>${bill?`<span class="b ${SB[bill.status]}">${bill.status}</span>`:'—'}</td></tr>`;
-    }).join(''):'<tr><td colspan="13" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data for selected filters</td></tr>';
-  }
-  if(rptTab==='member'){
-    const mm={};
-    ents.forEach(e=>{const k=e.memberId||e.member||'?';if(!mm[k])mm[k]={name:e.member||k,hrs:0,days:0,fixed:0,amt:0,branches:new Set()};if(e.worktype==='hourly')mm[k].hrs+=Number(e.qty||0);if(e.worktype==='daily')mm[k].days+=Number(e.qty||0);if(e.worktype==='fixed')mm[k].fixed++;mm[k].amt+=Number(e.amount||0);mm[k].branches.add(e.bcode);});
-    document.getElementById('rm').innerHTML=Object.values(mm).length?Object.values(mm).map(m=>`<tr><td style="font-weight:700">${m.name}</td><td>${m.hrs}h</td><td>${m.days}</td><td>${m.fixed}</td><td class="amt">₹${fmt(m.amt)}</td><td>${m.branches.size}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:30px;font-weight:600;color:var(--W3)">No data for selected filters</td></tr>';
-  }
-}
-function expReport(n){
-  let csv='';
-  if(n===1){csv='Sl,Branch Code,Branch Name,District,Pincode,Days Worked,Total Work Amt,Total Billed,Total Received,Difference\n';const map={};DB.entries.forEach(e=>{if(!map[e.bcode]){const br=DB.branches.find(b=>b.code===e.bcode)||{};map[e.bcode]={bcode:e.bcode,bname:e.bname,dist:br.district||'',pin:br.pincode||'',days:new Set(),amt:0};}map[e.bcode].days.add(e.date);map[e.bcode].amt+=Number(e.amount||0);});Object.values(map).forEach((r,i)=>{const bills=DB.bills.filter(b=>b.bcode===r.bcode),bi=bills.reduce((s,b)=>s+Number(b.amount||0),0),br2=bills.reduce((s,b)=>s+Number(b.recdAmt||0),0);csv+=`${i+1},${r.bcode},"${r.bname}","${r.dist}",${r.pin},${r.days.size},${r.amt},${bi},${br2},${bi-br2}\n`;});dlCSV('report1_branch_summary.csv',csv);}
-  else{csv='Sl,Date,Branch Code,Branch Name,Member,Work Type,Qty,Rate,Amount,Bill No,Bill Status\n';DB.entries.forEach((e,i)=>{const bill=e.billId?DB.bills.find(b=>b.id===e.billId):null;csv+=`${i+1},${e.date},${e.bcode},"${e.bname}","${e.member||''}",${e.worktype},${e.qty||''},${e.rate||''},${e.amount},"${bill?bill.billNo:'Unbilled'}","${bill?bill.status:''}"\n`;});dlCSV('report2_detailed_ledger.csv',csv);}
 }
 
-// ── RECONCILE ────────────────────────────────────────────────────
-function renderReconcile(){
-  const pend=DB.bills.filter(b=>b.status==='Pending'||b.status==='Partial');
-  const tpa=pend.reduce((s,b)=>s+(Number(b.amount||0)-Number(b.recdAmt||0)),0);
-  const ov30=pend.filter(b=>Math.floor((Date.now()-new Date(b.issueDate))/86400000)>30).length;
-  const tdisc=DB.bills.reduce((s,b)=>s+Number(b.discount||0),0);
-  document.getElementById('rcStats').innerHTML=`<div class="sc d"><div class="slbl">Pending Bills</div><div class="sval d">${pend.length}</div></div><div class="sc w"><div class="slbl">Pending Amount</div><div class="sval w">₹${fmt(tpa)}</div></div><div class="sc p"><div class="slbl">Overdue >30 Days</div><div class="sval p">${ov30}</div></div><div class="sc g"><div class="slbl">Bills Received</div><div class="sval g">${DB.bills.filter(b=>b.status==='Received').length}</div></div><div class="sc w"><div class="slbl">Total Discount Given</div><div class="sval w">₹${fmt(tdisc)}</div></div>`;
-  document.getElementById('rcBody').innerHTML=pend.length?pend.map(b=>{
-    const diff=Number(b.amount||0)-Number(b.recdAmt||0);
-    const days=Math.floor((Date.now()-new Date(b.issueDate))/86400000);
-    const wt=Number(b.workTotal||0);const disc=Number(b.discount||0);
-    return `<tr>
-      <td style="color:var(--accent);font-weight:700">${b.billNo||'—'}</td>
-      <td>${b.bname||'—'}</td>
-      <td class="amt" style="color:var(--green)">₹${fmt(wt)}</td>
-      <td class="amt">₹${fmt(b.amount)}</td>
-      <td style="color:${disc>0?'var(--yellow)':'var(--W3)'};font-weight:700">₹${fmt(disc)}</td>
-      <td style="color:var(--green);font-weight:700">₹${fmt(b.recdAmt)}</td>
-      <td class="dp">₹${fmt(diff)}</td>
-      <td><span class="b ${SB[b.status]||'b-pend'}">${b.status}</span></td>
-      <td style="color:${days>30?'var(--red)':days>7?'var(--yellow)':'var(--W1)'};font-weight:700">${days}d</td>
-      <td><button class="btn btn-g xs" onclick="quickPay('${b.id}')">💰 Update</button></td>
-    </tr>`;
-  }).join(''):'<tr><td colspan="10"><div class="emp"><div class="ei">🎉</div><p>All bills reconciled!</p></div></td></tr>';
+function rptBranch(bills) {
+  const map = {};
+  bills.forEach(b=>{
+    const k = b.bcode||'?';
+    if (!map[k]) map[k] = {code:b.bcode, name:b.bname, total:0, recd:0, diff:0, count:0};
+    map[k].total += Number(b.amount)||0;
+    map[k].recd  += Number(b.recdAmt)||0;
+    map[k].diff  += Number(b.diff)||0;
+    map[k].count++;
+  });
+  const rows = Object.values(map).sort((a,b)=>b.diff-a.diff);
+  const totT=rows.reduce((s,r)=>s+r.total,0), totR=rows.reduce((s,r)=>s+r.recd,0), totD=rows.reduce((s,r)=>s+r.diff,0);
+  return `<div class="card"><div class="ctitle">Branch-wise Summary</div><div class="tw"><table>
+    <thead><tr><th>Sl</th><th>Code</th><th>Branch</th><th>Bills</th><th>Billed</th><th>Received</th><th>Outstanding</th></tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr>
+      <td>${i+1}</td><td class="mono" style="color:var(--acc);">${r.code}</td><td>${r.name}</td><td>${r.count}</td>
+      <td class="amt">₹${fmt(r.total)}</td><td class="dz">₹${fmt(r.recd)}</td>
+      <td class="${r.diff>0?'dp':'dz'}">₹${fmt(r.diff)}</td>
+    </tr>`).join('')}
+    <tr style="background:var(--s3);font-weight:700;">
+      <td colspan="3">TOTAL</td><td>${bills.length}</td>
+      <td class="amt">₹${fmt(totT)}</td><td class="dz">₹${fmt(totR)}</td>
+      <td class="${totD>0?'dp':'dz'}">₹${fmt(totD)}</td>
+    </tr></tbody></table></div></div>`;
 }
-function quickPay(id){
-  const bill=DB.bills.find(b=>b.id===id);if(!bill)return;
-  const diff=Number(bill.amount||0)-Number(bill.recdAmt||0);
-  // Populate modal
-  document.getElementById('qp_billId').value=id;
-  document.getElementById('qp_info').innerHTML=
-    `<div class="abox" style="margin-bottom:14px;line-height:2.2;">
-      🏢 Branch: <strong>${bill.bname||'—'}</strong><br>
-      🧾 Bill No: <strong style="color:var(--accent)">${bill.billNo||'—'}</strong><br>
-      💰 Bill Amount: <strong>₹${fmt(bill.amount)}</strong><br>
-      ✅ Already Received: <strong style="color:var(--green)">₹${fmt(bill.recdAmt||0)}</strong><br>
-      ⏳ Pending: <strong style="color:var(--red)">₹${fmt(diff)}</strong>
-    </div>`;
-  document.getElementById('qp_amt').value='';
-  document.getElementById('qp_date').value=td();
-  document.getElementById('qp_cheque').value='';
-  document.getElementById('qp_rem').value='';
-  document.getElementById('moQP').classList.add('open');
+
+function rptDistrict(bills) {
+  const map = {};
+  bills.forEach(b=>{
+    const k = b.district||'Unknown';
+    if (!map[k]) map[k] = {district:k, total:0, recd:0, diff:0, count:0, branches:new Set()};
+    map[k].total += Number(b.amount)||0;
+    map[k].recd  += Number(b.recdAmt)||0;
+    map[k].diff  += Number(b.diff)||0;
+    map[k].count++;
+    map[k].branches.add(b.bcode);
+  });
+  const rows = Object.values(map).sort((a,b)=>b.diff-a.diff);
+  const totT=rows.reduce((s,r)=>s+r.total,0), totR=rows.reduce((s,r)=>s+r.recd,0), totD=rows.reduce((s,r)=>s+r.diff,0);
+  return `<div class="card"><div class="ctitle">District-wise Summary</div><div class="tw"><table>
+    <thead><tr><th>Sl</th><th>District</th><th>Branches</th><th>Bills</th><th>Billed</th><th>Received</th><th>Outstanding</th></tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr>
+      <td>${i+1}</td><td style="color:var(--purple);font-weight:600;">${r.district}</td>
+      <td>${r.branches.size}</td><td>${r.count}</td>
+      <td class="amt">₹${fmt(r.total)}</td><td class="dz">₹${fmt(r.recd)}</td>
+      <td class="${r.diff>0?'dp':'dz'}">₹${fmt(r.diff)}</td>
+    </tr>`).join('')}
+    <tr style="background:var(--s3);font-weight:700;">
+      <td colspan="3">TOTAL</td><td>${bills.length}</td>
+      <td class="amt">₹${fmt(totT)}</td><td class="dz">₹${fmt(totR)}</td>
+      <td class="${totD>0?'dp':'dz'}">₹${fmt(totD)}</td>
+    </tr></tbody></table></div></div>`;
 }
-function saveQuickPay(){
-  const id=document.getElementById('qp_billId').value;
-  const amt=document.getElementById('qp_amt').value.trim();
-  const date=document.getElementById('qp_date').value;
-  const cheque=document.getElementById('qp_cheque').value.trim();
-  const rem=document.getElementById('qp_rem').value.trim();
-  if(!amt||isNaN(Number(amt))||Number(amt)<=0){toast('Enter a valid amount','e');return;}
-  if(!date){toast('Enter payment received date','e');return;}
-  const bill=DB.bills.find(b=>b.id===id);if(!bill)return;
-  const newR=Number(bill.recdAmt||0)+Number(amt);
-  bill.recdAmt=newR;
-  bill.diff=Number(bill.amount)-newR;
-  bill.recdDate=date;
-  bill.status=newR>=Number(bill.amount)?'Received':'Partial';
-  if(cheque)bill.chequeNo=cheque;
-  if(rem)bill.payRemarks=(bill.payRemarks?bill.payRemarks+'; ':'')+rem;
-  save();closeMo('moQP');renderReconcile();updBadge();
-  toast(`✅ Payment ₹${fmt(Number(amt))} recorded!\nDate: ${fd(date)}${cheque?'\nCheque: '+cheque:''}\nStatus: ${bill.status}`,'s');
+
+function rptBillBook(bills) {
+  const map = {};
+  bills.forEach(b=>{
+    const k = b.bookId||'?';
+    if (!map[k]) {
+      const book = DB.billbooks.find(x=>x.id===k);
+      map[k] = {bookId:k, bookNumber:book?.bookNumber||'?', fyear:book?.fyear||'—', total:0, recd:0, diff:0, count:0};
+    }
+    map[k].total += Number(b.amount)||0;
+    map[k].recd  += Number(b.recdAmt)||0;
+    map[k].diff  += Number(b.diff)||0;
+    map[k].count++;
+  });
+  const rows = Object.values(map);
+  return `<div class="card"><div class="ctitle">Bill Book Summary</div><div class="tw"><table>
+    <thead><tr><th>Sl</th><th>Book</th><th>FY</th><th>Bills Used</th><th>Total Billed</th><th>Received</th><th>Outstanding</th></tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr>
+      <td>${i+1}</td><td class="mono" style="color:var(--acc);">${r.bookNumber}</td><td class="mono">${r.fyear}</td>
+      <td>${r.count}</td><td class="amt">₹${fmt(r.total)}</td>
+      <td class="dz">₹${fmt(r.recd)}</td><td class="${r.diff>0?'dp':'dz'}">₹${fmt(r.diff)}</td>
+    </tr>`).join('')}</tbody></table></div></div>`;
+}
+
+function rptMonthly(bills) {
+  const map = {};
+  bills.forEach(b=>{
+    const k = (b.issueDate||'').slice(0,7);
+    if (!k) return;
+    if (!map[k]) map[k] = {month:k, total:0, recd:0, diff:0, count:0};
+    map[k].total += Number(b.amount)||0;
+    map[k].recd  += Number(b.recdAmt)||0;
+    map[k].diff  += Number(b.diff)||0;
+    map[k].count++;
+  });
+  const rows = Object.values(map).sort((a,b)=>b.month.localeCompare(a.month));
+  return `<div class="card"><div class="ctitle">Monthly Collection Report</div><div class="tw"><table>
+    <thead><tr><th>Month</th><th>Bills</th><th>Billed</th><th>Received</th><th>Outstanding</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td class="mono" style="color:var(--blue);">${r.month}</td><td>${r.count}</td>
+      <td class="amt">₹${fmt(r.total)}</td><td class="dz">₹${fmt(r.recd)}</td>
+      <td class="${r.diff>0?'dp':'dz'}">₹${fmt(r.diff)}</td>
+    </tr>`).join('')}</tbody></table></div></div>`;
+}
+
+function rptOutstanding(bills) {
+  const pending = bills.filter(b=>b.status!=='Received').sort((a,b)=>(Number(b.diff)||0)-(Number(a.diff)||0));
+  const total = pending.reduce((s,b)=>s+(Number(b.diff)||0),0);
+  return `<div class="card"><div class="ctitle">Outstanding Bills — ₹${fmt(total)} due</div><div class="tw"><table>
+    <thead><tr><th>Sl</th><th>Book</th><th>Bill#</th><th>Issue Date</th><th>Branch</th><th>District</th><th>Billed</th><th>Received</th><th>Outstanding</th><th>Status</th></tr></thead>
+    <tbody>${pending.map((b,i)=>{
+      const book = DB.billbooks.find(x=>x.id===b.bookId);
+      return `<tr>
+        <td>${i+1}</td><td class="mono">${book?.bookNumber||'—'}</td>
+        <td class="mono" style="color:var(--acc);">${b.billNo||'—'}</td>
+        <td>${fmtd(b.issueDate)}</td><td>${b.bname||'—'}</td><td>${b.district||'—'}</td>
+        <td class="amt">₹${fmt(b.amount)}</td><td class="amt">₹${fmt(b.recdAmt||0)}</td>
+        <td class="dp">₹${fmt(b.diff)}</td><td>${statusBadge(b.status)}</td>
+      </tr>`;
+    }).join('')}</tbody></table></div></div>`;
+}
+
+function expReportCSV() {
+  const fyF  = document.getElementById('rpt_fy')?.value || '';
+  const stF  = document.getElementById('rf_status')?.value || '';
+  let bills  = DB.bills.filter(b=>{
+    if (fyF && b.fyear!==fyF) return false;
+    if (stF && b.status!==stF) return false;
+    return true;
+  });
+  let csv = 'Sl,Book,Bill#,Issue Date,Bill Date,Branch Code,Branch Name,District,Amount,Recd Date,Recd Amt,Diff,Status\n';
+  bills.forEach((b,i)=>{
+    const book = DB.billbooks.find(x=>x.id===b.bookId);
+    csv += `${i+1},"${book?.bookNumber||''}","${b.billNo||''}","${b.issueDate||''}","${b.billDate||''}","${b.bcode||''}","${b.bname||''}","${b.district||''}",${b.amount||0},"${b.recdDate||''}",${b.recdAmt||0},${b.diff||0},"${b.status||''}"\n`;
+  });
+  dlCSV('bankwork_report_'+td()+'.csv', csv);
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────
-function renderSettings(){
-  if(GAS)document.getElementById('gasUrl').value=GAS;
-  const box=document.getElementById('gasStatusBox');
-  if(GAS){box.className='gbox';box.innerHTML='✅ <strong>CONNECTED</strong> — '+GAS.slice(0,55)+'...<br><small style="font-size:11px;opacity:.8">Click GREEN button to save data</small>';}
-  else{box.className='wbox';box.innerHTML='⚠️ <strong>NOT CONNECTED</strong> — Paste URL below and click Save & Connect';}
-  document.getElementById('cfgE').textContent=DB.entries.length;
-  document.getElementById('cfgB').textContent=DB.bills.length;
-  document.getElementById('cfgBr').textContent=DB.branches.length;
-  document.getElementById('cfgM').textContent=DB.members.length;
-  const gasEl=document.getElementById('cfgGas');
-  gasEl.textContent=GAS?'CONNECTED ✅':'NOT CONNECTED ❌';gasEl.style.color=GAS?'var(--green)':'var(--red)';
+function renderSettings() {
+  const el = document.getElementById('gasUrl');
+  if (el) el.value = GAS;
+  if (GAS) setSS('ok','Connected');
 }
-function saveGas(){
-  const url=document.getElementById('gasUrl').value.trim();
-  if(!url||!url.includes('script.google.com')){toast('Invalid URL','e');return;}
-  GAS=url;localStorage.setItem('bwpro_gas',url);setSS('ok','Connected ✓');renderSettings();
-  toast('✅ URL Saved!\nClick GREEN button to upload data.','s');
-}
-function clearGas(){GAS='';localStorage.removeItem('bwpro_gas');document.getElementById('gasUrl').value='';setSS('','Local Mode');renderSettings();toast('Disconnected','i');}
-function expJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB,null,2)],{type:'application/json'}));a.download='bankwork_backup_'+td()+'.json';a.click();toast('Backup exported!','s');}
-function impJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(e){try{const d=JSON.parse(e.target.result);if(!confirm(`Import?\nEntries:${d.entries?.length||0} Bills:${d.bills?.length||0} Branches:${d.branches?.length||0} Members:${d.members?.length||0}\n\nReplaces ALL current data!`))return;DB.entries=d.entries||[];DB.bills=d.bills||[];DB.branches=d.branches||[];DB.members=d.members||[];DB.config=d.config||{nextBillNo:1};save();renderCurrentPage();toast('Backup imported!','s');}catch(e){toast('Invalid file','e');}};r.readAsText(f);ev.target.value='';}
-function clearAll(){if(!confirm('Delete ALL data?'))return;if(!confirm('FINAL — delete everything?'))return;DB={entries:[],bills:[],branches:[],members:[],config:{nextBillNo:1}};save();renderCurrentPage();toast('All data cleared','i');}
 
-// ── CSV EXPORT ───────────────────────────────────────────────────
-function expCSV(type){
-  if(type==='entries'){let c='#,Date,Code,Branch,Member,Type,Qty,Rate,Amount,Remarks,BillStatus,BillNo\n';DB.entries.forEach((e,i)=>{const bill=e.billId?DB.bills.find(b=>b.id===e.billId):null;c+=`${i+1},${e.date},${e.bcode},"${e.bname}","${e.member||''}",${e.worktype},${e.qty||''},${e.rate||''},${e.amount},"${e.remarks||''}","${bill?'Billed':'Unbilled'}","${bill?bill.billNo:''}"\n`;});dlCSV('entries.csv',c);}
-  else if(type==='bills'){let c='#,Issue Date,Bill No.,Branch,Work Total,Bill Amt,Discount,Received,Difference,Status\n';DB.bills.forEach((b,i)=>{c+=`${i+1},${b.issueDate},"${b.billNo}","${b.bname}",${b.workTotal||0},${b.amount},${b.discount||0},${b.recdAmt||0},${Number(b.amount||0)-Number(b.recdAmt||0)},${b.status}\n`;});dlCSV('bills.csv',c);}
-  else if(type==='branches'){let c='Branch Code,Branch Name,District,Pincode\n';DB.branches.forEach(b=>{c+=`${b.code},"${b.name}","${b.district||''}",${b.pincode||''}\n`;});dlCSV('branches.csv',c);}
+function saveGas() {
+  GAS = document.getElementById('gasUrl').value.trim();
+  localStorage.setItem('bwpro_gas', GAS);
+  if (GAS) { setSS('ok','Connected'); toast('URL saved','s'); }
+  else { setSS('','Local Mode'); toast('Disconnected','i'); }
 }
-function dlCSV(fn,csv){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fn;a.click();toast('CSV exported!','s');}
 
-// ── INIT ─────────────────────────────────────────────────────────
-window.onload=function(){
+async function testGas() {
+  if (!GAS) { toast('Enter URL first','w'); return; }
+  setSS('busy','Testing…');
+  try {
+    const r = await fetch(GAS + '?action=ping');
+    const d = await r.json();
+    if (d.ok) { setSS('ok','Connected'); toast('Connected! ' + d.msg,'s'); }
+    else { setSS('err','Error'); toast('Error: ' + d.error,'e'); }
+  } catch(e) { setSS('err','Error'); toast('Connection failed','e'); }
+}
+
+function clearGas() {
+  GAS = ''; localStorage.removeItem('bwpro_gas');
+  document.getElementById('gasUrl').value = '';
+  setSS('','Local Mode'); toast('Disconnected','i');
+}
+
+function expJSON() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(DB,null,2)],{type:'application/json'}));
+  a.download = 'bankwork_backup_'+td()+'.json'; a.click();
+  toast('Backup exported!','s');
+}
+
+function impJSON(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = function(e) {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!confirm(`Import?\nBills:${d.bills?.length||0} Books:${d.billbooks?.length||0} Branches:${d.branches?.length||0}\n\nReplaces ALL current data!`)) return;
+      DB.bills     = d.bills     || [];
+      DB.billbooks = d.billbooks || [];
+      DB.branches  = d.branches  || [];
+      DB.entries   = d.entries   || [];
+      DB.config    = d.config    || {nextBillNo:1};
+      DB.profile   = d.profile   || {name:'',address:'',phone:'',email:'',gst:'',activeFY:''};
+      DB.fyList    = d.fyList    || [];
+      save(); renderCurrentPage(); toast('Backup imported!','s');
+    } catch(e) { toast('Invalid file','e'); }
+  };
+  r.readAsText(f); ev.target.value = '';
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL data?')) return;
+  if (!confirm('FINAL — delete everything including bills, branches and settings?')) return;
+  DB = { entries:[], bills:[], branches:[], billbooks:[], config:{nextBillNo:1},
+    profile:{name:'',address:'',phone:'',email:'',gst:'',activeFY:''}, fyList:[] };
+  save(); renderCurrentPage(); toast('All data cleared','i');
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────────────
+function expCSV(type) {
+  let csv='', fn='';
+  if (type==='bills') {
+    csv = 'Sl,Book,Bill#,Issue Date,Branch Code,Branch Name,District,Amount,Recd Date,Recd Amt,Diff,Status\n';
+    DB.bills.forEach((b,i)=>{
+      const book = DB.billbooks.find(x=>x.id===b.bookId);
+      csv += `${i+1},"${book?.bookNumber||''}","${b.billNo||''}","${b.issueDate||''}","${b.bcode||''}","${b.bname||''}","${b.district||''}",${b.amount||0},"${b.recdDate||''}",${b.recdAmt||0},${b.diff||0},"${b.status||''}"\n`;
+    });
+    fn = 'bills_'+td()+'.csv';
+  } else if (type==='branches') {
+    csv = 'Code,Name,District,Pincode\n';
+    DB.branches.forEach(b=>{ csv+=`"${b.code}","${b.name}","${b.district||''}","${b.pincode||''}"\n`; });
+    fn = 'branches_'+td()+'.csv';
+  }
+  dlCSV(fn, csv);
+}
+
+function dlCSV(fn, csv) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = fn; a.click();
+  toast('CSV exported!','s');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+function init() {
   load();
-  document.getElementById('dchip').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-  if(GAS){setSS('ok','Connected ✓');}else{setSS('','Local Mode');}
-  renderDash();updBadge();
-};
+  // Auto-set today's date
+  const issueEl = document.getElementById('bl_issue');
+  if (issueEl) issueEl.value = td();
+
+  if (GAS) setSS('ok','Connected');
+  updateSidebar();
+  renderCurrentPage();
+
+  // Show setup hint if no profile
+  if (!DB.profile?.name) {
+    setTimeout(()=>{
+      toast('👋 Start by setting up your Company Profile!','i');
+    }, 800);
+  }
+}
+
+init();
 </script>
 </body>
 </html>
