@@ -761,32 +761,67 @@ function setSS(s, l) {
 }
 
 // ── GAS SYNC ─────────────────────────────────────────────────────
+// ── JSONP HELPER — works cross-origin, no CORS issues ────────────
+function jsonpReq(url, cbName, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    const t = setTimeout(() => {
+      s.remove(); delete window[cbName];
+      reject(new Error('Timeout'));
+    }, timeoutMs || 20000);
+    window[cbName] = function(d) {
+      clearTimeout(t); s.remove(); delete window[cbName];
+      resolve(d);
+    };
+    s.onerror = function() {
+      clearTimeout(t); s.remove(); delete window[cbName];
+      reject(new Error('Script load failed'));
+    };
+    s.src = url;
+    document.body.appendChild(s);
+  });
+}
+
 async function pushAll() {
   if (!GAS) { toast('Set Google Sheets URL in Settings first','w'); nav('settings'); return; }
-  showSaving('Saving to Google Sheets…');
-  try {
-    const BATCH = 40;
-    const data = { bills: DB.bills, branches: DB.branches, billbooks: DB.billbooks, config: DB.config };
-    
-    // First batch
-    const first = {};
-    ['bills','branches','billbooks'].forEach(k => { first[k] = (data[k]||[]).slice(0,BATCH); });
-    first.config = data.config;
-    
-    const r1 = await gasReq('pushAll', first);
-    if (!r1.ok) throw new Error(r1.error || 'Push failed');
+  showSaving('Saving to Google Sheets… (batch 1)');
+  setSS('busy','Saving…');
 
-    // Extra chunks
-    for (const k of ['bills','branches','billbooks']) {
-      const arr = data[k] || [];
+  const BATCH = 40;
+  const keys  = ['bills','branches','billbooks'];
+
+  try {
+    // ── STEP 1: pushFirst — clears sheets and writes first batch ──
+    const first = { config: DB.config };
+    keys.forEach(k => { first[k] = (DB[k]||[]).slice(0, BATCH); });
+
+    const r1 = await jsonpReq(
+      GAS + '?action=pushAll&callback=_bwpush1_&payload=' + encodeURIComponent(JSON.stringify(first)),
+      '_bwpush1_', 25000
+    );
+    if (r1.error) throw new Error(r1.error);
+
+    // ── STEP 2: appendChunk — send remaining rows ──────────────────
+    let chunkNum = 2;
+    for (const k of keys) {
+      const arr = DB[k] || [];
       for (let i = BATCH; i < arr.length; i += BATCH) {
         const chunk = {}; chunk[k] = arr.slice(i, i + BATCH);
-        await gasReq('appendChunk', chunk);
+        showSaving(`Saving… batch ${chunkNum++} (${k})`);
+        const cbName = '_bwchunk' + Date.now() + '_';
+        const rc = await jsonpReq(
+          GAS + '?action=appendChunk&callback=' + cbName + '&payload=' + encodeURIComponent(JSON.stringify(chunk)),
+          cbName, 25000
+        );
+        if (rc.error) throw new Error(rc.error);
       }
     }
 
     setSS('ok','Synced'); toast('Saved to Google Sheets ✓','s');
-  } catch(e) { setSS('err','Sync Error'); toast('Sync failed: ' + e.message,'e'); }
+  } catch(e) {
+    setSS('err','Sync Error');
+    toast('Sync failed: ' + e.message,'e');
+  }
   hideSaving();
 }
 
@@ -794,25 +829,17 @@ function pullAll() {
   if (!GAS) { toast('Set Google Sheets URL in Settings first','w'); nav('settings'); return; }
   showSaving('Loading from Google Sheets…');
   setSS('busy','Loading…');
-  const url = GAS + '?action=getAll&callback=_bwcb_';
-  const s = document.createElement('script');
-  s.src = url; document.body.appendChild(s);
-  window._bwcb_ = function(d) {
-    s.remove(); delete window._bwcb_;
-    if (d.error) { setSS('err','Error'); hideSaving(); toast('Load failed: ' + d.error,'e'); return; }
-    DB.bills     = d.bills     || [];
-    DB.branches  = d.branches  || [];
-    DB.billbooks = d.billbooks || [];
-    DB.config    = d.config    || { nextBillNo: 1 };
-    save(); renderCurrentPage(); setSS('ok','Synced');
-    hideSaving(); toast('Data loaded ✓','s');
-  };
-  setTimeout(() => { if (window._bwcb_) { hideSaving(); setSS('err','Timeout'); toast('Timeout','e'); } }, 15000);
-}
-
-async function gasReq(action, data) {
-  const r = await fetch(GAS + '?action=' + action + '&payload=' + encodeURIComponent(JSON.stringify(data)));
-  return r.json();
+  jsonpReq(GAS + '?action=getAll&callback=_bwpull_', '_bwpull_', 20000)
+    .then(d => {
+      if (d.error) throw new Error(d.error);
+      DB.bills     = d.bills     || [];
+      DB.branches  = d.branches  || [];
+      DB.billbooks = d.billbooks || [];
+      DB.config    = d.config    || { nextBillNo: 1 };
+      save(); renderCurrentPage(); setSS('ok','Synced');
+      hideSaving(); toast('Data loaded ✓','s');
+    })
+    .catch(e => { setSS('err','Error'); hideSaving(); toast('Load failed: ' + e.message,'e'); });
 }
 
 // ── DASHBOARD ────────────────────────────────────────────────────
@@ -1708,15 +1735,15 @@ function saveGas() {
   else { setSS('','Local Mode'); toast('Disconnected','i'); }
 }
 
-async function testGas() {
+function testGas() {
   if (!GAS) { toast('Enter URL first','w'); return; }
   setSS('busy','Testing…');
-  try {
-    const r = await fetch(GAS + '?action=ping');
-    const d = await r.json();
-    if (d.ok) { setSS('ok','Connected'); toast('Connected! ' + d.msg,'s'); }
-    else { setSS('err','Error'); toast('Error: ' + d.error,'e'); }
-  } catch(e) { setSS('err','Error'); toast('Connection failed','e'); }
+  jsonpReq(GAS + '?action=ping&callback=_bwping_', '_bwping_', 10000)
+    .then(d => {
+      if (d.ok) { setSS('ok','Connected'); toast('Connected! ' + (d.msg||'OK'),'s'); }
+      else { setSS('err','Error'); toast('Error: ' + (d.error||'Unknown'),'e'); }
+    })
+    .catch(e => { setSS('err','Error'); toast('Connection failed: ' + e.message,'e'); });
 }
 
 function clearGas() {
