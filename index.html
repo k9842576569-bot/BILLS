@@ -792,7 +792,11 @@ async function pushAll() {
 
   try {
     // ── STEP 1: pushFirst — clears sheets and writes first batch ──
-    const first = { config: DB.config };
+    const first = {
+      config:  DB.config,
+      profile: DB.profile  || {},
+      fyList:  DB.fyList   || []
+    };
     keys.forEach(k => { first[k] = (DB[k]||[]).slice(0, BATCH); });
 
     const r1 = await jsonpReq(
@@ -836,6 +840,8 @@ function pullAll() {
       DB.branches  = d.branches  || [];
       DB.billbooks = d.billbooks || [];
       DB.config    = d.config    || { nextBillNo: 1 };
+      DB.profile   = d.profile   || { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' };
+      DB.fyList    = d.fyList    || [];
       save(); renderCurrentPage(); setSS('ok','Synced');
       hideSaving(); toast('Data loaded ✓','s');
     })
