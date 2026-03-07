@@ -699,9 +699,13 @@ function load() {
 }
 
 // ── UTILS ────────────────────────────────────────────────────────
-function uid() {
-  // Numeric only: timestamp + 3 random digits
-  return Date.now().toString() + Math.floor(Math.random()*900+100).toString();
+function uid() { return Date.now().toString() + Math.floor(Math.random()*900+100).toString(); }
+
+// Sequential ID generators — always returns next number for each type
+function nextId(arr) {
+  if (!arr || arr.length === 0) return 1;
+  const max = arr.reduce((m, x) => Math.max(m, parseInt(x.id)||0), 0);
+  return max + 1;
 }
 function td()  { return new Date().toISOString().slice(0,10); }
 function fmt(n) { return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -1065,7 +1069,7 @@ function saveBill() {
     }
   } else {
     DB.bills.push({
-      id: uid(), bookId, billNo, issueDate: issue, billDate: date,
+      id: nextId(DB.bills), bookId, billNo, issueDate: issue, billDate: date,
       bcode, bname, district: dist, amount: amt,
       recdDate: '', recdAmt: 0, diff: amt, status: 'Pending', remarks: rem,
       fyear: book?.fyear || ''
@@ -1508,7 +1512,7 @@ function saveBillBook() {
     if (idx>-1) DB.billbooks[idx] = {...DB.billbooks[idx], bookNumber:num, fyear:fy, fromNo:from, toNo:to, status, notes};
     toast('Bill book updated','s');
   } else {
-    DB.billbooks.push({ id:uid(), bookNumber:num, fyear:fy, fromNo:from, toNo:to, status, notes });
+    DB.billbooks.push({ id: nextId(DB.billbooks), bookNumber:num, fyear:fy, fromNo:from, toNo:to, status, notes });
     toast('Bill book created','s');
   }
   save(); closeMo('moBB'); renderBillBooks(); popBillDrops();
@@ -1572,7 +1576,7 @@ function saveBranch() {
     if (idx>-1) DB.branches[idx] = {...DB.branches[idx], code, name, district:dist, pincode:pin};
     toast('Branch updated','s');
   } else {
-    DB.branches.push({id:uid(),code,name,district:dist,pincode:pin});
+    DB.branches.push({id: nextId(DB.branches), code, name, district:dist, pincode:pin});
     toast('Branch added','s');
   }
   save(); closeMo('moBr'); renderBranches();
@@ -1601,7 +1605,7 @@ function importBranchCSV(event) {
       const pin  = cols[headers.indexOf('pincode')]||'';
       if (!code||!name) { skipped++; continue; }
       if (DB.branches.find(b=>b.code===code)) { skipped++; continue; }
-      DB.branches.push({id:uid(),code,name,district:dist,pincode:pin}); added++;
+      DB.branches.push({id: nextId(DB.branches), code, name, district:dist, pincode:pin}); added++;
     }
     save(); renderBranches(); toast(`Imported ${added} branches, ${skipped} skipped`,'s');
   };
@@ -1880,9 +1884,44 @@ function dlCSV(fn, csv) {
   toast('CSV exported!','s');
 }
 
+// ── MIGRATE: renumber all char IDs to 1,2,3,4,5… ────────────────
+function migrateIds() {
+  let changed = false;
+
+  // Renumber branches
+  DB.branches.forEach((b, i) => {
+    const newId = String(i + 1);
+    if (b.id !== newId) {
+      b.id = newId;
+      changed = true;
+    }
+  });
+
+  // Renumber billbooks, update bookId references in bills
+  const bookIdMap = {};
+  DB.billbooks.forEach((b, i) => {
+    const newId = String(i + 1);
+    if (b.id !== newId) {
+      bookIdMap[b.id] = newId;
+      b.id = newId;
+      changed = true;
+    }
+  });
+
+  // Renumber bills, fix bookId if it changed
+  DB.bills.forEach((b, i) => {
+    const newId = String(i + 1);
+    if (b.id !== newId) { b.id = newId; changed = true; }
+    if (bookIdMap[b.bookId]) { b.bookId = bookIdMap[b.bookId]; changed = true; }
+  });
+
+  if (changed) { save(); }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────
 function init() {
   load();
+  migrateIds(); // Renumber any old char IDs → 1,2,3,4,5…
   // Auto-set today's date
   const issueEl = document.getElementById('bl_issue');
   if (issueEl) issueEl.value = td();
