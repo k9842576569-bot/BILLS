@@ -666,7 +666,7 @@ let DB = {
   fyList:    []
 };
 
-let GAS = '';
+let GAS = 'https://script.google.com/macros/s/AKfycbzYKWOqpMyuYz7muSA4HErKgPs-PhLM3Zo3FfjGlWFFQ3RGaPno9a89tmrlgCHty-yzAA/exec';
 let curPage = 'dashboard';
 let curRptTab = 'branch';
 let eId = { branch: null, billbook: null, bill: null };
@@ -694,7 +694,7 @@ function load() {
       DB.profile   = d.profile || { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' };
       DB.fyList    = Array.isArray(d.fyList)    ? d.fyList    : [];
     }
-    GAS = localStorage.getItem('bwpro_gas') || '';
+    GAS = localStorage.getItem('bwpro_gas') || 'https://script.google.com/macros/s/AKfycbzYKWOqpMyuYz7muSA4HErKgPs-PhLM3Zo3FfjGlWFFQ3RGaPno9a89tmrlgCHty-yzAA/exec';
   } catch(e) {}
 }
 
@@ -861,38 +861,95 @@ function iframePost(gasUrl, action, payload, timeoutMs) {
 }
 
 // ── PUSH ALL ─────────────────────────────────────────────────────
+// ── PUSH ALL ─────────────────────────────────────────────────────
+// SAFETY: Never overwrite Sheets with fewer records without confirmation
 async function pushAll() {
   if (!GAS) { toast('Set Google Sheets URL in Settings first','w'); nav('settings'); return; }
-  showSaving('Saving to Google Sheets…');
-  setSS('busy','Saving…');
+
+  // If local branches empty, load from Sheets first
+  if (DB.branches.length === 0) {
+    toast('⚠️ Local data empty — loading from Google Sheets first…','w');
+    await pullAllPromise();
+    if (DB.branches.length > 0) {
+      toast('✅ Loaded from Sheets. Review then Save again if needed.','s');
+      return;
+    }
+  }
+
+  showSaving('Checking Google Sheets before saving…');
+  setSS('busy','Checking…');
 
   try {
-    // Send everything in ONE payload — no batching needed with POST
-    const payload = {
-      action:    'pushAll',
-      data: {
-        bills:     DB.bills     || [],
-        branches:  DB.branches  || [],
-        billbooks: DB.billbooks || [],
-        profile:   DB.profile   || {},
-        fyList:    DB.fyList    || [],
-        config:    DB.config    || {}
+    // Check current sheet counts before overwriting
+    const cb = '_bwcheck_' + Date.now();
+    let sheetData = null;
+    try { sheetData = await jsonpGet(GAS + '?action=getAll&callback=' + cb, cb, 15000); } catch(e) {}
+
+    if (sheetData && !sheetData.error) {
+      const sheetBr = (sheetData.branches  || []).length;
+      const sheetBl = (sheetData.bills      || []).length;
+      const sheetBk = (sheetData.billbooks  || []).length;
+      const warnings = [];
+      if (sheetBr > DB.branches.length)  warnings.push(`Branches: Sheets=${sheetBr}, Local=${DB.branches.length}`);
+      if (sheetBl > DB.bills.length)     warnings.push(`Bills: Sheets=${sheetBl}, Local=${DB.bills.length}`);
+      if (sheetBk > DB.billbooks.length) warnings.push(`Bill Books: Sheets=${sheetBk}, Local=${DB.billbooks.length}`);
+
+      if (warnings.length > 0) {
+        hideSaving();
+        const msg = '⚠️ WARNING — Sheets has MORE records than local!\n\n'
+          + warnings.join('\n')
+          + '\n\nSaving now will DELETE those extra sheet records.\n\n'
+          + 'Click OK only if local data is correct.\n'
+          + 'Click Cancel to load from Sheets first (recommended).';
+        if (!confirm(msg)) {
+          toast('Cancelled — loading from Sheets instead…','i');
+          pullAll(); return;
+        }
+        showSaving('Saving (confirmed)…');
       }
+    }
+
+    showSaving('Saving to Google Sheets…');
+    const payload = {
+      bills:     DB.bills     || [],
+      branches:  DB.branches  || [],
+      billbooks: DB.billbooks || [],
+      profile:   DB.profile   || {},
+      fyList:    DB.fyList    || [],
+      config:    DB.config    || {}
     };
-
-    showSaving('Posting to Google Sheets…');
-    await iframePost(GAS, 'pushAll', payload.data, 35000);
-
+    await iframePost(GAS, 'pushAll', payload, 35000);
     setSS('ok','Synced');
-    toast('Saved to Google Sheets ✓','s');
+    toast('✅ Saved to Google Sheets','s');
   } catch(e) {
-    setSS('err','Sync Error');
+    setSS('err','Error');
     toast('Sync failed: ' + e.message,'e');
   }
   hideSaving();
 }
 
-// ── PULL ALL ─────────────────────────────────────────────────────
+// Internal pull used by pushAll safety check
+function pullAllPromise() {
+  return new Promise((resolve) => {
+    if (!GAS) { resolve(); return; }
+    const cb = '_bwpp_' + Date.now();
+    jsonpGet(GAS + '?action=getAll&callback=' + cb, cb, 20000)
+      .then(d => {
+        if (d && !d.error) {
+          DB.bills     = d.bills     || DB.bills;
+          DB.branches  = d.branches  || DB.branches;
+          DB.billbooks = d.billbooks || DB.billbooks;
+          DB.config    = d.config    || DB.config;
+          DB.profile   = d.profile   || DB.profile;
+          DB.fyList    = d.fyList    || DB.fyList;
+          save(); renderCurrentPage(); setSS('ok','Synced');
+        }
+        resolve();
+      }).catch(() => resolve());
+  });
+}
+
+// ── PULL ALL (manual button) ──────────────────────────────────────
 function pullAll() {
   if (!GAS) { toast('Set Google Sheets URL in Settings first','w'); nav('settings'); return; }
   showSaving('Loading from Google Sheets…');
@@ -907,8 +964,10 @@ function pullAll() {
       DB.config    = d.config    || { nextBillNo: 1 };
       DB.profile   = d.profile   || { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' };
       DB.fyList    = d.fyList    || [];
+      migrateIds();
       save(); renderCurrentPage(); setSS('ok','Synced');
-      hideSaving(); toast('Data loaded from Google Sheets ✓','s');
+      hideSaving();
+      toast(`✅ Loaded — ${DB.branches.length} branches, ${DB.bills.length} bills, ${DB.billbooks.length} books`,'s');
     })
     .catch(e => { setSS('err','Error'); hideSaving(); toast('Load failed: ' + e.message,'e'); });
 }
@@ -1920,21 +1979,51 @@ function migrateIds() {
 
 // ── INIT ──────────────────────────────────────────────────────────
 function init() {
-  load();
-  migrateIds(); // Renumber any old char IDs → 1,2,3,4,5…
-  // Auto-set today's date
+  load(); // Load localStorage first (instant UI)
+  migrateIds();
+
   const issueEl = document.getElementById('bl_issue');
   if (issueEl) issueEl.value = td();
 
-  if (GAS) setSS('ok','Connected');
-  updateSidebar();
-  renderCurrentPage();
-
-  // Show setup hint if no profile
-  if (!DB.profile?.name) {
-    setTimeout(()=>{
-      toast('👋 Start by setting up your Company Profile!','i');
-    }, 800);
+  if (GAS) {
+    setSS('ok','Connected');
+    // ── AUTO-LOAD FROM SHEETS ON EVERY STARTUP ──────────────
+    // Google Sheets is master. Always pull latest on open.
+    showSaving('Loading latest data from Google Sheets…');
+    setSS('busy','Loading…');
+    const cb = '_bwinit_' + Date.now();
+    jsonpGet(GAS + '?action=getAll&callback=' + cb, cb, 25000)
+      .then(d => {
+        if (d && !d.error) {
+          // Take whichever has MORE records — protects against data loss
+          if ((d.branches  ||[]).length >= DB.branches.length)  DB.branches  = d.branches  || [];
+          if ((d.bills     ||[]).length >= DB.bills.length)     DB.bills     = d.bills      || [];
+          if ((d.billbooks ||[]).length >= DB.billbooks.length) DB.billbooks = d.billbooks || [];
+          DB.config  = d.config  || DB.config;
+          DB.profile = (d.profile && d.profile.name) ? d.profile : DB.profile;
+          DB.fyList  = (d.fyList  && d.fyList.length)  ? d.fyList  : DB.fyList;
+          migrateIds();
+          save();
+          setSS('ok','Live — Sheets');
+          toast(`✅ Loaded — ${DB.branches.length} branches, ${DB.bills.length} bills, ${DB.billbooks.length} books`,'s');
+        } else {
+          setSS('ok','Local data');
+          toast('Sheets empty — using local data','i');
+        }
+        hideSaving(); updateSidebar(); renderCurrentPage();
+      })
+      .catch(() => {
+        setSS('err','Offline');
+        hideSaving();
+        toast('⚠️ Cannot reach Sheets — showing local data','w');
+        updateSidebar(); renderCurrentPage();
+      });
+  } else {
+    updateSidebar();
+    renderCurrentPage();
+    if (!DB.profile?.name) {
+      setTimeout(() => toast('👋 Start by setting up your Company Profile!','i'), 800);
+    }
   }
 }
 
