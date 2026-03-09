@@ -226,6 +226,13 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
 .recon-upload:hover{border-color:var(--acc);}
 .recon-upload input{display:none;}
 
+/* ── WORKLOG STATUS BADGES ── */
+.b-paid{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3);}
+.b-issued{background:rgba(77,166,255,.15);color:var(--blue);border:1px solid rgba(77,166,255,.3);}
+.b-notissued{background:rgba(251,191,36,.15);color:var(--yellow);border:1px solid rgba(251,191,36,.3);}
+.wl-count-chip{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;}
+.wl-count-chip span{display:block;font-size:18px;font-weight:700;font-family:var(--mono);margin-top:2px;}
+
 @media(max-width:768px){
   .sb{width:54px;}
   .logo2,.logo1,.co-name,.fy-chip,.srow,.ns,.ni span:not(.nicon),.push-btn span,.pull-btn span{display:none;}
@@ -262,6 +269,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
   <div class="ni" onclick="nav('branches')" id="ni-branches"><span class="nicon">🏛️</span><span>Branches</span></div>
   <div class="ns">Reports</div>
   <div class="ni" onclick="nav('reports')" id="ni-reports"><span class="nicon">📈</span><span>Reports</span></div>
+  <div class="ni" onclick="nav('worklog')" id="ni-worklog"><span class="nicon">📋</span><span>Work Log</span></div>
   <div class="ns">Config</div>
   <div class="ni" onclick="nav('settings')" id="ni-settings"><span class="nicon">⚙️</span><span>Settings</span></div>
 </nav>
@@ -538,6 +546,118 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
   <div id="rptContent"></div>
 </div>
 
+<!-- ═══════════════════ WORK LOG ═══════════════════ -->
+<div id="page-worklog" class="page">
+  <div class="topbar">
+    <div class="ptitle">Work <span>Log</span></div>
+    <div class="tr">
+      <button class="btn btn-b sm" onclick="loadWorkLog()">🔄 Refresh from Sheets</button>
+      <button class="btn btn-s sm" onclick="expWorkLogCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ctitle">Search & Filter</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;align-items:end;">
+      <div class="fg">
+        <label class="fl">Branch Code</label>
+        <input type="text" id="wl_bcode" class="fc" placeholder="e.g. 759" oninput="renderWorkLog()">
+      </div>
+      <div class="fg">
+        <label class="fl">Branch Name</label>
+        <input type="text" id="wl_bname" class="fc" placeholder="Search name..." oninput="renderWorkLog()">
+      </div>
+      <div class="fg">
+        <label class="fl">District</label>
+        <select id="wl_dist" class="fc" onchange="renderWorkLog()">
+          <option value="">All Districts</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Bill Paid Status</label>
+        <select id="wl_status" class="fc" onchange="renderWorkLog()">
+          <option value="">All Status</option>
+          <option value="PAID">PAID</option>
+          <option value="BILL_ISSUED">BILL ISSUED</option>
+          <option value="NOT_ISSUED">NOT ISSUED</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Staff</label>
+        <select id="wl_staff" class="fc" onchange="renderWorkLog()">
+          <option value="">All Staff</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Date From</label>
+        <input type="date" id="wl_from" class="fc" onchange="renderWorkLog()">
+      </div>
+      <div class="fg">
+        <label class="fl">Date To</label>
+        <input type="date" id="wl_to" class="fc" onchange="renderWorkLog()">
+      </div>
+      <div class="fg" style="align-self:end;">
+        <button class="btn btn-s" style="width:100%;" onclick="clrWLF()">✕ Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK STATUS COUNTS -->
+  <div id="wl_counts" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;"></div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <div class="ctitle">
+      Work Log Entries
+      <span id="wlCnt" style="font-size:11px;margin-left:6px;background:var(--s3);padding:2px 9px;border-radius:10px;color:var(--t1);font-weight:700;"></span>
+      <span id="wlAmt" style="font-size:11px;margin-left:6px;color:var(--acc);font-weight:700;"></span>
+    </div>
+    <div id="wl_loading" style="display:none;" class="emp"><div class="ei">⏳</div><p>Loading from Google Sheets…</p></div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Sl</th>
+          <th>Date</th>
+          <th>Staff</th>
+          <th>Branch Code</th>
+          <th>Branch Name</th>
+          <th>District</th>
+          <th>Hours</th>
+          <th>Amount (₹)</th>
+          <th>Remarks</th>
+          <th>Status</th>
+          <th>Change Status</th>
+        </tr></thead>
+        <tbody id="wlBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Status Edit Modal -->
+<div class="mo" id="moWLStatus">
+  <div class="mbox" style="max-width:420px;">
+    <div class="mh"><div class="mt">Update Bill Paid Status</div><button class="xbtn" onclick="closeMo('moWLStatus')">✕</button></div>
+    <div class="mb">
+      <div id="wl_edit_info" class="abox" style="margin-bottom:14px;"></div>
+      <div class="fg">
+        <label class="fl">New Status</label>
+        <select id="wl_new_status" class="fc">
+          <option value="NOT_ISSUED">NOT ISSUED</option>
+          <option value="BILL_ISSUED">BILL ISSUED</option>
+          <option value="PAID">PAID</option>
+        </select>
+      </div>
+      <input type="hidden" id="wl_edit_row">
+    </div>
+    <div class="mf">
+      <button class="btn btn-s" onclick="closeMo('moWLStatus')">Cancel</button>
+      <button class="btn btn-p" onclick="saveWLStatus()">💾 Update</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════ SETTINGS ═══════════════════ -->
 <div id="page-settings" class="page">
   <div class="topbar"><div class="ptitle">Settings <span>&amp; Sync</span></div></div>
@@ -743,6 +863,7 @@ function renderCurrentPage() {
     billbook:  renderBillBooks,
     branches:  renderBranches,
     reports:   renderReports,
+    worklog:   renderWorkLogPage,
     settings:  renderSettings
   };
   if (fns[curPage]) fns[curPage]();
@@ -1943,7 +2064,207 @@ function dlCSV(fn, csv) {
   toast('CSV exported!','s');
 }
 
-// ── MIGRATE: renumber all char IDs to 1,2,3,4,5… ────────────────
+// ═══════════════════════════════════════════════════════════════
+//  WORK LOG — reads WorkLog_2025_2026 sheet via GAS
+// ═══════════════════════════════════════════════════════════════
+
+let WL = []; // worklog rows cache
+let WL_loaded = false;
+
+function renderWorkLogPage() {
+  if (!WL_loaded) {
+    loadWorkLog();
+  } else {
+    populateWLFilters();
+    renderWorkLog();
+  }
+}
+
+function loadWorkLog() {
+  if (!GAS) { toast('Configure Google Sheets URL in Settings first','w'); return; }
+  document.getElementById('wl_loading').style.display = 'block';
+  document.getElementById('wlBody').innerHTML = '';
+  const cb = '_wlload_' + Date.now();
+  jsonpGet(GAS + '?action=getWorkLog&callback=' + cb, cb, 30000)
+    .then(d => {
+      document.getElementById('wl_loading').style.display = 'none';
+      if (d.error) { toast('WorkLog load error: ' + d.error,'e'); return; }
+      WL = d.rows || [];
+      WL_loaded = true;
+      populateWLFilters();
+      renderWorkLog();
+      toast(`✅ WorkLog loaded — ${WL.length} records`,'s');
+    })
+    .catch(e => {
+      document.getElementById('wl_loading').style.display = 'none';
+      toast('WorkLog load failed: ' + e.message,'e');
+    });
+}
+
+function populateWLFilters() {
+  // Districts
+  const dists = [...new Set(WL.map(r => r.district||'').filter(Boolean).filter(d=>d!=='#N/A' && d!=='0'))].sort();
+  const distSel = document.getElementById('wl_dist');
+  const curDist = distSel.value;
+  distSel.innerHTML = '<option value="">All Districts</option>'
+    + dists.map(d => `<option value="${d}" ${d===curDist?'selected':''}>${d}</option>`).join('');
+
+  // Staff
+  const staffList = [...new Set(WL.map(r => r.staff||'').filter(Boolean))].sort();
+  const staffSel = document.getElementById('wl_staff');
+  const curStaff = staffSel.value;
+  staffSel.innerHTML = '<option value="">All Staff</option>'
+    + staffList.map(s => `<option value="${s}" ${s===curStaff?'selected':''}>${s}</option>`).join('');
+}
+
+function renderWorkLog() {
+  const bcode  = (document.getElementById('wl_bcode')?.value  || '').trim().toLowerCase();
+  const bname  = (document.getElementById('wl_bname')?.value  || '').trim().toLowerCase();
+  const dist   = document.getElementById('wl_dist')?.value    || '';
+  const status = document.getElementById('wl_status')?.value  || '';
+  const staff  = document.getElementById('wl_staff')?.value   || '';
+  const from   = document.getElementById('wl_from')?.value    || '';
+  const to     = document.getElementById('wl_to')?.value      || '';
+
+  const filtered = WL.filter(r => {
+    if (bcode  && !(r.branch_code||'').toLowerCase().includes(bcode)) return false;
+    if (bname  && !(r.branch_name||'').toLowerCase().includes(bname)) return false;
+    if (dist   && (r.district||'') !== dist) return false;
+    if (status && (r.bill_paid_status||'') !== status) return false;
+    if (staff  && (r.staff||'') !== staff) return false;
+    if (from   && r.date_iso && r.date_iso < from) return false;
+    if (to     && r.date_iso && r.date_iso > to)   return false;
+    return true;
+  });
+
+  // Counts
+  const paid    = filtered.filter(r=>r.bill_paid_status==='PAID').length;
+  const issued  = filtered.filter(r=>r.bill_paid_status==='BILL_ISSUED').length;
+  const notIss  = filtered.filter(r=>r.bill_paid_status==='NOT_ISSUED').length;
+  const totalAmt= filtered.reduce((s,r)=>s+(Number(r.amount)||0),0);
+  const totalHrs= filtered.reduce((s,r)=>s+(Number(r.hours)||0),0);
+
+  document.getElementById('wlCnt').textContent = filtered.length + ' records';
+  document.getElementById('wlAmt').textContent = totalAmt > 0 ? `| ₹${fmt(totalAmt)} | ${totalHrs} hrs` : `| ${totalHrs} hrs`;
+
+  // Quick count chips
+  document.getElementById('wl_counts').innerHTML = `
+    <div class="wl-count-chip"><div style="color:var(--t3);">Total</div><span style="color:var(--t1);">${filtered.length}</span></div>
+    <div class="wl-count-chip"><div style="color:var(--t3);">Paid</div><span style="color:var(--green);">${paid}</span></div>
+    <div class="wl-count-chip"><div style="color:var(--t3);">Bill Issued</div><span style="color:var(--blue);">${issued}</span></div>
+    <div class="wl-count-chip"><div style="color:var(--t3);">Not Issued</div><span style="color:var(--yellow);">${notIss}</span></div>
+    <div class="wl-count-chip"><div style="color:var(--t3);">Total Amount</div><span style="color:var(--acc);">₹${fmt(totalAmt)}</span></div>
+    <div class="wl-count-chip"><div style="color:var(--t3);">Total Hours</div><span style="color:var(--purple);">${totalHrs}</span></div>
+  `;
+
+  const body = document.getElementById('wlBody');
+  if (!body) return;
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="11"><div class="emp"><div class="ei">📋</div>
+      <p>${WL_loaded ? 'No records match filters' : 'Click Refresh to load WorkLog'}</p></div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map((r, i) => {
+    const stCls = r.bill_paid_status === 'PAID' ? 'b-paid'
+                : r.bill_paid_status === 'BILL_ISSUED' ? 'b-issued' : 'b-notissued';
+    const stLbl = r.bill_paid_status === 'PAID' ? 'PAID'
+                : r.bill_paid_status === 'BILL_ISSUED' ? 'BILL ISSUED' : 'NOT ISSUED';
+    return `<tr>
+      <td style="color:var(--t3);">${r.slno||i+1}</td>
+      <td style="font-family:var(--mono);white-space:nowrap;">${r.date_display||'—'}</td>
+      <td style="color:var(--purple);font-weight:600;">${r.staff||'—'}</td>
+      <td style="color:var(--acc);font-weight:700;font-family:var(--mono);">${r.branch_code||'—'}</td>
+      <td style="font-weight:600;">${r.branch_name||'—'}</td>
+      <td style="color:var(--t3);">${r.district||'—'}</td>
+      <td style="text-align:center;font-family:var(--mono);">${r.hours||'—'}</td>
+      <td class="amt">${r.amount?'₹'+fmt(r.amount):'—'}</td>
+      <td style="color:var(--t3);font-size:12px;max-width:200px;white-space:normal;">${r.remarks||'—'}</td>
+      <td><span class="b ${stCls}">${stLbl}</span></td>
+      <td>
+        <button class="btn btn-s xs" onclick="openWLStatusEdit(${r._idx})">✏️ Edit</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function clrWLF() {
+  ['wl_bcode','wl_bname','wl_from','wl_to'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['wl_dist','wl_status','wl_staff'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  renderWorkLog();
+}
+
+// ── EDIT STATUS ──────────────────────────────────────────────────
+function openWLStatusEdit(idx) {
+  const r = WL[idx];
+  if (!r) return;
+  document.getElementById('wl_edit_row').value = idx;
+  document.getElementById('wl_new_status').value = r.bill_paid_status || 'NOT_ISSUED';
+  document.getElementById('wl_edit_info').innerHTML =
+    `<strong>Row ${r.slno}</strong> — ${r.branch_name||'—'} (${r.branch_code||'—'})<br>
+     Date: ${r.date_display||'—'} | Staff: ${r.staff||'—'}<br>
+     Amount: ${r.amount?'₹'+fmt(r.amount):'—'} | Current: <strong>${r.bill_paid_status||'—'}</strong>`;
+  document.getElementById('moWLStatus').classList.add('open');
+}
+
+function saveWLStatus() {
+  const idx    = parseInt(document.getElementById('wl_edit_row').value);
+  const newSt  = document.getElementById('wl_new_status').value;
+  const r      = WL[idx];
+  if (!r) return;
+
+  const oldSt = r.bill_paid_status;
+  WL[idx].bill_paid_status = newSt;
+
+  // Push update to GAS
+  showSaving('Updating status in Google Sheets…');
+  const payload = { rowNum: r._rowNum, status: newSt };
+  iframePost(GAS, 'updateWLStatus', payload, 20000)
+    .then(() => {
+      hideSaving();
+      toast(`✅ Status updated: ${oldSt} → ${newSt}`,'s');
+      closeMo('moWLStatus');
+      renderWorkLog();
+    })
+    .catch(e => {
+      hideSaving();
+      WL[idx].bill_paid_status = oldSt; // revert
+      toast('Update failed: ' + e.message,'e');
+    });
+}
+
+// ── EXPORT CSV ───────────────────────────────────────────────────
+function expWorkLogCSV() {
+  const bcode  = (document.getElementById('wl_bcode')?.value  || '').trim().toLowerCase();
+  const bname  = (document.getElementById('wl_bname')?.value  || '').trim().toLowerCase();
+  const dist   = document.getElementById('wl_dist')?.value    || '';
+  const status = document.getElementById('wl_status')?.value  || '';
+  const staff  = document.getElementById('wl_staff')?.value   || '';
+
+  const filtered = WL.filter(r => {
+    if (bcode  && !(r.branch_code||'').toLowerCase().includes(bcode)) return false;
+    if (bname  && !(r.branch_name||'').toLowerCase().includes(bname)) return false;
+    if (dist   && (r.district||'') !== dist) return false;
+    if (status && (r.bill_paid_status||'') !== status) return false;
+    if (staff  && (r.staff||'') !== staff) return false;
+    return true;
+  });
+
+  let csv = 'Sl,Date,Staff,Branch Code,Branch Name,District,Hours,Amount,Remarks,Bill Paid Status\n';
+  filtered.forEach(r => {
+    csv += `${r.slno||''},"${r.date_display||''}","${r.staff||''}","${r.branch_code||''}","${r.branch_name||''}","${r.district||''}",${r.hours||''},${r.amount||''},"${(r.remarks||'').replace(/"/g,"'")}","${r.bill_paid_status||''}"\n`;
+  });
+  dlCSV('worklog_export_' + td() + '.csv', csv);
+}
+
+// ── GAS: WORKLOG SHEET NAME ───────────────────────────────────────
+const WL_SHEET = 'WorkLog_2025_2026';
+const WL_STATUS_COL = 9; // Column I = BILL_PAID_STATUS (1-indexed)
 function migrateIds() {
   let changed = false;
 
