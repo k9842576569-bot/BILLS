@@ -230,6 +230,9 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
 .b-paid{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3);}
 .b-issued{background:rgba(77,166,255,.15);color:var(--blue);border:1px solid rgba(77,166,255,.3);}
 .b-notissued{background:rgba(251,191,36,.15);color:var(--yellow);border:1px solid rgba(251,191,36,.3);}
+.b-special{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.b-hour{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3);}
+.b-day{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.3);}
 .wl-count-chip{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;}
 .wl-count-chip span{display:block;font-size:18px;font-weight:700;font-family:var(--mono);margin-top:2px;}
 
@@ -671,7 +674,10 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
     </div>
   </div>
   <div class="abox" style="margin-bottom:14px;">
-    ✍️ Enter daily field work here. Select <strong>Work Type</strong> first — it controls how the amount is calculated. <strong>Staff</strong> links from Staff Master. <strong>Branch Code &amp; Name</strong> auto-fill from Branch Master. Each entry is saved directly to your <strong>WorkLog_2025_2026</strong> Google Sheet.
+    ✍️ Select <strong>Work Type</strong> first — it controls what fields appear and how amount is calculated.<br>
+    <span style="color:var(--yellow);">⏱ Hour Based</span> — Hours × Per Hour Rate &nbsp;|&nbsp;
+    <span style="color:var(--blue);">📅 Day Based</span> — Days × Full Day Rate &nbsp;|&nbsp;
+    <span style="color:var(--purple);">⭐ Special Work</span> — Manual amount entry, Days optional
   </div>
   <div class="card" style="margin-bottom:14px;">
     <div class="ctitle">New Work Log Entry</div>
@@ -690,6 +696,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
           <option value="">— Select Work Type —</option>
           <option value="HOUR_BASED">⏱ Hour Based Wages</option>
           <option value="DAY_BASED">📅 Day Based Wages</option>
+          <option value="SPECIAL_WORK">⭐ Special Work</option>
         </select>
         <div class="fhint" id="wle_wtype_hint"></div>
       </div>
@@ -729,13 +736,13 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
         <input type="number" id="wle_hours" class="fc" placeholder="e.g. 4" min="0.5" step="0.5" oninput="wleCalcAmt()">
       </div>
 
-      <!-- Days — shown only for DAY_BASED -->
+      <!-- Days — shown for DAY_BASED and SPECIAL_WORK -->
       <div class="fg" id="wle_days_wrap" style="display:none;">
-        <label class="fl">Days Worked *</label>
+        <label class="fl" id="wle_days_label">Days Worked *</label>
         <select id="wle_days" class="fc" onchange="wleCalcAmt()">
           <option value="">— Select —</option>
-          <option value="1">1 Full Day</option>
           <option value="0.5">½ Half Day</option>
+          <option value="1">1 Full Day</option>
           <option value="2">2 Days</option>
           <option value="3">3 Days</option>
           <option value="4">4 Days</option>
@@ -745,10 +752,17 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
         </select>
       </div>
 
-      <!-- Amount (auto-calculated, editable) -->
-      <div class="fg">
-        <label class="fl">Work Amount (&#8377;)</label>
-        <input type="number" id="wle_amount" class="fc" placeholder="Auto-calculated or manual">
+      <!-- Special Work Description — shown only for SPECIAL_WORK -->
+      <div class="fg s2" id="wle_special_wrap" style="display:none;">
+        <label class="fl">Special Work Description *</label>
+        <input type="text" id="wle_special_desc" class="fc" placeholder="Describe the special work done...">
+        <div class="fhint" style="color:var(--purple);">⭐ Enter description of special work performed</div>
+      </div>
+
+      <!-- Amount -->
+      <div class="fg" id="wle_amount_wrap">
+        <label class="fl" id="wle_amount_label">Work Amount (&#8377;)</label>
+        <input type="number" id="wle_amount" class="fc" placeholder="Auto-calculated or manual" min="0">
         <div class="fhint" id="wle_amt_hint"></div>
       </div>
 
@@ -2362,9 +2376,11 @@ function renderWorkLog() {
     const stLbl = r.bill_paid_status === 'PAID' ? 'PAID'
                 : r.bill_paid_status === 'BILL_ISSUED' ? 'BILL ISSUED' : 'NOT ISSUED';
     const wtLabel = r.work_type === 'HOUR_BASED'
-      ? '<span class="b b-issued" style="font-size:10px;">⏱ Hour</span>'
+      ? '<span class="b b-hour" style="font-size:10px;">⏱ Hour</span>'
       : r.work_type === 'DAY_BASED'
-      ? '<span class="b b-recd" style="font-size:10px;">📅 Day</span>'
+      ? '<span class="b b-day" style="font-size:10px;">📅 Day</span>'
+      : r.work_type === 'SPECIAL_WORK'
+      ? '<span class="b b-special" style="font-size:10px;">⭐ Special</span>'
       : '<span style="color:var(--t3);font-size:11px;">—</span>';
     return `<tr>
       <td style="color:var(--t3);">${r.slno||i+1}</td>
@@ -2643,29 +2659,51 @@ function populateWLEStaffDropdown() {
 }
 
 function wleOnWorkTypeChange() {
-  const wtype = document.getElementById('wle_work_type').value;
-  const hWrap = document.getElementById('wle_hours_wrap');
-  const dWrap = document.getElementById('wle_days_wrap');
-  const hint  = document.getElementById('wle_wtype_hint');
+  const wtype   = document.getElementById('wle_work_type').value;
+  const hWrap   = document.getElementById('wle_hours_wrap');
+  const dWrap   = document.getElementById('wle_days_wrap');
+  const spWrap  = document.getElementById('wle_special_wrap');
+  const hint    = document.getElementById('wle_wtype_hint');
+  const amtLbl  = document.getElementById('wle_amount_label');
+  const amtEl   = document.getElementById('wle_amount');
+  const dLabel  = document.getElementById('wle_days_label');
 
-  // Show/hide hours vs days
-  hWrap.style.display = wtype === 'HOUR_BASED' ? '' : 'none';
-  dWrap.style.display = wtype === 'DAY_BASED'  ? '' : 'none';
-
-  // Reset the quantity fields
+  // Reset quantity fields
   document.getElementById('wle_hours').value = '';
-  const daysSel = document.getElementById('wle_days');
-  if (daysSel) daysSel.value = '';
+  document.getElementById('wle_days').value  = '';
+  document.getElementById('wle_special_desc').value = '';
+  amtEl.value = '';
+  amtEl.readOnly = false;
+  amtEl.placeholder = 'Auto-calculated or manual';
+  amtEl.style.borderColor = '';
 
-  // Update hint
+  // Show/hide fields based on type
+  hWrap.style.display  = wtype === 'HOUR_BASED'    ? '' : 'none';
+  dWrap.style.display  = (wtype === 'DAY_BASED' || wtype === 'SPECIAL_WORK') ? '' : 'none';
+  spWrap.style.display = wtype === 'SPECIAL_WORK'  ? '' : 'none';
+
   if (wtype === 'HOUR_BASED') {
-    hint.textContent = '⏱ Amount = Hours × Per Hour Rate';
-    hint.style.color = 'var(--yellow)';
+    hint.innerHTML    = '⏱ Amount = Hours × Per Hour Rate from Staff Master';
+    hint.style.color  = 'var(--yellow)';
+    amtLbl.textContent = 'Work Amount (₹)';
+    if (dLabel) dLabel.textContent = 'Days Worked';
+
   } else if (wtype === 'DAY_BASED') {
-    hint.textContent = '📅 Amount = Days × Full Day Rate';
-    hint.style.color = 'var(--blue)';
+    hint.innerHTML    = '📅 Amount = Days × Full Day Rate from Staff Master';
+    hint.style.color  = 'var(--blue)';
+    amtLbl.textContent = 'Work Amount (₹)';
+    if (dLabel) dLabel.textContent = 'Days Worked *';
+
+  } else if (wtype === 'SPECIAL_WORK') {
+    hint.innerHTML    = '⭐ Special Work — enter amount manually. Days worked is optional.';
+    hint.style.color  = 'var(--purple)';
+    amtLbl.innerHTML  = 'Work Amount (₹) <span style="color:var(--red);">*</span>';
+    amtEl.placeholder = 'Enter special work amount...';
+    amtEl.style.borderColor = 'rgba(167,139,250,.5)';
+    if (dLabel) dLabel.innerHTML = 'Days Worked <span style="color:var(--t3);font-weight:400;">(Optional)</span>';
+
   } else {
-    hint.textContent = '';
+    hint.textContent  = '';
   }
 
   wleUpdateStaffHint();
@@ -2678,25 +2716,28 @@ function wleOnStaffChange() {
 }
 
 function wleUpdateStaffHint() {
-  const sel   = document.getElementById('wle_staff');
-  const opt   = sel?.options[sel.selectedIndex];
-  const wtype = document.getElementById('wle_work_type')?.value || '';
-  const hint  = document.getElementById('wle_staff_hint');
+  const sel      = document.getElementById('wle_staff');
+  const opt      = sel?.options[sel.selectedIndex];
+  const wtype    = document.getElementById('wle_work_type')?.value || '';
+  const hint     = document.getElementById('wle_staff_hint');
   if (!hint || !opt || !opt.value) { if(hint) hint.textContent=''; return; }
 
   const hourRate = parseFloat(opt.dataset.hourRate)||0;
   const dayRate  = parseFloat(opt.dataset.dayRate)||0;
 
   if (wtype === 'HOUR_BASED') {
-    hint.textContent = hourRate ? `Rate: ₹${hourRate}/hr` : '⚠️ No Per Hour Rate set for this staff';
+    hint.textContent = hourRate ? `Rate: ₹${hourRate}/hr` : '⚠️ No Per Hour Rate set — go to Staff Master to add rate';
     hint.style.color = hourRate ? 'var(--acc)' : 'var(--red)';
   } else if (wtype === 'DAY_BASED') {
-    hint.textContent = dayRate ? `Rate: ₹${dayRate}/day` : '⚠️ No Full Day Rate set for this staff';
+    hint.textContent = dayRate ? `Rate: ₹${dayRate}/day` : '⚠️ No Full Day Rate set — go to Staff Master to add rate';
     hint.style.color = dayRate ? 'var(--acc)' : 'var(--red)';
+  } else if (wtype === 'SPECIAL_WORK') {
+    hint.textContent = 'Special Work — enter amount manually below';
+    hint.style.color = 'var(--purple)';
   } else {
-    hint.textContent = hourRate||dayRate
+    hint.textContent = (hourRate||dayRate)
       ? `Rates — Hour: ₹${hourRate||'—'}/hr  |  Day: ₹${dayRate||'—'}/day`
-      : 'No rates set';
+      : 'No rates set in Staff Master';
     hint.style.color = 'var(--t3)';
   }
 }
@@ -2736,7 +2777,7 @@ function wleCalcAmt() {
   const banner  = document.getElementById('wle_preview_banner');
 
   let calc = 0;
-  let hintText = '';
+  let hintText  = '';
   let bannerText = '';
 
   if (wtype === 'HOUR_BASED') {
@@ -2744,65 +2785,222 @@ function wleCalcAmt() {
     const hrs  = parseFloat(document.getElementById('wle_hours')?.value)||0;
     if (rate && hrs) {
       calc = rate * hrs;
-      hintText  = `₹${rate}/hr × ${hrs} hrs`;
-      bannerText = `⏱ Hour Based: ₹${rate} × ${hrs} hrs = <strong style="font-size:16px;">₹${fmt(calc)}</strong>`;
+      hintText   = `₹${rate}/hr × ${hrs} hrs = ₹${fmt(calc)}`;
+      bannerText = `⏱ Hour Based: ₹${rate} × ${hrs} hrs = <strong style="font-size:16px;color:var(--yellow);">₹${fmt(calc)}</strong>`;
+    } else if (!rate && opt?.value) {
+      hintText = '⚠️ Set Per Hour Rate in Staff Master first';
     }
+
   } else if (wtype === 'DAY_BASED') {
     const rate = parseFloat(opt?.dataset?.dayRate)||0;
     const days = parseFloat(document.getElementById('wle_days')?.value)||0;
     if (rate && days) {
       calc = rate * days;
       const dayLabel = days === 0.5 ? '½ day' : days === 1 ? '1 day' : days + ' days';
-      hintText  = `₹${rate}/day × ${dayLabel}`;
-      bannerText = `📅 Day Based: ₹${rate} × ${dayLabel} = <strong style="font-size:16px;">₹${fmt(calc)}</strong>`;
+      hintText   = `₹${rate}/day × ${dayLabel} = ₹${fmt(calc)}`;
+      bannerText = `📅 Day Based: ₹${rate} × ${dayLabel} = <strong style="font-size:16px;color:var(--blue);">₹${fmt(calc)}</strong>`;
+    } else if (!rate && opt?.value) {
+      hintText = '⚠️ Set Full Day Rate in Staff Master first';
     }
+
+  } else if (wtype === 'SPECIAL_WORK') {
+    // No auto-calc — amount is manual. Show entered amount in banner.
+    const enteredAmt = parseFloat(amtEl?.value)||0;
+    if (enteredAmt > 0) {
+      bannerText = `⭐ Special Work Amount: <strong style="font-size:16px;color:var(--purple);">₹${fmt(enteredAmt)}</strong>`;
+    }
+    hintText = '⭐ Enter amount manually — no auto-calculation for special work';
+    if (hint) { hint.textContent = hintText; hint.style.color = 'var(--purple)'; }
+    if (banner) {
+      if (bannerText) { banner.innerHTML = bannerText; banner.style.display = ''; }
+      else banner.style.display = 'none';
+    }
+    return; // skip the auto-set below
   }
 
-  if (calc) amtEl.value = calc;
-  if (hint) hint.textContent = hintText;
+  // Auto-set amount only for HOUR/DAY based
+  if (calc > 0) amtEl.value = calc;
+  if (hint) { hint.textContent = hintText; hint.style.color = hintText.startsWith('⚠️') ? 'var(--red)' : 'var(--acc)'; }
   if (banner) {
     if (bannerText) { banner.innerHTML = bannerText; banner.style.display = ''; }
     else banner.style.display = 'none';
   }
 }
 
-function saveWLEntry() {
-  const date    = document.getElementById('wle_date').value;
-  const wtype   = document.getElementById('wle_work_type').value;
-  const staff   = document.getElementById('wle_staff').value;
-  const bcode   = document.getElementById('wle_bcode').value.trim().toUpperCase();
-  const bname   = document.getElementById('wle_bname').value.trim();
-  const dist    = document.getElementById('wle_dist').value.trim();
-  const amount  = parseFloat(document.getElementById('wle_amount').value)||0;
-  const remarks = document.getElementById('wle_remarks').value.trim();
+// ── VALIDATION HELPER ────────────────────────────────────────────
+function wleSetError(fieldId, msg) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  el.style.borderColor = 'var(--red)';
+  el.style.boxShadow   = '0 0 0 3px rgba(248,113,113,.15)';
+  // Show error under field
+  let errEl = document.getElementById(fieldId + '_err');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id        = fieldId + '_err';
+    errEl.className = 'ferr';
+    el.parentNode.appendChild(errEl);
+  }
+  errEl.textContent = msg;
+}
 
-  // hours or days depending on type
-  let hours = '', days = '';
+function wleClearError(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; }
+  const errEl = document.getElementById(fieldId + '_err');
+  if (errEl) errEl.textContent = '';
+}
+
+function wleClearAllErrors() {
+  ['wle_date','wle_work_type','wle_staff','wle_bcode','wle_bname',
+   'wle_hours','wle_days','wle_special_desc','wle_amount'].forEach(wleClearError);
+}
+
+function saveWLEntry() {
+  wleClearAllErrors();
+
+  const date       = document.getElementById('wle_date').value;
+  const wtype      = document.getElementById('wle_work_type').value;
+  const staffSel   = document.getElementById('wle_staff');
+  const staff      = staffSel.value;
+  const opt        = staffSel?.options[staffSel.selectedIndex];
+  const staffId    = opt?.dataset?.staffId || '';
+  const bcode      = document.getElementById('wle_bcode').value.trim().toUpperCase();
+  const bname      = document.getElementById('wle_bname').value.trim();
+  const dist       = document.getElementById('wle_dist').value.trim();
+  const amtRaw     = document.getElementById('wle_amount').value;
+  const amount     = parseFloat(amtRaw)||0;
+  const remarks    = document.getElementById('wle_remarks').value.trim();
+  const specialDesc = document.getElementById('wle_special_desc')?.value.trim() || '';
+
+  // ── Collect hours/days depending on work type ──
+  let hours = '', days = '', qty_label = '';
+
   if (wtype === 'HOUR_BASED') {
     hours = document.getElementById('wle_hours').value.trim();
-    if (!hours) { toast('Enter hours worked','w'); return; }
   } else if (wtype === 'DAY_BASED') {
     days  = document.getElementById('wle_days').value;
-    if (!days)  { toast('Select days worked','w'); return; }
-    hours = days; // store days in the hours column in sheet
+    hours = days;
+  } else if (wtype === 'SPECIAL_WORK') {
+    days  = document.getElementById('wle_days').value; // optional
+    hours = days || '';
   }
 
-  if (!date)   { toast('Select a date','w'); return; }
-  if (!wtype)  { toast('Select Work Type','w'); return; }
-  if (!staff)  { toast('Select staff','w'); return; }
-  if (!bcode)  { toast('Enter branch code','w'); return; }
-  if (!bname)  { toast('Enter branch name','w'); return; }
-  if (!GAS)    { toast('⚠️ Google Sheets not configured — go to Settings','w'); return; }
+  // ── VALIDATE ALL FIELDS ──────────────────────────────────────
+  let hasError = false;
 
-  // Get staff details
-  const sel    = document.getElementById('wle_staff');
-  const opt    = sel?.options[sel.selectedIndex];
-  const staffId = opt?.dataset?.staffId || '';
+  if (!date) {
+    wleSetError('wle_date', '⚠ Date is required');
+    hasError = true;
+  } else {
+    // Date must not be in the future
+    if (date > td()) {
+      wleSetError('wle_date', '⚠ Date cannot be in the future');
+      hasError = true;
+    }
+  }
+
+  if (!wtype) {
+    wleSetError('wle_work_type', '⚠ Select a Work Type');
+    hasError = true;
+  }
+
+  if (!staff) {
+    wleSetError('wle_staff', '⚠ Select a staff member');
+    hasError = true;
+  }
+
+  if (!bcode) {
+    wleSetError('wle_bcode', '⚠ Branch Code is required');
+    hasError = true;
+  } else if (bcode.length < 2) {
+    wleSetError('wle_bcode', '⚠ Enter a valid Branch Code');
+    hasError = true;
+  }
+
+  if (!bname) {
+    wleSetError('wle_bname', '⚠ Branch Name is required');
+    hasError = true;
+  }
+
+  if (wtype === 'HOUR_BASED') {
+    if (!hours) {
+      wleSetError('wle_hours', '⚠ Hours worked is required');
+      hasError = true;
+    } else if (parseFloat(hours) <= 0) {
+      wleSetError('wle_hours', '⚠ Hours must be greater than 0');
+      hasError = true;
+    } else if (parseFloat(hours) > 24) {
+      wleSetError('wle_hours', '⚠ Hours cannot exceed 24');
+      hasError = true;
+    }
+    // Warn if no rate set — but still allow save
+    const hourRate = parseFloat(opt?.dataset?.hourRate)||0;
+    if (!hourRate && staff) {
+      wleSetError('wle_staff', '⚠ No Per Hour Rate set — set it in Staff Master. Amount must be entered manually.');
+      hasError = true;
+    }
+  }
+
+  if (wtype === 'DAY_BASED') {
+    if (!days) {
+      wleSetError('wle_days', '⚠ Days worked is required');
+      hasError = true;
+    }
+    // Warn if no rate set
+    const dayRate = parseFloat(opt?.dataset?.dayRate)||0;
+    if (!dayRate && staff) {
+      wleSetError('wle_staff', '⚠ No Full Day Rate set — set it in Staff Master. Amount must be entered manually.');
+      hasError = true;
+    }
+  }
+
+  if (wtype === 'SPECIAL_WORK') {
+    if (!specialDesc) {
+      wleSetError('wle_special_desc', '⚠ Special Work Description is required');
+      hasError = true;
+    } else if (specialDesc.length < 5) {
+      wleSetError('wle_special_desc', '⚠ Description too short — describe the work clearly');
+      hasError = true;
+    }
+    if (!amtRaw || amtRaw === '') {
+      wleSetError('wle_amount', '⚠ Work Amount is required for Special Work');
+      hasError = true;
+    } else if (amount <= 0) {
+      wleSetError('wle_amount', '⚠ Amount must be greater than ₹0');
+      hasError = true;
+    }
+  } else {
+    // For hour/day based — amount can be 0 if rate not set but warn
+    if (amount < 0) {
+      wleSetError('wle_amount', '⚠ Amount cannot be negative');
+      hasError = true;
+    }
+  }
+
+  if (!GAS) {
+    toast('⚠️ Google Sheets not configured — go to Settings first', 'w');
+    return;
+  }
+
+  if (hasError) {
+    toast('⚠️ Please fix the errors highlighted in red', 'w');
+    // Scroll to first error
+    const firstErr = document.querySelector('#page-wlentry .ferr');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // ── BUILD ENTRY OBJECT ────────────────────────────────────────
+  // For special work, append description to remarks
+  const finalRemarks = wtype === 'SPECIAL_WORK'
+    ? (specialDesc + (remarks ? ' | ' + remarks : ''))
+    : remarks;
 
   const entry = {
     date, work_type: wtype, staff, staff_id: staffId,
     branch_code: bcode, branch_name: bname,
-    district: dist, hours, amount, remarks,
+    district: dist, hours, amount, remarks: finalRemarks,
     bill_paid_status: 'NOT_ISSUED'
   };
 
@@ -2814,16 +3012,17 @@ function saveWLEntry() {
     .then(()=>{
       hideSaving();
       if (statusEl) statusEl.textContent = '';
+      wleClearAllErrors();
       WLE_recent.unshift({ ...entry, saved_at: new Date().toLocaleTimeString('en-IN') });
       renderWLERecentList();
       clearWLEntryForm();
-      WL_loaded = false; // force refresh of Work Log view
-      toast('✅ Work Log entry saved to Google Sheet!','s');
+      WL_loaded = false;
+      toast('✅ Work Log entry saved to Google Sheet!', 's');
     })
     .catch(e=>{
       hideSaving();
       if (statusEl) statusEl.textContent = '';
-      toast('Save failed: '+e.message,'e');
+      toast('Save failed: ' + e.message, 'e');
     });
 }
 
@@ -2839,14 +3038,23 @@ function clearWLEntryForm() {
   document.getElementById('wle_remarks').value    = '';
   const daysSel = document.getElementById('wle_days');
   if (daysSel) daysSel.value = '';
+  const spDesc = document.getElementById('wle_special_desc');
+  if (spDesc) spDesc.value = '';
+  // Reset amount field styling
+  const amtEl = document.getElementById('wle_amount');
+  if (amtEl) { amtEl.readOnly = false; amtEl.placeholder = 'Auto-calculated or manual'; amtEl.style.borderColor = ''; }
+  const amtLbl = document.getElementById('wle_amount_label');
+  if (amtLbl) amtLbl.textContent = 'Work Amount (₹)';
   // Hide dynamic fields
-  document.getElementById('wle_hours_wrap').style.display = 'none';
-  document.getElementById('wle_days_wrap').style.display  = 'none';
+  document.getElementById('wle_hours_wrap').style.display  = 'none';
+  document.getElementById('wle_days_wrap').style.display   = 'none';
+  document.getElementById('wle_special_wrap').style.display= 'none';
   const banner = document.getElementById('wle_preview_banner');
   if (banner) banner.style.display = 'none';
   ['wle_staff_hint','wle_amt_hint','wle_wtype_hint'].forEach(id=>{
-    const el = document.getElementById(id); if(el) el.textContent='';
+    const el = document.getElementById(id); if(el) { el.textContent=''; }
   });
+  wleClearAllErrors();
 }
 
 function renderWLERecentList() {
@@ -2866,9 +3074,11 @@ function renderWLERecentList() {
     </tr></thead>
     <tbody>${WLE_recent.map(r=>{
       const wtLabel = r.work_type==='HOUR_BASED'
-        ? '<span class="b b-issued">Hour Based</span>'
+        ? '<span class="b b-hour">⏱ Hour</span>'
         : r.work_type==='DAY_BASED'
-        ? '<span class="b b-recd">Day Based</span>'
+        ? '<span class="b b-day">📅 Day</span>'
+        : r.work_type==='SPECIAL_WORK'
+        ? '<span class="b b-special">⭐ Special</span>'
         : r.work_type||'—';
       return `<tr>
         <td style="color:var(--t3);font-size:11px;">${r.saved_at}</td>
