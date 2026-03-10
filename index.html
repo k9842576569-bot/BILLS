@@ -263,6 +263,9 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
   <div class="ni active" onclick="nav('dashboard')" id="ni-dashboard"><span class="nicon">📊</span><span>Dashboard</span></div>
   <div class="ni" onclick="nav('billentry')" id="ni-billentry"><span class="nicon">🧾</span><span>Bill Entry</span><span class="nbadge" id="pbadge">0</span></div>
   <div class="ni" onclick="nav('received')" id="ni-received"><span class="nicon">💰</span><span>Mark Received</span></div>
+  <div class="ns">Data Entry</div>
+  <div class="ni" onclick="nav('wlentry')" id="ni-wlentry"><span class="nicon">✍️</span><span>Daily Work Log</span></div>
+  <div class="ni" onclick="nav('staffmaster')" id="ni-staffmaster"><span class="nicon">👤</span><span>Staff Master</span></div>
   <div class="ns">Masters</div>
   <div class="ni" onclick="nav('profile')" id="ni-profile"><span class="nicon">🏢</span><span>Company Profile</span></div>
   <div class="ni" onclick="nav('billbook')" id="ni-billbook"><span class="nicon">📚</span><span>Bill Books</span></div>
@@ -658,6 +661,135 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
   </div>
 </div>
 
+<!-- ═══════════════════ DAILY WORK LOG ENTRY ═══════════════════ -->
+<div id="page-wlentry" class="page">
+  <div class="topbar">
+    <div class="ptitle">Daily Work Log <span>Entry</span></div>
+    <div class="tr">
+      <button class="btn btn-s sm" onclick="clearWLEntryForm()">✕ Clear</button>
+    </div>
+  </div>
+  <div class="abox" style="margin-bottom:14px;">
+    ✍️ Enter daily field work here. <strong>Staff</strong> links from Staff Master. <strong>Branch Code &amp; Name</strong> auto-fill from Branch Master. Each entry is appended directly to your <strong>WorkLog_2025_2026</strong> Google Sheet.
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ctitle">New Work Log Entry</div>
+    <div class="eg">
+      <div class="fg">
+        <label class="fl">Date *</label>
+        <input type="date" id="wle_date" class="fc">
+      </div>
+      <div class="fg">
+        <label class="fl">Staff *</label>
+        <select id="wle_staff" class="fc">
+          <option value="">— Select Staff —</option>
+        </select>
+        <div class="fhint" id="wle_staff_hint"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Branch Code *</label>
+        <input type="text" id="wle_bcode" class="fc" list="wle_bcode_dl" placeholder="Type code..." oninput="wleFillByCode()">
+        <datalist id="wle_bcode_dl"></datalist>
+      </div>
+      <div class="fg s2">
+        <label class="fl">Branch Name *</label>
+        <input type="text" id="wle_bname" class="fc" list="wle_bname_dl" placeholder="Auto-filled or type..." oninput="wleFillByName()">
+        <datalist id="wle_bname_dl"></datalist>
+      </div>
+      <div class="fg">
+        <label class="fl">District</label>
+        <input type="text" id="wle_dist" class="fc" placeholder="Auto-filled" readonly>
+      </div>
+      <div class="fg">
+        <label class="fl">Hours Worked *</label>
+        <input type="number" id="wle_hours" class="fc" placeholder="e.g. 4" min="0.5" step="0.5" oninput="wleCalcAmt()">
+      </div>
+      <div class="fg">
+        <label class="fl">Work Amount (&#8377;)</label>
+        <input type="number" id="wle_amount" class="fc" placeholder="Auto or manual">
+        <div class="fhint" id="wle_amt_hint"></div>
+      </div>
+      <div class="fg s2">
+        <label class="fl">Remarks</label>
+        <input type="text" id="wle_remarks" class="fc" placeholder="Optional notes...">
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-p btn-big" onclick="saveWLEntry()">&#x2705; Save to Google Sheet</button>
+      <button class="btn btn-s" onclick="clearWLEntryForm()">Clear</button>
+      <span id="wle_saving_status" style="font-size:12px;color:var(--t3);"></span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">
+      Recently Added Entries (This Session)
+      <span id="wle_recent_cnt" style="font-size:11px;margin-left:6px;background:var(--s3);padding:2px 9px;border-radius:10px;color:var(--t1);font-weight:700;"></span>
+    </div>
+    <div id="wle_recent_list">
+      <div class="emp"><div class="ei">&#x270D;&#xFE0F;</div><p>Saved entries will appear here (this session only)</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ STAFF MASTER ═══════════════════ -->
+<div id="page-staffmaster" class="page">
+  <div class="topbar">
+    <div class="ptitle">Staff <span>Master</span></div>
+    <div class="tr">
+      <button class="btn btn-p sm" onclick="openStaffMo()">+ Add Staff</button>
+      <button class="btn btn-s sm" onclick="pushStaffToSheets()">&#x1F4E4; Save to Sheets</button>
+      <button class="btn btn-s sm" onclick="pullStaffFromSheets()">&#x1F4E5; Load from Sheets</button>
+    </div>
+  </div>
+  <div class="abox" style="margin-bottom:14px;">
+    &#x1F464; Manage your staff list here. Staff names appear in the <strong>Daily Work Log Entry</strong> form. If you set a <strong>Rate per Hour</strong>, the Work Amount will auto-calculate. Data syncs to the <strong>Staff_Master</strong> sheet in Google Sheets.
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input type="text" class="ff" id="sm_search" placeholder="Search staff name / ID..." oninput="renderStaffList()">
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Sl</th><th>Staff ID</th><th>Staff Name</th><th>Designation</th><th>Phone</th><th>Rate/Hr</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="smBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Staff Modal -->
+<div class="mo" id="moStaff">
+  <div class="mbox" style="max-width:500px;">
+    <div class="mh"><div class="mt" id="moStaffTitle">Add Staff</div><button class="xbtn" onclick="closeMo('moStaff')">&#x2715;</button></div>
+    <div class="mb">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="fg"><label class="fl">Staff ID *</label><input type="text" id="sm_id" class="fc" placeholder="e.g. STF001"></div>
+        <div class="fg"><label class="fl">Staff Name *</label><input type="text" id="sm_name" class="fc" placeholder="Full name..."></div>
+        <div class="fg"><label class="fl">Designation</label><input type="text" id="sm_desg" class="fc" placeholder="e.g. Field Executive"></div>
+        <div class="fg"><label class="fl">Phone</label><input type="text" id="sm_phone" class="fc" placeholder="Contact number..."></div>
+        <div class="fg">
+          <label class="fl">Rate per Hour (&#8377;)</label>
+          <input type="number" id="sm_rate" class="fc" placeholder="e.g. 100">
+          <div class="fhint">Used to auto-calculate Work Amount in Daily Work Log</div>
+        </div>
+        <div class="fg"><label class="fl">Status</label>
+          <select id="sm_status" class="fc">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <span id="sm_edit_id" style="display:none;"></span>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-s" onclick="closeMo('moStaff')">Cancel</button>
+      <button class="btn btn-p" onclick="saveStaff()">&#x1F4BE; Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════ SETTINGS ═══════════════════ -->
 <div id="page-settings" class="page">
   <div class="topbar"><div class="ptitle">Settings <span>&amp; Sync</span></div></div>
@@ -781,6 +913,7 @@ let DB = {
   bills:     [],
   branches:  [],
   billbooks: [],
+  staff:     [],
   config:    { nextBillNo: 1 },
   profile:   { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' },
   fyList:    []
@@ -810,6 +943,7 @@ function load() {
       DB.branches  = Array.isArray(d.branches)  ? d.branches  : [];
       DB.entries   = Array.isArray(d.entries)   ? d.entries   : [];
       DB.billbooks = Array.isArray(d.billbooks) ? d.billbooks : [];
+      DB.staff     = Array.isArray(d.staff)     ? d.staff     : [];
       DB.config    = d.config  || { nextBillNo: 1 };
       DB.profile   = d.profile || { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' };
       DB.fyList    = Array.isArray(d.fyList)    ? d.fyList    : [];
@@ -856,15 +990,17 @@ function nav(p) {
 
 function renderCurrentPage() {
   const fns = {
-    dashboard: renderDash,
-    billentry: renderBillEntry,
-    received:  renderReceived,
-    profile:   renderProfile,
-    billbook:  renderBillBooks,
-    branches:  renderBranches,
-    reports:   renderReports,
-    worklog:   renderWorkLogPage,
-    settings:  renderSettings
+    dashboard:   renderDash,
+    billentry:   renderBillEntry,
+    received:    renderReceived,
+    profile:     renderProfile,
+    billbook:    renderBillBooks,
+    branches:    renderBranches,
+    reports:     renderReports,
+    worklog:     renderWorkLogPage,
+    wlentry:     renderWLEntryPage,
+    staffmaster: renderStaffList,
+    settings:    renderSettings
   };
   if (fns[curPage]) fns[curPage]();
   updateBadge();
@@ -2034,8 +2170,8 @@ function impJSON(ev) {
 function clearAll() {
   if (!confirm('Delete ALL data?')) return;
   if (!confirm('FINAL — delete everything including bills, branches and settings?')) return;
-  DB = { entries:[], bills:[], branches:[], billbooks:[], config:{nextBillNo:1},
-    profile:{name:'',address:'',phone:'',email:'',gst:'',activeFY:''}, fyList:[] };
+  DB = { entries:[], bills:[], branches:[], billbooks:[], staff:[],
+         config:{nextBillNo:1}, profile:{name:'',address:'',phone:'',email:'',gst:'',activeFY:''}, fyList:[] };
   save(); renderCurrentPage(); toast('All data cleared','i');
 }
 
@@ -2296,6 +2432,276 @@ function migrateIds() {
   });
 
   if (changed) { save(); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STAFF MASTER
+// ═══════════════════════════════════════════════════════════════
+
+// DB.staff is the local staff array — stored in localStorage alongside DB
+// We patch it into DB on load
+
+function renderStaffList() {
+  const srch = (document.getElementById('sm_search')?.value||'').toLowerCase();
+  const list = (DB.staff||[]).filter(s =>
+    !srch || (s.id||'').toLowerCase().includes(srch) ||
+    (s.name||'').toLowerCase().includes(srch) ||
+    (s.designation||'').toLowerCase().includes(srch)
+  );
+  const body = document.getElementById('smBody');
+  if (!body) return;
+  if (!list.length) {
+    body.innerHTML = `<tr><td colspan="8"><div class="emp"><div class="ei">&#x1F464;</div><p>No staff yet — click "+ Add Staff"</p></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map((s,i)=>`<tr>
+    <td>${i+1}</td>
+    <td class="mono" style="color:var(--acc);font-weight:700;">${s.staffId||'—'}</td>
+    <td style="font-weight:600;">${s.name||'—'}</td>
+    <td style="color:var(--t3);">${s.designation||'—'}</td>
+    <td class="mono">${s.phone||'—'}</td>
+    <td class="mono" style="color:var(--yellow);">${s.ratePerHour?'&#8377;'+s.ratePerHour+'/hr':'—'}</td>
+    <td><span class="b ${s.status==='Active'?'b-active':'b-closed'}">${s.status||'Active'}</span></td>
+    <td>
+      <button class="btn btn-s xs" onclick="openStaffMo('${s.id}')">&#x270F;&#xFE0F;</button>
+      <button class="btn btn-d xs" onclick="delStaff('${s.id}')">&#x1F5D1;</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openStaffMo(id) {
+  const s = id ? (DB.staff||[]).find(x=>x.id===id) : null;
+  document.getElementById('moStaffTitle').textContent = s ? 'Edit Staff' : 'Add Staff';
+  document.getElementById('sm_edit_id').textContent   = s?.id || '';
+  document.getElementById('sm_id').value              = s?.staffId      || '';
+  document.getElementById('sm_name').value            = s?.name         || '';
+  document.getElementById('sm_desg').value            = s?.designation  || '';
+  document.getElementById('sm_phone').value           = s?.phone        || '';
+  document.getElementById('sm_rate').value            = s?.ratePerHour  || '';
+  document.getElementById('sm_status').value          = s?.status       || 'Active';
+  document.getElementById('moStaff').classList.add('open');
+}
+
+function saveStaff() {
+  const staffId = document.getElementById('sm_id').value.trim().toUpperCase();
+  const name    = document.getElementById('sm_name').value.trim();
+  const desg    = document.getElementById('sm_desg').value.trim();
+  const phone   = document.getElementById('sm_phone').value.trim();
+  const rate    = parseFloat(document.getElementById('sm_rate').value)||0;
+  const status  = document.getElementById('sm_status').value;
+  const editId  = document.getElementById('sm_edit_id').textContent;
+
+  if (!staffId) { toast('Enter Staff ID','w'); return; }
+  if (!name)    { toast('Enter Staff Name','w'); return; }
+
+  if (!DB.staff) DB.staff = [];
+  const dup = DB.staff.find(s => s.staffId===staffId && s.id!==editId);
+  if (dup) { toast('Staff ID already exists','e'); return; }
+
+  if (editId) {
+    const idx = DB.staff.findIndex(s=>s.id===editId);
+    if (idx>-1) DB.staff[idx] = {...DB.staff[idx], staffId, name, designation:desg, phone, ratePerHour:rate, status};
+    toast('Staff updated','s');
+  } else {
+    DB.staff.push({ id: uid(), staffId, name, designation:desg, phone, ratePerHour:rate, status });
+    toast('Staff added','s');
+  }
+  save(); closeMo('moStaff'); renderStaffList();
+  populateWLEStaffDropdown();
+}
+
+function delStaff(id) {
+  if (!confirm('Delete this staff member?')) return;
+  DB.staff = (DB.staff||[]).filter(s=>s.id!==id);
+  save(); renderStaffList(); populateWLEStaffDropdown(); toast('Deleted','i');
+}
+
+function pushStaffToSheets() {
+  if (!GAS) { toast('Configure Google Sheets URL in Settings first','w'); return; }
+  const staff = DB.staff||[];
+  if (!staff.length) { toast('No staff to save','w'); return; }
+  showSaving('Saving Staff Master to Google Sheets…');
+  iframePost(GAS, 'pushStaff', { staff }, 30000)
+    .then(()=>{ hideSaving(); toast('&#x2705; Staff Master saved to Sheets','s'); })
+    .catch(e=>{ hideSaving(); toast('Failed: '+e.message,'e'); });
+}
+
+function pullStaffFromSheets() {
+  if (!GAS) { toast('Configure Google Sheets URL in Settings first','w'); return; }
+  showSaving('Loading Staff Master from Google Sheets…');
+  const cb = '_smload_'+Date.now();
+  jsonpGet(GAS+'?action=getStaff&callback='+cb, cb, 20000)
+    .then(d=>{
+      hideSaving();
+      if (d.error) { toast('Error: '+d.error,'e'); return; }
+      if (d.staff && d.staff.length) {
+        DB.staff = d.staff;
+        save(); renderStaffList(); populateWLEStaffDropdown();
+        toast('&#x2705; Loaded '+d.staff.length+' staff','s');
+      } else {
+        toast('No staff found in Sheets','i');
+      }
+    })
+    .catch(e=>{ hideSaving(); toast('Load failed: '+e.message,'e'); });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DAILY WORK LOG ENTRY
+// ═══════════════════════════════════════════════════════════════
+
+let WLE_recent = []; // session-only recently added entries
+
+function renderWLEntryPage() {
+  populateWLEStaffDropdown();
+  populateWLEBranchLists();
+  renderWLERecentList();
+  // Set today as default date
+  const dateEl = document.getElementById('wle_date');
+  if (dateEl && !dateEl.value) dateEl.value = td();
+}
+
+function populateWLEStaffDropdown() {
+  const sel = document.getElementById('wle_staff');
+  if (!sel) return;
+  const cur = sel.value;
+  const activeStaff = (DB.staff||[]).filter(s=>s.status==='Active');
+  sel.innerHTML = '<option value="">— Select Staff —</option>'
+    + activeStaff.map(s=>`<option value="${s.name}" data-rate="${s.ratePerHour||0}" ${s.name===cur?'selected':''}>${s.staffId} — ${s.name}</option>`).join('');
+  sel.onchange = function() {
+    const opt = sel.options[sel.selectedIndex];
+    const rate = parseFloat(opt?.dataset?.rate)||0;
+    const hint = document.getElementById('wle_staff_hint');
+    if (rate) {
+      hint.textContent = 'Rate: &#8377;'+rate+'/hr';
+      wleCalcAmt();
+    } else {
+      if (hint) hint.textContent = '';
+    }
+  };
+}
+
+function populateWLEBranchLists() {
+  const codeDL = document.getElementById('wle_bcode_dl');
+  const nameDL = document.getElementById('wle_bname_dl');
+  if (!codeDL || !nameDL) return;
+  codeDL.innerHTML = DB.branches.map(b=>`<option value="${b.code}">${b.code} — ${b.name}</option>`).join('');
+  nameDL.innerHTML = DB.branches.map(b=>`<option value="${b.name}">${b.name} (${b.code})</option>`).join('');
+}
+
+function wleFillByCode() {
+  const code = document.getElementById('wle_bcode').value.trim().toUpperCase();
+  const br = DB.branches.find(b=>b.code===code || b.code.toUpperCase()===code);
+  if (br) {
+    document.getElementById('wle_bname').value = br.name;
+    document.getElementById('wle_dist').value  = br.district||'';
+  }
+}
+
+function wleFillByName() {
+  const name = document.getElementById('wle_bname').value.trim().toLowerCase();
+  const br = DB.branches.find(b=>b.name.toLowerCase()===name);
+  if (br) {
+    document.getElementById('wle_bcode').value = br.code;
+    document.getElementById('wle_dist').value  = br.district||'';
+  }
+}
+
+function wleCalcAmt() {
+  const sel  = document.getElementById('wle_staff');
+  const opt  = sel?.options[sel.selectedIndex];
+  const rate = parseFloat(opt?.dataset?.rate)||0;
+  const hrs  = parseFloat(document.getElementById('wle_hours')?.value)||0;
+  const hint = document.getElementById('wle_amt_hint');
+  if (rate && hrs) {
+    const calc = rate * hrs;
+    document.getElementById('wle_amount').value = calc;
+    if (hint) hint.textContent = '&#8377;'+rate+'/hr × '+hrs+' hrs = &#8377;'+calc;
+  } else {
+    if (hint) hint.textContent = '';
+  }
+}
+
+function saveWLEntry() {
+  const date    = document.getElementById('wle_date').value;
+  const staff   = document.getElementById('wle_staff').value;
+  const bcode   = document.getElementById('wle_bcode').value.trim().toUpperCase();
+  const bname   = document.getElementById('wle_bname').value.trim();
+  const dist    = document.getElementById('wle_dist').value.trim();
+  const hours   = document.getElementById('wle_hours').value.trim();
+  const amount  = parseFloat(document.getElementById('wle_amount').value)||0;
+  const remarks = document.getElementById('wle_remarks').value.trim();
+
+  if (!date)   { toast('Select a date','w'); return; }
+  if (!staff)  { toast('Select staff','w'); return; }
+  if (!bcode)  { toast('Enter branch code','w'); return; }
+  if (!bname)  { toast('Enter branch name','w'); return; }
+  if (!hours)  { toast('Enter hours worked','w'); return; }
+
+  if (!GAS) { toast('&#x26A0;&#xFE0F; Google Sheets not configured — go to Settings','w'); return; }
+
+  const entry = { date, staff, branch_code: bcode, branch_name: bname,
+                  district: dist, hours, amount, remarks,
+                  bill_paid_status: 'NOT_ISSUED' };
+
+  const statusEl = document.getElementById('wle_saving_status');
+  if (statusEl) statusEl.textContent = 'Saving…';
+  showSaving('Appending to WorkLog Google Sheet…');
+
+  iframePost(GAS, 'appendWorkLog', { row: entry }, 30000)
+    .then(()=>{
+      hideSaving();
+      if (statusEl) statusEl.textContent = '';
+      WLE_recent.unshift({ ...entry, saved_at: new Date().toLocaleTimeString('en-IN') });
+      renderWLERecentList();
+      clearWLEntryForm();
+      // Invalidate WL cache so next view of Work Log refreshes
+      WL_loaded = false;
+      toast('&#x2705; Work Log entry saved to Google Sheet!','s');
+    })
+    .catch(e=>{
+      hideSaving();
+      if (statusEl) statusEl.textContent = '';
+      toast('Save failed: '+e.message,'e');
+    });
+}
+
+function clearWLEntryForm() {
+  document.getElementById('wle_date').value    = td();
+  document.getElementById('wle_staff').value   = '';
+  document.getElementById('wle_bcode').value   = '';
+  document.getElementById('wle_bname').value   = '';
+  document.getElementById('wle_dist').value    = '';
+  document.getElementById('wle_hours').value   = '';
+  document.getElementById('wle_amount').value  = '';
+  document.getElementById('wle_remarks').value = '';
+  const hint1 = document.getElementById('wle_staff_hint');
+  const hint2 = document.getElementById('wle_amt_hint');
+  if (hint1) hint1.textContent = '';
+  if (hint2) hint2.textContent = '';
+}
+
+function renderWLERecentList() {
+  const el = document.getElementById('wle_recent_list');
+  const cnt = document.getElementById('wle_recent_cnt');
+  if (!el) return;
+  if (cnt) cnt.textContent = WLE_recent.length + ' entries';
+  if (!WLE_recent.length) {
+    el.innerHTML = '<div class="emp"><div class="ei">&#x270D;&#xFE0F;</div><p>Saved entries will appear here (this session only)</p></div>';
+    return;
+  }
+  el.innerHTML = `<div class="tw"><table>
+    <thead><tr><th>Saved At</th><th>Date</th><th>Staff</th><th>Branch Code</th><th>Branch Name</th><th>District</th><th>Hours</th><th>Amount</th><th>Remarks</th></tr></thead>
+    <tbody>${WLE_recent.map(r=>`<tr>
+      <td style="color:var(--t3);font-size:11px;">${r.saved_at}</td>
+      <td class="mono">${r.date}</td>
+      <td style="color:var(--purple);font-weight:600;">${r.staff}</td>
+      <td class="mono" style="color:var(--acc);">${r.branch_code}</td>
+      <td>${r.branch_name}</td>
+      <td style="color:var(--t3);">${r.district||'—'}</td>
+      <td class="mono">${r.hours}</td>
+      <td class="amt">${r.amount?'&#8377;'+fmt(r.amount):'—'}</td>
+      <td style="color:var(--t3);font-size:12px;">${r.remarks||'—'}</td>
+    </tr>`).join('')}</tbody></table></div>`;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────
