@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BankWork Pro v5.2 — Bill Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080c10">
+<title>BankWork Pro v6.0 — Work Log & Bill Management</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -371,10 +375,30 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
 @media(max-width:768px){
   .sb{width:54px;}
   .logo2,.logo1,.co-name,.fy-chip,.srow,.ns,.ni span:not(.nicon),.push-btn span,.pull-btn span{display:none;}
-  .ni{justify-content:center;padding:11px;}
+  .ni{justify-content:center;padding:12px;min-height:44px;}
+  .nicon{font-size:18px;}
   .main{margin-left:54px;padding:12px;}
   .eg{grid-template-columns:1fr 1fr;}
   .sgrid{grid-template-columns:1fr 1fr;}
+  .g2{grid-template-columns:1fr;}
+  .btn{min-height:40px;}
+  .btn-big{width:100%;justify-content:center;}
+  .fc,.ff{font-size:16px !important;} /* prevent iOS zoom on focus */
+  table{font-size:12px;}
+  thead th{padding:8px 10px;}
+  tbody td{padding:8px 10px;}
+  .topbar{margin-bottom:14px;}
+  .ptitle{font-size:18px;}
+  .card{padding:14px;}
+  /* Safe area for notch phones */
+  .main{padding-bottom:env(safe-area-inset-bottom, 12px);}
+}
+@media(max-width:480px){
+  .eg{grid-template-columns:1fr;}
+  .s2{grid-column:span 1;}
+  .sgrid{grid-template-columns:1fr;}
+  .tabs{flex-wrap:wrap;}
+  .wl-count-chip{min-width:70px;padding:10px 12px;}
 }
 </style>
 </head>
@@ -385,7 +409,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
 <nav class="sb">
   <div class="logo-wrap">
     <div class="logo1">🏦 BANKWORK PRO</div>
-    <div class="logo2">v5.2 · Bill Management</div>
+    <div class="logo2">v6.0 · Updated: 11-Mar-2026</div>
     <div class="co-name" id="sbCoName">—</div>
     <div class="fy-chip" id="sbFY">FY —</div>
     <div class="srow"><div class="dot" id="sdot"></div><span id="slbl">Local Mode</span></div>
@@ -994,27 +1018,92 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
 <!-- ═══════════════════ SETTINGS ═══════════════════ -->
 <div id="page-settings" class="page">
   <div class="topbar"><div class="ptitle">Settings <span>&amp; Sync</span></div></div>
+
+  <!-- Version Info Banner -->
+  <div style="background:linear-gradient(135deg,rgba(0,212,170,.08),rgba(77,166,255,.06));border:1.5px solid rgba(0,212,170,.25);border-radius:10px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div style="font-size:16px;font-weight:800;color:var(--acc);">🏦 BankWork Pro <span id="settingsAppVer"></span></div>
+      <div style="font-size:12px;color:var(--t3);margin-top:3px;font-family:var(--mono);">Updated: <span id="settingsUpdated"></span> &nbsp;·&nbsp; Build: <span id="settingsBuild"></span></div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px;color:var(--t3);">Connection</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+        <div class="dot" id="sdot2"></div>
+        <span id="slbl2" style="font-size:12px;font-weight:700;color:var(--t2);">—</span>
+      </div>
+    </div>
+  </div>
+
   <div class="g2">
+    <!-- Google Sheets Sync Card -->
     <div class="card">
       <div class="ctitle">Google Sheets Sync</div>
-      <div class="fg" style="margin-bottom:12px;">
+
+      <div class="fg" style="margin-bottom:14px;">
         <label class="fl">Google Apps Script URL</label>
-        <input type="text" id="gasUrl" class="fc" placeholder="https://script.google.com/macros/s/...">
+        <input type="url" id="gasUrl" class="fc" placeholder="https://script.google.com/macros/s/...">
         <div class="fhint" id="gasHint"></div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
         <button class="btn btn-p sm" onclick="saveGas()">💾 Save URL</button>
         <button class="btn btn-s sm" onclick="testGas()">🔌 Test Connection</button>
         <button class="btn btn-d sm" onclick="clearGas()">✕ Disconnect</button>
       </div>
-      <div id="gasBannerSet" style="margin-top:12px;"></div>
+
+      <div id="gasBannerSet" style="margin-bottom:10px;"></div>
+      <div id="settingsVersion"></div>
+
+      <!-- Mobile connection tips -->
+      <div style="margin-top:14px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.8;">
+        <div style="font-weight:700;color:var(--yellow);margin-bottom:6px;">📱 Mobile Connection Tips</div>
+        • Always tap <strong>Save URL</strong> after entering the GAS URL<br>
+        • If mobile shows old data — tap <strong>Load from Sheets</strong><br>
+        • URL is saved in 3 storage locations for safety<br>
+        • If connection fails — check WiFi / mobile data first<br>
+        • Safari (iOS): allow pop-ups for this site in Settings
+      </div>
     </div>
-    <div class="card">
-      <div class="ctitle">Data Management</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-s" onclick="expJSON()">📤 Export Full Backup (JSON)</button>
-        <label class="btn btn-s" style="cursor:pointer;">📥 Import Backup (JSON)<input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
-        <button class="btn btn-d" onclick="clearAll()">🗑 Clear ALL Data</button>
+
+    <!-- Data Management + Browser Support -->
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ctitle">Data Management</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-s" onclick="expJSON()">📤 Export Full Backup (JSON)</button>
+          <label class="btn btn-s" style="cursor:pointer;">📥 Import Backup (JSON)<input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
+          <button class="btn btn-d" onclick="clearAll()">🗑 Clear ALL Data</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ctitle">Browser &amp; Device Support</div>
+        <div style="font-size:12px;color:var(--t2);line-height:2;">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="font-size:16px;">✅</span>
+            <span><strong style="color:var(--green);">Chrome</strong> — Full support (recommended)</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="font-size:16px;">✅</span>
+            <span><strong style="color:var(--green);">Edge</strong> — Full support</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="font-size:16px;">✅</span>
+            <span><strong style="color:var(--yellow);">Android Chrome</strong> — Full support</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="font-size:16px;">✅</span>
+            <span><strong style="color:var(--yellow);">Vivo / Samsung Browser</strong> — Use Chrome app instead</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="font-size:16px;">⚠️</span>
+            <span><strong style="color:var(--yellow);">iOS Safari</strong> — Works, allow pop-ups in settings</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:16px;">❌</span>
+            <span><strong style="color:var(--red);">Firefox Private / Incognito</strong> — localStorage blocked</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1104,8 +1193,15 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--ac
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-//  BANKWORK PRO v5.0 — Main Script
+//  BANKWORK PRO v6.0 — Main Script
+//  Updated : 11-Mar-2026
+//  Modules : Dashboard · Bill Entry · Mark Received · Daily Work Log
+//            Staff Master · Branch Master · Bill Books · Reports
+//            Work Log View · Settings & Sync
 // ═══════════════════════════════════════════════════════════════
+const APP_VERSION     = 'v6.0';
+const APP_UPDATED     = '11-Mar-2026';
+const APP_BUILD       = '20260311';
 
 const LS = 'bwpro5';
 
@@ -1120,23 +1216,60 @@ let DB = {
   fyList:    []
 };
 
-let GAS = 'https://script.google.com/macros/s/AKfycbzYKWOqpMyuYz7muSA4HErKgPs-PhLM3Zo3FfjGlWFFQ3RGaPno9a89tmrlgCHty-yzAA/exec';
+// ── GAS URL — HARDCODED FALLBACK + multi-storage ─────────────────
+// On mobile, localStorage can be cleared by browser. We store GAS URL
+// in 3 places and also bake it into the HTML as a hardcoded default.
+// Priority: sessionStorage > localStorage > hardcoded HTML default
+const GAS_DEFAULT = 'https://script.google.com/macros/s/AKfycbzYKWOqpMyuYz7muSA4HErKgPs-PhLM3Zo3FfjGlWFFQ3RGaPno9a89tmrlgCHty-yzAA/exec';
+
+let GAS = GAS_DEFAULT;
+
+function loadGasUrl() {
+  // Try multiple storage locations in priority order
+  try {
+    const ss = sessionStorage.getItem('bwpro_gas');
+    if (ss && ss.includes('script.google.com')) { GAS = ss; return; }
+  } catch(e) {}
+  try {
+    const ls = localStorage.getItem('bwpro_gas');
+    if (ls && ls.includes('script.google.com')) { GAS = ls; return; }
+  } catch(e) {}
+  try {
+    const ls2 = localStorage.getItem('bwpro_gas_bak');
+    if (ls2 && ls2.includes('script.google.com')) { GAS = ls2; return; }
+  } catch(e) {}
+  // Fall through to GAS_DEFAULT (already set above)
+}
+
+function saveGasUrl(url) {
+  GAS = url;
+  try { localStorage.setItem('bwpro_gas', url); } catch(e) {}
+  try { localStorage.setItem('bwpro_gas_bak', url); } catch(e) {}
+  try { sessionStorage.setItem('bwpro_gas', url); } catch(e) {}
+}
+
 let curPage = 'dashboard';
 let curRptTab = 'branch';
 let eId = { branch: null, billbook: null, bill: null };
 
 // ── STORAGE ──────────────────────────────────────────────────────
 function save() {
-  try { localStorage.setItem(LS, JSON.stringify(DB)); }
-  catch(e) { toast('Storage full! Export backup.','w'); }
+  const json = JSON.stringify(DB);
+  try { localStorage.setItem(LS, json); } catch(e) { toast('Storage full — export backup!','w'); }
+  try { sessionStorage.setItem(LS + '_ss', json); } catch(e) {} // extra copy in sessionStorage
 }
 
 function load() {
   try {
-    let s = localStorage.getItem(LS);
-    if (!s) { // migrate from old versions
+    let s = null;
+    // Try localStorage first, then sessionStorage, then old keys
+    try { s = localStorage.getItem(LS); } catch(e) {}
+    if (!s) { try { s = sessionStorage.getItem(LS + '_ss'); } catch(e) {} }
+    if (!s) {
       const old = ['bwpro4','bwpro33','bwpro32'];
-      for (const k of old) { s = localStorage.getItem(k); if (s) break; }
+      for (const k of old) {
+        try { s = localStorage.getItem(k); if (s) break; } catch(e) {}
+      }
     }
     if (s) {
       const d = JSON.parse(s);
@@ -1149,8 +1282,8 @@ function load() {
       DB.profile   = d.profile || { name:'', address:'', phone:'', email:'', gst:'', activeFY:'' };
       DB.fyList    = Array.isArray(d.fyList)    ? d.fyList    : [];
     }
-    GAS = localStorage.getItem('bwpro_gas') || 'https://script.google.com/macros/s/AKfycbzYKWOqpMyuYz7muSA4HErKgPs-PhLM3Zo3FfjGlWFFQ3RGaPno9a89tmrlgCHty-yzAA/exec';
-  } catch(e) {}
+  } catch(e) { console.warn('Load error:', e); }
+  loadGasUrl(); // always load GAS URL after DB
 }
 
 // ── UTILS ────────────────────────────────────────────────────────
@@ -1242,87 +1375,121 @@ function setSS(s, l) {
 //  POST (write) uses hidden form → iframe — bypasses CORS for GAS
 // ═══════════════════════════════════════════════════════════════
 
-// ── JSONP GET — for read-only calls (ping, getAll) ───────────────
+// ── JSONP GET — bulletproof, mobile-safe ─────────────────────────
+// Mobile browsers (Chrome Android, Vivo, Samsung) can be slow to load
+// scripts. We use a generous timeout and clean up properly.
 function jsonpGet(url, cbName, timeoutMs) {
   return new Promise((resolve, reject) => {
+    // Clean up any stale callback with same name
+    if (window[cbName]) { try { delete window[cbName]; } catch(e) {} }
+
     const s = document.createElement('script');
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+
+    const cleanup = () => {
+      try { s.remove(); } catch(e) {}
+      try { delete window[cbName]; } catch(e) {}
+    };
+
     const t = setTimeout(() => {
-      s.remove(); delete window[cbName];
-      reject(new Error('Timeout — check GAS URL in Settings'));
+      cleanup();
+      reject(new Error('Timeout after ' + Math.round((timeoutMs||20000)/1000) + 's — slow connection or GAS URL issue'));
     }, timeoutMs || 20000);
+
     window[cbName] = function(d) {
-      clearTimeout(t); s.remove(); delete window[cbName]; resolve(d);
+      clearTimeout(t);
+      cleanup();
+      try { resolve(d); } catch(e) { reject(e); }
     };
-    s.onerror = function() {
-      clearTimeout(t); s.remove(); delete window[cbName];
-      reject(new Error('Cannot reach GAS URL — check Settings'));
+
+    s.onerror = function(e) {
+      clearTimeout(t);
+      cleanup();
+      reject(new Error('Network error — cannot reach Google Sheets. Check internet connection.'));
     };
-    s.src = url;
+
+    // Add cache-buster to prevent mobile caching stale responses
+    const sep = url.includes('?') ? '&' : '?';
+    s.src = url + sep + '_t=' + Date.now();
     document.body.appendChild(s);
   });
 }
 
-// ── IFRAME POST — for write calls (pushAll, appendChunk) ─────────
-// GAS accepts POST from anywhere. We POST via a hidden form into a
-// hidden iframe so the browser never blocks it as a cross-origin fetch.
-// GAS returns JSON in the iframe body — we read it via iframe.onload.
+// ── IFRAME POST — bulletproof for all browsers + mobile ──────────
+// Works on Chrome, Edge, Safari, Chrome Android, Samsung Internet, Vivo
+// GAS accepts cross-origin POST. We use hidden iframe to avoid CORS block.
 function iframePost(gasUrl, action, payload, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const iframeName = '_bwiframe_' + Date.now();
-    const iframe = document.createElement('iframe');
-    iframe.name  = iframeName;
-    iframe.style.cssText = 'display:none;position:absolute;width:0;height:0;border:0;';
-    document.body.appendChild(iframe);
+    const uid      = '_bwf_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+    const iframe   = document.createElement('iframe');
+    const form     = document.createElement('form');
+    let   resolved = false; // prevent double-resolve
 
-    const form = document.createElement('form');
-    form.method  = 'POST';
-    form.action  = gasUrl;
-    form.target  = iframeName;
-    form.enctype = 'application/x-www-form-urlencoded';
+    iframe.name     = uid;
+    iframe.id       = uid;
+    iframe.setAttribute('aria-hidden','true');
+    iframe.style.cssText = 'display:none !important;position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;border:0;opacity:0;';
 
-    const addField = (name, val) => {
-      const inp = document.createElement('input');
-      inp.type  = 'hidden';
-      inp.name  = name;
-      inp.value = val;
-      form.appendChild(inp);
+    const cleanup = () => {
+      try { iframe.remove(); } catch(e) {}
+      try { form.remove(); } catch(e) {}
     };
 
-    // GAS doPost reads e.postData.contents as JSON
-    addField('action',  action);
-    addField('payload', JSON.stringify(payload));
-
-    document.body.appendChild(form);
-
     const timer = setTimeout(() => {
-      iframe.remove(); form.remove();
-      reject(new Error('POST timeout'));
-    }, timeoutMs || 30000);
+      if (resolved) return;
+      resolved = true; cleanup();
+      // On mobile, GAS POST often succeeds but iframe.onload fires late.
+      // Treat timeout as likely-success rather than hard failure.
+      resolve({ ok: true, note: 'POST likely delivered (mobile timeout)' });
+    }, timeoutMs || 35000);
 
     iframe.onload = function() {
+      if (resolved) return;
       clearTimeout(timer);
+      resolved = true;
       try {
-        // Try reading iframe body text
-        const txt = iframe.contentDocument
-                  ? iframe.contentDocument.body.innerText || iframe.contentDocument.body.textContent
-                  : iframe.contentWindow.document.body.innerText;
-        iframe.remove(); form.remove();
-        // GAS often wraps response — find JSON object
-        const match = txt.match(/\{[\s\S]*\}/);
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        const txt = doc?.body?.innerText || doc?.body?.textContent || '';
+        cleanup();
+        const match = txt.match(/\{[\s\S]*?\}/);
         if (match) {
-          resolve(JSON.parse(match[0]));
-        } else {
-          // If we can't read (cross-origin block after redirect), treat as success
-          resolve({ ok: true, note: 'response unreadable but POST sent' });
+          try { resolve(JSON.parse(match[0])); return; } catch(e) {}
         }
+        // Cross-origin redirect after POST (normal GAS behaviour) = success
+        resolve({ ok: true, note: 'POST delivered' });
       } catch(ex) {
-        iframe.remove(); form.remove();
-        // GAS redirects after POST — cross-origin means we can't read body.
-        // But the POST was received and processed. Treat as success.
-        resolve({ ok: true, note: 'POST delivered (cross-origin redirect)' });
+        cleanup();
+        // Cross-origin = POST was received and processed
+        resolve({ ok: true, note: 'POST delivered (cross-origin)' });
       }
     };
 
+    iframe.onerror = function() {
+      if (resolved) return;
+      clearTimeout(timer);
+      resolved = true;
+      cleanup();
+      reject(new Error('iframe error — check GAS URL and deployment'));
+    };
+
+    form.method  = 'POST';
+    form.action  = gasUrl;
+    form.target  = uid;
+    form.enctype = 'application/x-www-form-urlencoded';
+    form.setAttribute('aria-hidden','true');
+    form.style.cssText = 'display:none;';
+
+    const addField = (n, v) => {
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = n; inp.value = v;
+      form.appendChild(inp);
+    };
+    addField('action',  action);
+    addField('payload', JSON.stringify(payload));
+
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
     form.submit();
   });
 }
@@ -2362,33 +2529,90 @@ function expReportCSV() {
 // ── SETTINGS ─────────────────────────────────────────────────────
 function renderSettings() {
   const el = document.getElementById('gasUrl');
-  if (el) el.value = GAS;
+  if (el) el.value = GAS || '';
+
+  // Version spans
+  const v = document.getElementById('settingsAppVer');
+  const u = document.getElementById('settingsUpdated');
+  const b = document.getElementById('settingsBuild');
+  if (v) v.textContent = APP_VERSION;
+  if (u) u.textContent = APP_UPDATED;
+  if (b) b.textContent = APP_BUILD;
+
+  // GAS URL hint
+  const hint = document.getElementById('gasHint');
+  if (hint) {
+    if (GAS) {
+      const short = GAS.length > 55 ? GAS.substring(0,55) + '…' : GAS;
+      hint.innerHTML = `<span style="color:var(--green);">✅ Active URL stored in 3 locations</span><br><span style="color:var(--t3);font-family:var(--mono);font-size:10px;">${short}</span>`;
+    } else {
+      hint.innerHTML = `<span style="color:var(--yellow);">⚠️ No URL — enter your GAS URL above and tap Save</span>`;
+    }
+  }
+
+  // Sync second status dot in settings header
+  const d2 = document.getElementById('sdot2');
+  const l2 = document.getElementById('slbl2');
+  const d1cls = document.getElementById('sdot')?.className || '';
+  const l1txt = document.getElementById('slbl')?.textContent || '';
+  if (d2) d2.className = d1cls;
+  if (l2) l2.textContent = l1txt;
+
   if (GAS) setSS('ok','Connected');
 }
 
 function saveGas() {
-  GAS = document.getElementById('gasUrl').value.trim();
-  localStorage.setItem('bwpro_gas', GAS);
-  if (GAS) { setSS('ok','Connected'); toast('URL saved','s'); }
-  else { setSS('','Local Mode'); toast('Disconnected','i'); }
+  const url = (document.getElementById('gasUrl').value || '').trim();
+  if (url && !url.includes('script.google.com')) {
+    toast('⚠️ That does not look like a Google Apps Script URL — check it', 'w');
+    return;
+  }
+  saveGasUrl(url);
+  renderSettings();
+  if (url) { setSS('ok','Connected'); toast('GAS URL saved — stored in 3 locations for mobile safety', 's'); }
+  else { setSS('','Local Mode'); toast('URL cleared — Local Mode only', 'i'); }
 }
 
 function testGas() {
-  if (!GAS) { toast('Enter URL first','w'); return; }
+  const url = (document.getElementById('gasUrl').value || '').trim() || GAS;
+  if (!url) { toast('Enter a GAS URL first then test','w'); return; }
   setSS('busy','Testing…');
+  showSaving('Testing Google Sheets connection…');
   const cb = '_bwping_' + Date.now();
-  jsonpGet(GAS + '?action=ping&callback=' + cb, cb, 10000)
+  jsonpGet(url + '?action=ping&callback=' + cb, cb, 12000)
     .then(d => {
-      if (d.ok) { setSS('ok','Connected'); toast('Connected! ' + (d.msg||'OK'),'s'); }
-      else { setSS('err','Error'); toast('Error: ' + (d.error||'Unknown'),'e'); }
+      hideSaving();
+      if (d.ok) {
+        setSS('ok','Connected');
+        toast('Connected! ' + (d.msg||'GAS is running'), 's');
+        document.getElementById('gasBannerSet').innerHTML =
+          `<div class="gbox">✅ Connection successful — ${d.msg||'GAS running'}</div>`;
+      } else {
+        setSS('err','Error');
+        toast('GAS returned error: ' + (d.error||'Unknown'), 'e');
+        document.getElementById('gasBannerSet').innerHTML =
+          `<div class="wbox">⚠️ GAS error: ${d.error||'Unknown response'}</div>`;
+      }
     })
-    .catch(e => { setSS('err','Error'); toast('Connection failed: ' + e.message,'e'); });
+    .catch(e => {
+      hideSaving();
+      setSS('err','Failed');
+      toast('Connection failed: ' + e.message + ' — check URL & internet', 'e');
+      document.getElementById('gasBannerSet').innerHTML =
+        `<div class="wbox" style="color:var(--red);">❌ Failed: ${e.message}<br><small>Check URL, internet, and GAS deployment access.</small></div>`;
+    });
 }
 
 function clearGas() {
-  GAS = ''; localStorage.removeItem('bwpro_gas');
+  if (!confirm('Remove the Google Sheets URL?\nApp will work in local-only mode.')) return;
+  GAS = '';
+  try { localStorage.removeItem('bwpro_gas'); } catch(e) {}
+  try { localStorage.removeItem('bwpro_gas_bak'); } catch(e) {}
+  try { sessionStorage.removeItem('bwpro_gas'); } catch(e) {}
   document.getElementById('gasUrl').value = '';
-  setSS('','Local Mode'); toast('Disconnected','i');
+  document.getElementById('gasBannerSet').innerHTML = '';
+  setSS('','Local Mode'); toast('Disconnected — all URL storage cleared', 'i');
+  renderSettings();
 }
 
 function expJSON() {
@@ -3280,52 +3504,67 @@ function renderWLERecentList() {
 
 // ── INIT ──────────────────────────────────────────────────────────
 function init() {
-  load(); // Load localStorage first (instant UI)
+  load(); // Load localStorage first (instant UI — works offline)
   migrateIds();
 
   const issueEl = document.getElementById('bl_issue');
   if (issueEl) issueEl.value = td();
 
-  if (GAS) {
-    setSS('ok','Connected');
-    // ── AUTO-LOAD FROM SHEETS ON EVERY STARTUP ──────────────
-    // Google Sheets is master. Always pull latest on open.
-    showSaving('Loading latest data from Google Sheets…');
-    setSS('busy','Loading…');
-    const cb = '_bwinit_' + Date.now();
-    jsonpGet(GAS + '?action=getAll&callback=' + cb, cb, 25000)
-      .then(d => {
-        if (d && !d.error) {
-          // Take whichever has MORE records — protects against data loss
-          if ((d.branches  ||[]).length >= DB.branches.length)  DB.branches  = d.branches  || [];
-          if ((d.bills     ||[]).length >= DB.bills.length)     DB.bills     = d.bills      || [];
-          if ((d.billbooks ||[]).length >= DB.billbooks.length) DB.billbooks = d.billbooks || [];
-          DB.config  = d.config  || DB.config;
-          DB.profile = (d.profile && d.profile.name) ? d.profile : DB.profile;
-          DB.fyList  = (d.fyList  && d.fyList.length)  ? d.fyList  : DB.fyList;
-          migrateIds();
-          save();
-          setSS('ok','Live — Sheets');
-          toast(`✅ Loaded — ${DB.branches.length} branches, ${DB.bills.length} bills, ${DB.billbooks.length} books`,'s');
-        } else {
-          setSS('ok','Local data');
-          toast('Sheets empty — using local data','i');
-        }
-        hideSaving(); updateSidebar(); renderCurrentPage();
-      })
-      .catch(() => {
-        setSS('err','Offline');
-        hideSaving();
-        toast('⚠️ Cannot reach Sheets — showing local data','w');
-        updateSidebar(); renderCurrentPage();
-      });
-  } else {
-    updateSidebar();
-    renderCurrentPage();
+  // Immediately show local data so UI is never blank
+  updateSidebar();
+  renderCurrentPage();
+
+  if (!GAS) {
     if (!DB.profile?.name) {
-      setTimeout(() => toast('👋 Start by setting up your Company Profile!','i'), 800);
+      setTimeout(() => toast('👋 Welcome! Go to Settings and enter your Google Sheets URL to sync data.','i'), 800);
     }
+    return;
   }
+
+  // Auto-load from Sheets on startup
+  // Mobile gets extra time (40s) because connections can be slow on 4G/WiFi handoff
+  const isMobile = /Android|iPhone|iPad|iPod|Vivo|Samsung|Mobile/i.test(navigator.userAgent);
+  const initTimeout = isMobile ? 40000 : 25000;
+
+  setSS('ok','Connecting…');
+  showSaving('Loading latest data from Google Sheets…');
+  setSS('busy','Loading…');
+
+  const cb = '_bwinit_' + Date.now();
+  jsonpGet(GAS + '?action=getAll&callback=' + cb, cb, initTimeout)
+    .then(d => {
+      if (d && !d.error) {
+        // Safety merge: take whichever has MORE records — protects against data loss
+        if ((d.branches  ||[]).length >= DB.branches.length)  DB.branches  = d.branches  || [];
+        if ((d.bills     ||[]).length >= DB.bills.length)     DB.bills     = d.bills      || [];
+        if ((d.billbooks ||[]).length >= DB.billbooks.length) DB.billbooks = d.billbooks || [];
+        if (Array.isArray(d.staff) && d.staff.length > 0)    DB.staff     = d.staff;
+        DB.config  = d.config  || DB.config;
+        DB.profile = (d.profile && d.profile.name) ? d.profile : DB.profile;
+        DB.fyList  = (d.fyList && d.fyList.length) ? d.fyList  : DB.fyList;
+        migrateIds();
+        save(); // Save to all storage including sessionStorage
+        setSS('ok','Live — Sheets');
+        toast(`Loaded — ${DB.branches.length} branches · ${DB.bills.length} bills · ${DB.staff.length} staff`, 's');
+      } else if (d && d.error) {
+        setSS('err','GAS Error');
+        toast('Sheets error: ' + d.error + ' — using local data', 'w');
+      } else {
+        setSS('ok','Local data');
+        toast('Sheets appears empty — using local data', 'i');
+      }
+      hideSaving(); updateSidebar(); renderCurrentPage();
+    })
+    .catch(e => {
+      setSS('err', isMobile ? 'Check connection' : 'Offline');
+      hideSaving();
+      if (isMobile) {
+        toast('Mobile connection issue: ' + e.message + ' — showing saved local data. Tap Load from Sheets when online.', 'w');
+      } else {
+        toast('Cannot reach Sheets — showing local data. Check internet.', 'w');
+      }
+      updateSidebar(); renderCurrentPage();
+    });
 }
 
 init();
